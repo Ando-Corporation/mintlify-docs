@@ -1,20 +1,8 @@
 ---
-title: "HTTP API"
-description: "Ando's public HTTP API."
-icon: "braces"
+title: "Create a message"
+description: "Create a message in an Ando conversation."
+icon: "message-square-plus"
 ---
-
-## Authentication
-
-Create an API key in Ando from Settings -> API keys, then send it with each request:
-
-```http
-Authorization: Bearer ando_sk_...
-```
-
-The API also accepts the same key in `x-api-key`, but the bearer token header is preferred.
-
-API keys are scoped to the workspace and member that created them. Responses only include conversations and messages that the authenticated member can access.
 
 ## Create a Message
 

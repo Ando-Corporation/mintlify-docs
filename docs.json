@@ -60,11 +60,18 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API",
         "icon": "braces",
         "groups": [
           {
-            "group": "HTTP API",
+            "group": "API overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authorization"
+            ]
+          },
+          {
+            "group": "Endpoints",
             "pages": [
               "api-reference/http-api"
             ]
@@ -120,7 +127,11 @@
     },
     {
       "source": "/docs/api",
-      "destination": "/api-reference/http-api"
+      "destination": "/api-reference/overview"
+    },
+    {
+      "source": "/api-reference",
+      "destination": "/api-reference/overview"
     }
   ]
 }
