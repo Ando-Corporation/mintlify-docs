@@ -1,0 +1,214 @@
+---
+title: "Ando MCP"
+description: "Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients."
+icon: "plug"
+---
+<iframe
+  src="https://www.loom.com/embed/735cf66b9da0404ca5aa57176e6ba4de"
+  title="Ando MCP tutorial video"
+  style={{ width: "100%", aspectRatio: "100 / 62.82722513089005", border: 0, borderRadius: "8px" }}
+  allowFullScreen
+/>
+
+To have your coding agent install Ando MCP for you, paste these instructions into the agent:
+
+```text
+Install Ando MCP for me.
+
+Follow these steps:
+
+1. Ask me for my Ando API key before running any install command. Tell me I can get one by opening Ando, going to Settings -> API keys, then creating or copying an API key.
+2. Ask which coding agent I want to install Ando MCP in. Supported choices are Claude Code or Codex CLI.
+3. After I provide both the API key and the coding agent, run the necessary command for that agent.
+
+Use these install commands:
+
+Claude Code:
+claude mcp add --transport http ando https://mcp.ando.so/mcp --header "Authorization: Bearer <ANDO_API_KEY>"
+
+Codex CLI:
+export ANDO_API_KEY="<ANDO_API_KEY>"
+codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
+
+Replace <ANDO_API_KEY> with the key I provide.
+```
+
+## What is Ando MCP?
+
+Ando MCP is Ando's hosted Model Context Protocol server. It lets MCP-capable coding agents search and fetch context from your Ando workspace at:
+
+`https://mcp.ando.so/mcp`
+
+The server uses streamable HTTP MCP and API-key authentication.
+
+## Available Tools
+
+Ando MCP includes tools for searching, listing, and fetching messages, members, conversations, clipboards, calls/Jams, transcripts, threads, and tasks. It also includes write tools for explicit user-requested actions like sending messages, replying in threads, sending DMs, reacting to messages, inviting workspace members, recording task updates, and adjusting channel proactivity. See the tool reference at the bottom of this page for the full list.
+
+## Supported Clients
+
+Ando MCP currently supports:
+
+- Claude Code
+- Codex CLI
+- Cursor
+
+Other MCP clients can connect if they support remote streamable HTTP servers with custom request headers.
+
+## Setup
+
+First, create an Ando API key:
+
+1. Open Ando.
+2. Go to Settings -> API keys.
+3. Create or copy an API key.
+4. Use it anywhere the examples below show `ando_sk_...` or `ANDO_API_KEY`.
+
+Ando expects the key in a bearer token header:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+Keys are scoped to the Ando member and workspace that created them. Tool results are limited to the workspaces and entities that member can access.
+
+## Claude Code
+
+Add Ando MCP from your project directory:
+
+```bash
+claude mcp add --transport http ando https://mcp.ando.so/mcp \
+  --header "Authorization: Bearer ando_sk_..."
+```
+
+Then start Claude Code:
+
+```bash
+claude
+```
+
+To check the connection, run `/mcp` inside Claude Code and confirm that `ando` is listed.
+
+## Codex CLI
+
+Store your Ando API key in an environment variable:
+
+```bash
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Add Ando MCP:
+
+```bash
+codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
+```
+
+Then start Codex:
+
+```bash
+codex
+```
+
+Codex reads the bearer token from `ANDO_API_KEY` when it connects to the MCP server.
+
+## Cursor
+
+Set the `ANDO_API_KEY` environment variable before launching Cursor:
+
+```bash
+export ANDO_API_KEY="ando_sk_..."
+open -a Cursor
+```
+
+Then add Ando to `.cursor/mcp.json` in your project or to `~/.cursor/mcp.json` globally:
+
+```json
+{
+  "mcpServers": {
+    "ando": {
+      "url": "https://mcp.ando.so/mcp",
+      "headers": {
+        "Authorization": "Bearer ando_sk_..."
+      }
+    }
+  }
+}
+```
+
+After saving the file, open Cursor Settings -> MCP and confirm that `ando` is enabled.
+
+## Common Usage Patterns
+
+**Find a person, then browse their messages**: Call `search_members` with a name or email, or `list_members` when you need active workspace members by exact display name. Take the returned member ID. Call `get_conversation_messages` with `author` to browse recent messages in a known conversation, or call `search_messages` with `author` if you need search instead of browsing.
+
+**Inspect a channel or DM roster**: Call `search_conversations` or `list_conversations` to identify the conversation, then call `list_conversation_members` with the conversation ID.
+
+**Search for a topic, then inspect the full thread**: Call `search_messages` with a keyword or semantic query. Inspect the returned `replies_count`. If the message is a thread root or has replies, call `get_thread_replies` with that message ID. If needed, call `get_message` for the exact source message.
+
+**Find meetings about a topic, then read the transcript**: Call `list_calls` for recent calls/Jams or `search_calls` for transcript search. Pick a matching `call_id`. Call `get_call` for metadata. Call `get_call_transcript` to page through the transcript.
+
+**Find or update a task**: Call `search_tasks` to discover visible tasks, then `get_task` for the task summary, recent work log entries, and active task URLs. Use `record_task_update` only when the user explicitly asks you to update a task.
+
+**Send a user-requested DM**: Call `search_members` for each recipient unless IDs are already known. Then call `send_direct_message` with `member_ids` and `markdown_content`. Report the returned `message_id` and `conversation_id`.
+
+**React to a user-specified message**: Confirm the exact target with `get_message` unless the user already provided a precise message ID, then call `react_to_message` with `message_id` and `emoji`.
+
+**Invite a user to the workspace**: Call `invite_to_workspace` only when the user explicitly asks to invite an email address.
+
+**Start broad, then narrow**: The usual workflow is to search or list conversations, members, messages, clipboards, calls, or tasks, capture the relevant IDs, then use the matching `get_*` or paginated tool for full details.
+
+## Behavior
+
+Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
+
+`get_conversation_messages` returns messages in reverse chronological order. `get_thread_replies` returns replies in chronological order. `get_call_transcript` is paginated and should be called repeatedly with the returned cursor when needed. Use `list_calls` for recent calls/Jams without a search query, and `search_calls` when searching transcript content. Use `list_conversations`, `list_members`, and `list_conversation_members` for browse-style discovery without a fuzzy search query.
+
+Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
+
+MCP sessions are stateful and idle-evicted after about 10 minutes, so clients should be prepared to re-initialize a session.
+
+## Recommended Prompting For Agents
+
+Ando MCP works best when agents use `search_*` and `list_*` tools to discover the right IDs first, use `get_conversation_messages` instead of forcing search queries for recent history, use `get_thread_replies` when a message has replies, use `list_calls` for recent calls/Jams, use `get_call_transcript` only after identifying the right call, and avoid wildcard search inputs.
+
+For write actions, prompt agents to verify the target before calling side-effecting tools. Examples: identify the conversation before `send_message`, identify the thread root before `reply_to_message`, identify recipients before `send_direct_message`, identify the message before `react_to_message`, confirm the email before `invite_to_workspace`, and fetch the task before `record_task_update`.
+
+## Troubleshooting
+
+**Unauthorized - API key required**: Your client is not sending a valid bearer token. Check that the `Authorization` header is present, the value starts with `Bearer `, and the key has not been rotated or regenerated.
+
+**Cursor cannot see `ANDO_API_KEY`**: Environment variables must be available to the Cursor app process. Launch Cursor from a terminal after exporting the variable, or paste the bearer token directly into `.cursor/mcp.json`.
+
+**Session errors**: Ando MCP uses session-based streamable HTTP transport. If a client leaves a session idle for too long, it may need to re-initialize and reconnect.
+
+**Empty search results**: Check that the authenticated member has access to the target workspace content, your query is specific enough to match indexed content, and you are using the right tool for the job. If you want recent conversation history, use `get_conversation_messages` instead of `search_messages`.
+
+## Tool Reference
+
+| Tool | Use it to | Inputs |
+| --- | --- | --- |
+| `search_messages` | Search accessible messages by keyword or semantic similarity. Rejects empty and wildcard-only queries. | `q` required. Optional: `author`, `conversation`, `thread`, `after`, `before`, `mode` (`full-text` or `semantic`). |
+| `search_members` | Search workspace members by name, email, or title. | `q` required. |
+| `search_conversations` | Search channels and DMs by name or description. | `q` required. |
+| `list_conversations` | List accessible channels and DMs, optionally filtered by name or description. | Optional: `q`, `limit` (default 50, max 100). |
+| `search_tasks` | Search visible tasks, or return recent visible tasks with an empty query. | Optional: `query`, `limit` (default 10, max 25). |
+| `search_clipboard` | Search clipboard/context bundles saved from Ando. | `q` required. |
+| `search_calls` | Search call/Jam transcript content. | `q` required. Optional: `conversation`, `after`, `before`. |
+| `list_calls` | List accessible calls/Jams without a search query. | Optional: `conversation`, `status` (`active` or `ended`), `recorded`, `after`, `before`, `limit` (default/max 20). |
+| `get_message` | Fetch a single message with author, conversation, and content. | `message_id` required. |
+| `get_member` | Fetch a single workspace member profile. | `member_id` required. |
+| `get_clipboard` | Fetch a clipboard bundle and all saved items. | `clipboard_id` required. |
+| `get_call` | Fetch call/Jam metadata. | `call_id` required. |
+| `get_call_transcript` | Fetch a paginated transcript for a call. | `call_id` required. Optional: `limit`, `cursor`. |
+| `get_conversation_messages` | Browse recent messages from a conversation in reverse chronological order. | `conversation_id` required. Optional: `author`, `limit`, `before`. |
+| `get_thread_replies` | Fetch replies for a thread root message in chronological order. | `message_id` required. Optional: `limit`, `after`. |
+| `list_members` | List active workspace members, optionally filtered by exact display name. | Optional: `names`. |
+| `list_conversation_members` | List active members in an accessible conversation, including humans, agents, and workspace roles. | `conversation_id` required. |
+| `invite_to_workspace` | Invite a new member to the current workspace by email address. | `email` required. |
+| `send_message` | Send a message to an accessible existing conversation. | `conversation_id`, `markdown_content`. |
+| `reply_to_message` | Reply in a message's thread. If the target is already a reply, posts to the same thread. | `message_id`, `markdown_content`. |
+| `send_direct_message` | Reuse or create a DM and send a message. | `member_ids`, `markdown_content`. |
+| `react_to_message` | React to a message with a supported standard emoji or active workspace custom emoji. | `message_id`, `emoji`. |
+| `get_task` | Fetch task summary, recent work log entries, and active task URLs. | `task_id` required. |
+| `record_task_update` | Append a task log entry, patch lightweight state, and add or update task URLs atomically. | `task_id` plus the task update body. |
+| `update_channel_proactivity` | Adjust how active an eligible managed-agent member should be in the current channel. | `turn_id`, `message_id`, `level`, `reason`. Optional: `conversation_id`, `custom_instructions`. |

@@ -1,0 +1,76 @@
+---
+title: "HTTP API"
+description: "Ando's public HTTP API."
+icon: "braces"
+---
+
+## Authentication
+
+Create an API key in Ando from Settings -> API keys, then send it with each request:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+The API also accepts the same key in `x-api-key`, but the bearer token header is preferred.
+
+API keys are scoped to the workspace and member that created them. Responses only include conversations and messages that the authenticated member can access.
+
+## Create a Message
+
+Creates a message in a conversation the authenticated API-key member belongs to.
+
+```http
+POST /conversations/:conversationId/messages
+```
+
+Path parameters:
+
+| Parameter | Description |
+| --- | --- |
+| `conversationId` | The conversation to create the message in. |
+
+Request body:
+
+```json
+{
+  "markdown_content": "Message body"
+}
+```
+
+Body fields:
+
+| Field | Required | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `markdown_content` | Yes | `string \| null` | None | Message body. Use `null` when the message only includes attachments. |
+| `explicit_context_message_ids` | No | `string[]` | `[]` | Message IDs to attach as explicit context. |
+| `image_urls` | No | `string[]` | `[]` | Image URLs to attach to the message. |
+| `file_ids` | No | `string[]` | `[]` | Uploaded file IDs to attach to the message. |
+| `suppressed_link_preview_urls` | No | `string[]` | `[]` | URLs that should not generate link previews. |
+| `initiator_id` | No | `string \| null` | `null` | Member ID that initiated the message. |
+| `thread_root_id` | No | `string \| null` | `null` | Thread root message ID when replying in a thread. |
+| `replied_to_message_id` | No | `string \| null` | `null` | Message ID this message directly replies to. |
+| `call_root_id` | No | `string \| null` | `null` | Call root ID when attaching the message to a call thread. |
+| `optimistic_id` | No | `string` | None | Client-generated ID used for optimistic message reconciliation. |
+
+The authenticated API-key member is used as the message author.
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "msg_123"
+  }
+}
+```
+
+Example:
+
+```bash
+curl "https://api.ando.so/conversations/conv_123/messages" \
+  -H "Authorization: Bearer ando_sk_..." \
+  -H "Content-Type: application/json" \
+  -d '{"markdown_content":"Message body"}'
+```

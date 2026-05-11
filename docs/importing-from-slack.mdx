@@ -1,0 +1,93 @@
+---
+title: "Importing from Slack"
+description: "Export your Slack workspace data, upload the ZIP to Ando, and choose the channels you want to import."
+icon: "slack"
+---
+<iframe
+  src="https://www.loom.com/embed/e59bfcd90bdc4310a3a0dd39bb9ab46b"
+  title="Slack import tutorial video"
+  style={{ width: "100%", aspectRatio: "16 / 9", border: 0, borderRadius: "8px" }}
+  allowFullScreen
+/>
+
+> If you expect to import a very large amount of data, please contact us so we can increase import limits for you.
+
+## Before you start
+
+Ando imports Slack history from the official Slack export `.zip` file. Export the data from Slack, download the ZIP when Slack emails you, then upload that original ZIP to Ando. Do not unzip, rename, or edit the export before uploading it.
+
+Slack's export rules depend on your Slack plan, your role, and whether your workspace or organization has been approved for broader export tools. Read more in [this article from Slack](https://slack.com/help/articles/201658943-Export-your-workspace-data).
+
+## Who can export from Slack
+
+| Slack plan | Who can export | What they can usually export |
+| --- | --- | --- |
+| Free | Workspace Owners and Admins | Messages and file links from public channels. Free workspaces can only export links to files from the last 90 days. |
+| Pro | Workspace Owners and Admins | Messages and file links from public channels. |
+| Business+ | Workspace Owners and Admins | Messages and file links from public channels. Workspace Owners can apply for additional export types, including all channels and conversations or a channel audit report. |
+| Enterprise | Org Owners and Admins | Enterprise export tools, once enabled, can export data by conversation type, member, workspace, all channels and conversations, or channel audit. |
+
+Slack also supports an Export Admin system role. If your organization uses that role, members with Export Admin permissions may be able to use export features where configured.
+
+Private channels and DMs are not included in a standard public-channel export. They generally require Business+ or Enterprise export access and approval from Slack. If those conversations are missing from the ZIP, Ando cannot import them from that file.
+
+## Export your Slack ZIP
+
+For Free, Pro, and Business+ workspaces:
+
+1. Open Slack on desktop.
+2. Click **Admin** in the sidebar.
+3. Select **Workspace settings**, then click **Security**.
+4. Click **Import & export data**.
+5. Open the **Export** tab.
+6. Choose the export date range and, if Slack shows more than one option, the export type you want to use.
+7. Click **Start Export**.
+8. Wait for Slack to email you when the export file is ready.
+9. Open the email and click **Visit your workspace's export page**.
+10. Click **Ready for download** to download the ZIP file.
+
+For Enterprise organizations:
+
+1. Open Slack on desktop.
+2. Click your organization name in the sidebar.
+3. Select **Tools & settings**, then click **Organization settings**.
+4. In the left sidebar, click **Security**, then select **Exports**.
+5. Click **Export** next to the export option you want to use.
+6. Select the scope, parameters, and format if Slack asks for them.
+7. Start the export.
+8. Wait for Slack to email you when the export file is ready.
+9. Open the email and click **Visit your workspace's export page**.
+10. Open the **Downloads** tab and click **Download** next to your export to download the ZIP file.
+
+## Import the ZIP into Ando
+
+Once you have the Slack export ZIP:
+
+1. Unzip the `.zip` file you got from Slack.
+2. Open Ando.
+3. Go to **Settings**.
+4. Open **Connected Apps**.
+5. If this is your first time, drop the Unzipped `.zip` file into the uploader, or select it from your computer. If your workspace has imported data from Slack before, you can click on "Import Slack Data again" before uploading the file.
+6. Wait for Ando to scan the export.
+7. Choose the Slack channels you want to import.
+8. Click on "Import channels"
+9. Do NOT leave the page until the first step has complete. Ando will tell you when it's safe to navigate away.
+10. Once the import is complete, you'll see your new channels in the sidebar!
+
+Large workspaces can take longer to upload and process.
+
+## What gets imported
+
+Ando imports the channels you select from the Slack export file and brings the historical message context into your Ando workspace so your team can search and reference prior work. What Ando can import depends on what Slack included in the ZIP. If the export only contains public channels, only those channels will be available to select.
+
+The ZIP may include Slack metadata, message JSON files, and file links. Ando reads the export directly, so upload the ZIP exactly as Slack provided it.
+
+## Troubleshooting
+
+**I do not see export settings in Slack**: Ask a Workspace Owner or Admin on Free, Pro, or Business+, or an Org Owner or Admin on Enterprise, to export the data for you. Your Slack workspace may also restrict exports to members with the Export Admin system role.
+
+**Private channels or DMs are missing**: Your Slack export probably did not include them. Standard Free, Pro, and Business+ public-channel exports do not include private channels or DMs.
+
+**Slack says the export is not ready**: Wait for Slack's email. Slack creates the ZIP asynchronously and sends a link when it is ready to download.
+
+**The Ando upload fails**: Make sure you are uploading the original `.zip` file from Slack. If the file was unzipped, renamed, recompressed, or edited, download a fresh copy from Slack and try again. Contact us if you continue to encounter errors.

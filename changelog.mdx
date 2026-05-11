@@ -1,0 +1,968 @@
+---
+title: "Changelog"
+description: "Weekly updates on what's new in Ando."
+---
+
+Weekly updates on features, improvements, and fixes.
+
+<Update label="May 10, 2026" description="2026-05-10" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "May 10, 2026 - Custom MCP Apps", description: "Ando updates from May 10, 2026." }}>
+
+## Featured
+
+### Custom MCP Apps
+
+**Categories:** Agent, Channels
+
+Connect any third-party MCP server to your workspace, including the apps your team already uses. Add an MCP endpoint, sign in with OAuth, and the connected app shows up across Ando: as tools for your agents, as suggestions in chat, and as a permissions surface in settings. Token refresh and health checks are handled for you, so connections stay live without manual maintenance.
+
+### Pinned Threads
+
+**Categories:** Threads, Channels
+
+Pin any thread to a dedicated section at the top of the sidebar, alongside favorites. Drag to reorder, and pinned threads stay visible with their reply count and last activity at a glance.
+
+### Improvements
+
+- **Desktop:** Mobile light mode support.
+- **Inbox:** Email notification settings page with per-event controls.
+- **Onboarding, Channels:** Slack import via zip file, with access opened to non-admins.
+- **Jams:** Customizable Jam sound choices for join, leave, and reactions.
+- **Onboarding, Desktop:** Update your account email from settings, even across multiple workspaces.
+- **Agent:** More MCP tools for agents: delete messages, manage conversation memberships, and bulk-archive members.
+- **Composer, Agent:** In-chat suggestions surface relevant connected apps as you type.
+- **Desktop, Jams:** Mobile home shows sidebar folders, plus mobile Jam recording playback.
+- **Desktop:** App update toast with explicit download URL and verified ToDesktop domain.
+- **Onboarding:** Help center redesigned, with a dynamic changelog now live in-product.
+- **Cmd+K:** Faster Cmd+K opens and snappier tooltip close timing.
+
+### Fixes
+
+- **Onboarding, Channels:** Onboarding completion cache handoff, workspace invites, and conversation invite flow fixed.
+- **Inbox, Threads:** Inbox preview, sidebar threads initial loading, and thread deeplink routing corrected.
+- **Search:** Search history, result deeplinks, and message transcript filtering fixed.
+- **Composer, Channels:** Optimistic reactions, message draft persistence during quick navigation, and message send echo handoff stabilized.
+- **Channels, Threads:** Sidebar folder creation, ghost unread navigation, and thread tree visibility fixed.
+- **Inbox, Desktop:** Desktop notification deeplinks and inbox fan-out corrected.
+- **Inbox, Agent:** Channel catchup email grammar and three-recipient bug fixed; managed agent and custom MCP OAuth recovery hardened.
+- **Composer, Desktop:** Public channel mentions in messages and mobile rendering regressions resolved.
+
+</Update>
+
+<Update label="May 3, 2026" description="2026-05-03" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Threads"]} rss={{ title: "May 3, 2026 - Workspace Agent", description: "Ando updates from May 3, 2026." }}>
+
+## Featured
+
+### Workspace Agent
+
+**Categories:** Agent, Onboarding
+
+Every new workspace now starts with Ando, a built-in agent that's part of the team from day one. Ando sees every message in any conversation it's in and decides on its own whether to chime in, just like a human teammate. You can also @mention Ando directly. It welcomes new members with a guided onboarding DM and has tools to search messages, list members, manage invites, and review calls.
+
+<video controls alt="Workspace Agent demo video" src="/videos/workspace-agent.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Email Catch-Up
+
+**Categories:** Inbox
+
+Stay caught up via email when you're away from Ando. A daily digest summarises unread channel activity, and targeted emails surface missed Jams and direct messages as they happen. Each email type has its own decision logic, so you only get notifications you'd actually act on.
+
+### Improvements
+
+- **Channels, Desktop:** Switch between workspaces without reloading the app. The switcher shows unread counts per workspace, supports drag-to-reorder, and has dedicated mobile and desktop entrypoints.
+- **Jams, Desktop:** Full-screen mobile Jams experience with transcript view and audio device options.
+- **Composer, Channels:** Right-click any message to reply with it quoted inline.
+- **Threads:** Reply to a specific message inside a thread by quoting any earlier reply when responding.
+- **Agent:** Archive agents you no longer need from agent settings.
+- **Agent:** Member-scoped API keys in settings, with per-member tokens for the Ando API.
+- **Desktop:** Desktop sound preferences for messages, mentions, and Jams.
+- **Inbox:** Reaction notifications suppressed when the conversation is in focus.
+- **Agent:** list_members and conversation listing/reactions added to MCP for managed agents.
+- **Agent:** Workspace invite MCP tool, so agents can invite new members on your behalf.
+- **Desktop:** Polished error UI for recoverable web errors instead of a blank screen.
+- **Desktop:** Desktop now prompts to enable system notifications on first launch.
+
+### Fixes
+
+- **Desktop, Threads:** Conversation scroll stability, thread composer layout, and workspace skeleton flicker on switch fixed.
+- **Channels:** Conversations blue dot no longer always appears.
+- **Channels, Agent:** Avatar propagation, default Ando avatar lookup, and workspace image URL updates corrected.
+- **Inbox:** Email link routing (now app.ando.so, not dev) and daily digest send issues resolved.
+- **Cmd+K, Inbox, Onboarding:** Cmd+K agent ordering, mention channel ordering, reaction inbox counts, login button click region, and desktop verification code paste fixed.
+- **Jams, Channels:** Jam fullscreen titlebar offset and non-member join channel banner fixed.
+- **Agent:** Agent mentions in DMs now ignored, agents only respond when explicitly addressed.
+
+</Update>
+
+<Update label="April 27, 2026" description="2026-04-27" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "April 27, 2026 - Live Search Across Transcripts", description: "Ando updates from April 27, 2026." }}>
+
+## Featured
+
+### Live Search Across Transcripts
+
+**Categories:** Search, Jams, Agent
+
+Search messages and Jam transcripts directly in the app, with results that update live as new content lands. The same search surface is available to agents via MCP, so any connected agent can find a recording by what was discussed, not just who joined. Right-click any search result to copy a direct link.
+
+<video controls alt="Live Search Across Transcripts demo video" src="/videos/search-jams.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Agent Upgrades
+
+**Categories:** Agent
+
+Workspace agents are faster to invoke and can take more actions in a conversation. Mentions resolve quicker, and agents can now react with emoji, reply, post into threads, and DM, the same actions a human teammate would take. Agent-specific proactive reactions and improved turn orchestration also make their behavior feel more natural.
+
+### Improvements
+
+- **Channels, Composer:** Sidebar typing indicators, so you can see who's responding in any conversation without opening it.
+- **Desktop:** Settings redesigned as a modal with sidebar navigation and section deep-linking.
+- **Desktop:** Mobile custom emoji reaction picker.
+- **Jams:** Active Jams appear in the sidebar in real-time, no polling delay.
+- **Agent:** Images are passed to agents as content blocks instead of raw URLs.
+- **Desktop:** Faster cold-start workspace loads from a parallelized bootstrap.
+- **Agent:** Third-party agents now configurable from settings, with API keys for the Ando API.
+
+### Fixes
+
+- **Desktop:** Conversation auto-scroll state preserved during navigation.
+- **Channels:** Reaction counts no longer double-increment.
+- **Channels:** Conversation membership loading race resolved.
+- **Inbox:** Duplicate unread increments fixed.
+- **Threads:** Thread tree visibility separated from subscriptions; mentioned users now subscribed correctly.
+- **Channels:** Channel authorization corrected for non-members previewing public channels.
+- **Desktop:** Scroll-down arrow no longer always shows when at the bottom.
+- **Channels:** Conversation view bottom padding and fresh channel header rendering fixed.
+- **Jams:** Jam reentry, connection status, and volume clarity improved.
+
+</Update>
+
+<Update label="April 20, 2026" description="2026-04-20" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "April 20, 2026 - Custom Emoji", description: "Ando updates from April 20, 2026." }}>
+
+## Featured
+
+### Custom Emoji
+
+**Categories:** Composer, Channels
+
+Upload custom emoji at the workspace level and use them anywhere: in messages, message reactions, and Jam reactions. A dedicated settings page lets workspace admins manage the library. Emoji sync across web, desktop, and mobile.
+
+<Note>Screen recording coming soon</Note>
+
+### Live Agent Traces & Interrupt
+
+**Categories:** Agent
+
+When a managed agent sends a message, click on the reasoning trace shows the tool calls and reasoning steps the agent made. Click on any tool pill to see what was passed in and returned.
+
+<video controls alt="Live Agent Traces & Interrupt demo video" src="/videos/agent-traces.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Channels, Onboarding:** Add members directly from the conversation panel, with invite-by-email support.
+- **Inbox:** Notification settings page with per-event controls for messages, reactions, threads, and Jams.
+- **Inbox:** Mark any message as unread to revisit later.
+- **Channels:** Sidebar drag polish, conversation folder context menu, and folder icon customization.
+- **Threads:** Threads pinned to a dedicated sidebar view alongside chats.
+- **Jams:** Jam volume control, press-to-zoom video tiles, and live-only (unrecorded) Jam mode.
+- **Composer, Search:** Copy button on markdown code blocks and right-click copy on search results.
+- **Desktop:** Service worker and persistent bootstrap cache for cache-first cold loads.
+- **Desktop:** Speculative prefetch on sidebar hover for faster conversation opens.
+- **Desktop:** Attachment thumbnails are now sized per surface for faster image delivery.
+- **Onboarding:** Default channels now seeded for new workspaces.
+- **Channels:** Member groups and channels render inline in preview links.
+- **Composer:** @here in 1-1 DMs now labels its broadcast behavior to prevent confusion.
+
+### Fixes
+
+- **Desktop:** Scroll-to-bottom pill now lands at the true bottom of the conversation.
+- **Desktop:** Reader scroll position stays stable during in-flight message prepends.
+- **Threads:** Fixed infinite re-render loop when opening pinned-message threads.
+- **Threads:** Inactive thread dismissal loop fixed.
+- **Channels:** Sidebar blue dot now only fires on @mention or any DM unread.
+- **Jams, Threads:** Jam join/leave events no longer counted as thread replies.
+- **Jams:** Duplicate live transcripts caused by zombie transcription sessions resolved.
+- **Composer:** First chat input upload no longer disappears on entry.
+- **Composer:** Newline rendering in messages and ordered lists with start ≥ 100 fixed.
+- **Jams:** Restored Jam panel, tooltip, and hover contrast after the visual nav refactor.
+
+</Update>
+
+<Update label="April 13, 2026" description="2026-04-13" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "April 13, 2026 - Continuous Slack Sync", description: "Ando updates from April 13, 2026." }}>
+
+## Featured
+
+### Continuous Slack Sync
+
+**Categories:** Onboarding, Channels
+
+Slack import goes from one-time to ongoing. After connecting Slack during onboarding, new messages, channels, and members continue to sync into Ando in the background, so teams can move onto Ando incrementally without losing context or splitting attention across both tools.
+
+<Note>Screen recording coming soon</Note>
+
+### Sidebar Folders
+
+**Categories:** Channels
+
+Group conversations into custom folders with drag-to-reorder, plus a dedicated favorites section pinned to the top of the sidebar. Folders collapse, remember their state, and show unread indicators when activity is hidden inside.
+
+<video controls alt="Sidebar Folders demo video" src="/videos/sidebar-folders.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Desktop:** Profile and workspace settings revamped with new layout and auto-save throughout.
+- **Channels, Search:** Inline sidebar search to quickly find people and conversations without opening Cmd+K.
+- **Agent:** Create managed agents directly from settings: define their tools, permissions, and workspace access without leaving the app.
+- **Desktop:** HEIC image support on web for iPhone screenshots.
+- **Desktop:** Buttons standardized across the app. Legacy button-V2 retired.
+- **Composer, Desktop:** Mobile composer mentions, formatting, and search overhauled, plus OTP paste support in sign-in.
+- **Desktop:** Mobile app rebranded to Ando.
+- **Desktop:** Member avatars now circular and served from a stable public bucket with per-surface variants.
+- **Desktop:** Conversations open faster and stay in sync across tabs and devices without polling.
+
+### Fixes
+
+- **Composer:** @mention popup presence indicator size fixed.
+- **Channels:** Conversation header membership count corrected.
+- **Channels:** Sidebar conversation name truncation overflow resolved.
+- **Threads, Composer:** Thread composer cursor reset on send fixed.
+- **Channels:** Group DM preview metadata fixed for 4-person DMs.
+- **Jams, Threads:** Jam thread reload on navigation fixed.
+- **Jams:** Active call detection batched into a single workspace query for faster sidebar load.
+- **Channels:** Self-DM resolution and direct message naming fixed.
+- **Inbox:** Deeplinks to messages now resolve correctly.
+- **Cmd+K, Channels:** Cmd+K join-public-channel-then-navigate flow restored.
+
+</Update>
+
+<Update label="April 6, 2026" description="2026-04-06" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding"]} rss={{ title: "April 6, 2026 - Proactive Agent", description: "Ando updates from April 6, 2026." }}>
+
+## Featured
+
+### Proactive Agent
+
+**Categories:** Agent
+
+Claude can now join conversations as a persistent member, listening to every message and autonomously deciding whether to reply, start a thread, or stay silent. It adapts to per-channel preferences over time and uses emoji reactions to signal when it's processing a response.
+
+<video controls alt="Proactive Agent demo video" src="/videos/proactive-agent.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Onboarding:** Import your Slack message history into Ando during onboarding.
+- **Desktop:** Dark mode no longer flashes white during page reload.
+- **Composer:** Blockquotes now render immediately on ">" keystroke in the composer.
+- **Channels:** Link previews show richer inline content when URLs are shared in messages.
+- **Jams:** Active speakers are visually highlighted in Jams video tiles.
+- **Jams:** You can now start a Jam in your self-DM for personal recordings.
+- **Desktop:** Message list spacing improved for readability.
+- **Desktop:** Online presence indicators are now more consistent across the app.
+
+### Fixes
+
+- **Inbox:** Fixed crash when opening inbox with certain conversation parameters.
+- **Desktop:** Fixed Mac fullscreen shortcut incorrectly triggering search.
+- **Jams:** Fixed blank screen when reopening Jams after closing.
+- **Desktop:** Fixed scroll flicker caused by attachment loading placeholders.
+- **Agent:** Fixed agents responding to @here mentions instead of only direct mentions.
+- **Channels:** Fixed duplicate DM conversations caused by agent memberships.
+- **Channels:** Fixed emoji reaction counts showing incorrect values.
+
+</Update>
+
+<Update label="March 27, 2026" description="2026-03-27" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Jams","Onboarding","Threads"]} rss={{ title: "March 27, 2026 - Jams Picture-in-Picture", description: "Ando updates from March 27, 2026." }}>
+
+## Featured
+
+### Jams Picture-in-Picture
+
+**Categories:** Jams
+
+A floating video widget appears when you navigate away from an active Jam. The overlay is draggable with snap-to-corner animation, resizable with aspect-ratio lock, and automatically selects the best video track from screen share, active speaker, last speaker, or local camera. Hover to see the conversation name, participant info, and send reactions without returning to the call.
+
+<video controls alt="Jams Picture-in-Picture demo video" src="/videos/jams-picture-in-picture.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Mobile App
+
+**Categories:** Desktop
+
+Ando is now available as a native iOS app. Browse conversations, send messages, participate in threads, and join Jams from your phone. Built for speed. Content loads instantly, scrolling stays smooth, and skeleton placeholders keep the UI responsive throughout.
+
+<video controls alt="Mobile App demo video" src="/videos/mobile-app.MP4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Composer:** Up arrow key shortcut edits your most recent message in the composer.
+- **Composer:** Code block rendering improved with better layout and formatting.
+- **Cmd+K:** Cmd+K button in the sidebar updated with animation.
+- **Channels:** Sidebar icons highlight blue when selected; last active conversation loads first on open.
+- **Channels:** Archived channels can now be unarchived from channel settings.
+- **Channels:** DM content hidden when message links are shared with non-members.
+- **Agent:** Start DMs with agents directly from the sidebar.
+
+### Fixes
+
+- **Threads:** Message and date divider alignment fixed across main and thread views.
+- **Onboarding:** Dark mode logout screen color mismatch resolved.
+- **Threads:** Removed stale "no replies" tag from empty threads.
+- **Desktop:** Mobile: video playback, iOS 26 header transparency, floating tab bar, DM list flickering, and scroll position restoration fixed.
+
+</Update>
+
+<Update label="March 20, 2026" description="2026-03-20" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "March 20, 2026 - Smart Onboarding", description: "Ando updates from March 20, 2026." }}>
+
+## Featured
+
+### Smart Onboarding
+
+**Categories:** Onboarding
+
+A completely redesigned onboarding experience that researches your company automatically and uses what it finds to structure your workspace channels and seed the team memory system, so your team is productive from the first login.
+
+<video controls alt="Smart Onboarding demo video" src="/videos/smart-onboarding.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Hey Claude, in Jams
+
+**Categories:** Jams, Agent
+
+Invoke Claude during a live Jam by saying "hey Claude" or other keyword triggers. Claude responds via chat so it doesn't disrupt your conversation. This release also adds ephemeral emoji reactions for quick feedback, a pre-call device selector for mic, camera, and speakers, mute indicators, and improved transcription accuracy.
+
+### Improvements
+
+- **Desktop:** Keyboard shortcuts added for navigating conversations, opening search, starting a Jam, and accessing settings with Cmd+Comma.
+- **Desktop:** Messages now load and sync through a local-first data layer. Conversations open faster, scrolling stays smooth, and messages render instantly.
+- **Composer:** Hyperlink editing added to the composer. Insert, edit, and remove links inline.
+- **Channels:** Unread navigation pills in the sidebar and auto-expanding inactive section for unread conversations.
+- **Search:** Search filters now include transcript segments for more granular Jam search.
+- **Jams, Inbox:** Jam invites now surface in the inbox with a start Jam button, plus highlight-to-reply in Jam threads.
+
+### Fixes
+
+- **Composer:** Hyperlink rendering and emoji reaction colors and ordering fixed across the composer.
+- **Desktop:** Message creation race condition resolved, preventing duplicate or missing messages.
+- **Desktop:** Desktop app unread badge now matches inbox count.
+- **Jams:** Post-call speaker mapping accuracy improved for multi-participant Jams.
+- **Threads, Channels, Cmd+K:** Thread tree titles, sidebar scrolling, and Cmd+K dialog width on small windows fixed.
+
+</Update>
+
+<Update label="March 13, 2026" description="2026-03-13" tags={["Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "March 13, 2026 - Dark Mode", description: "Ando updates from March 13, 2026." }}>
+
+## Featured
+
+### Dark Mode
+
+**Categories:** Desktop
+
+Full dark theme across the entire app: sidebar, message canvas, settings, and login screen. Toggle it in Settings.
+
+<video controls alt="Dark Mode demo video" src="/videos/dark-mode.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Full-Screen Thread View
+
+**Categories:** Threads
+
+Threads can now open in a dedicated full-screen view for focused conversation. DM threads auto-subscribe on reply, and thread trees are now opt-in with improved UX, collapsing with the sidebar and displaying correct content-type titles.
+
+<video controls alt="Full-Screen Thread View demo video" src="/videos/full-screen-thread-view.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Desktop:** Message list is now virtualized. Long conversations scroll without lag.
+- **Desktop:** Settings redesigned as a modal dialog with auto-save.
+- **Composer:** Composer upgraded with blockquotes, restyled code blocks, expanded toolbar, clickable links, and edit message at full parity.
+- **Composer:** Markdown-formatted drafts persist across channel navigation and pasted rich text parses correctly.
+- **Channels:** Self-DM enabled and sidebar unread indicators show when unread messages are out of view.
+- **Search:** Quick results in search show matching entities before pressing Enter.
+- **Jams:** Noise suppression added to Jams, post-call playback unified with live thread, and Jams start button added to conversation headers.
+- **Cmd+K:** Create channel directly from Cmd+K with improved UI polish and recent conversations.
+- **Desktop:** Quote-reply tooltip appears when highlighting text in messages.
+- **Desktop:** Real-time connection auth scoped per-room. Session recording integrated for debugging.
+
+### Fixes
+
+- **Threads:** Multiple thread panel fixes: opens at latest replies, correct content-type titles, hover bar no longer overlaps header.
+- **Composer:** Composer fixes: code block bugs, message submit after ":" character, mentions after "(", and @mention sizing.
+- **Search:** Link context menu and highlighted mentions in search results fixed.
+- **Desktop:** Profile photo loading and fallback avatar issues resolved.
+- **Desktop:** Message line height and double rendering on reconnect fixed.
+- **Jams:** Transcription fixed for unsupported languages.
+- **Inbox:** Inbox events suppressed when user is focused on the affected conversation.
+
+</Update>
+
+<Update label="March 6, 2026" description="2026-03-06" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "March 6, 2026 - Claude Agent Improvements", description: "Ando updates from March 6, 2026." }}>
+
+## Featured
+
+### Claude Agent Improvements
+
+**Categories:** Agent
+
+Claude now types naturally with a unified typing indicator, multi-message responses, and hidden reasoning traces. A new voice trigger lets you invoke Claude during live Jams with full call context, and MCP integrations for GitHub, Linear, and Ando are now enabled with reliable refresh tokens.
+
+<video controls alt="Claude Agent Improvements demo video" src="/videos/draft-messages-composer.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Draft Messages & New Composer
+
+**Categories:** Composer
+
+Drafts now save automatically and persist as you navigate between channels. The new composer adds emoji autocomplete, file uploads, and improved draft saving.
+
+<video controls alt="Draft Messages & New Composer demo video" src="/videos/claude-agent-improvements.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Jams:** Jam notifications shipped, Jams UI redesigned with resizable panel, and per-user diarization improves transcript accuracy.
+- **Search:** Search UI updated with improved layout, message truncation, and "see more" links.
+- **Inbox:** Inbox items marked as read on click, UI spacing refined with draggable sidebar rail.
+- **Channels:** Sidebar conversation icons standardized and hover states updated with drag overlay.
+- **Onboarding:** Join Workspace by Slug added and workspace creator set to OWNER role on creation.
+- **Desktop:** Initial sync infrastructure for messages and memberships.
+- **Agent:** Message chunking for agent context. Long conversations are split into retrievable segments.
+- **Desktop:** Theming system shipped. Color tokens migrated, theme switching supported on backend and frontend.
+- **Desktop:** UI density tightened across message canvas and sidebar.
+- **Desktop:** Error monitoring and event tracking added.
+
+### Fixes
+
+- **Threads:** Thread reply no longer triggers incorrect channel unread state.
+- **Composer:** Typing indicator layout, emoji picker, and suggestion click selection in composer fixed.
+- **Desktop:** Desktop badge count and optimistic message double-rendering on reconnect fixed.
+- **Channels:** Sidebar header icon colors, pagination ordering, and archived members in workspace selection fixed.
+- **Jams:** Multiple Jams fixes: screensharing UI, emoji picker, graceful start without microphone, and audio during screen share.
+- **Search:** Search deeplinks to messages now work correctly.
+
+</Update>
+
+<Update label="February 27, 2026" description="2026-02-27" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 27, 2026 - Inbox Overhaul", description: "Ando updates from February 27, 2026." }}>
+
+## Featured
+
+### Inbox Overhaul
+
+**Categories:** Inbox
+
+Inbox got a major upgrade. Filters for @mentions, DMs, threads, and unreads let you zero in on what matters. A "mark all as read" button clears everything in one click. Thread replies can now be composed directly from the inbox. Notifications for conversations you're actively viewing are suppressed, and the long-standing hard-refresh bug is fixed.
+
+<video controls alt="Inbox Overhaul demo video" src="/videos/inbox-overhaul.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Rich Composer & GIFs
+
+**Categories:** Composer
+
+The chat composer now features a formatting toolbar, an emoji picker, and a GIF picker integrated directly into the chat input. Search and send GIFs inline, format text with the toolbar, and quickly insert emojis to make conversations more expressive.
+
+<video controls alt="Rich Composer & GIFs demo video" src="/videos/gif-sending.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Search:** Search results now highlight matching words and phrases.
+- **Search:** Search results can now be sorted, with new result headers for better organization.
+- **Search:** You can now filter search results by file type.
+- **Channels:** User profile hover card now appears on message avatars with a "Message" action.
+- **Channels:** Sidebar now has a "+ Add channels" button with improved browse/join channel flow.
+- **Threads:** Thread unread state now tracked. Unread threads are visually indicated.
+- **Threads:** Thread trees shipped for nested thread navigation.
+- **Agent:** Agent session now scoped to thread for more focused responses.
+- **Agent, Jams:** Agent now has context of Jam transcripts and summaries.
+- **Agent:** Images can now be passed to the agent.
+- **Agent:** Claude now links directly to relevant messages and conversations in its responses.
+- **Channels:** Workspace URLs are now human-friendly.
+- **Desktop:** Images in messages now have a preview dialog on click.
+- **Desktop:** Panel header heights and borders standardized across the app.
+- **Desktop:** Channel row height, label sizes, and presence indicator positioning matched to design spec.
+- **Desktop:** Workspace header hidden on desktop web browsers for a cleaner layout.
+- **Desktop:** Analytics reworked with agent invocation tracking and conversation metadata.
+- **Inbox:** Notification delivery synced to prevent missed events.
+- **Inbox:** Stale event list logic removed, simplifying inbox data flow.
+- **Onboarding:** Public docs pages and onboarding READMEs improved.
+
+### Fixes
+
+- **Jams:** Deep link navigation no longer disconnects active Jams.
+- **Jams:** Jam top-bar visibility no longer disappears when a new call starts in a channel.
+- **Jams:** Device selector width cleaned up.
+- **Composer:** Blank lines no longer collapse in message rendering.
+- **Inbox:** Inbox messages loading and pagination fixed.
+- **Inbox:** Inbox no longer requires hard-refresh for new events to appear.
+- **Inbox:** Inbox notification count is now computed directly, making it more accurate and instant.
+- **Channels:** Archived members removed from channel detail side panel.
+- **Channels:** Sticky header fixed on workspace conversations.
+- **Agent:** Agent deployment stabilized.
+
+</Update>
+
+<Update label="February 20, 2026" description="2026-02-20" tags={["Agent","Channels","Cmd+K","Composer","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 20, 2026 - Jam Threads & Post-Call Playback", description: "Ando updates from February 20, 2026." }}>
+
+## Featured
+
+### Jam Threads & Post-Call Playback
+
+**Categories:** Jams, Threads
+
+Jams now have full thread support. Send and view messages during live calls. After a call ends, the playback view includes a thread tab alongside transcripts and summaries, so nothing gets lost.
+
+<video controls alt="Jam Threads & Post-Call Playback demo video" src="/videos/jams-recording.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Rich Text & Markdown
+
+**Categories:** Composer
+
+Messages now render with full markdown support: code blocks, inline code, bullet lists, ordered lists, and proper formatting. The new composer supports @mentions for both members and conversations.
+
+### Improvements
+
+- **Agent:** Agent can now read and understand uploaded files.
+- **Agent:** Claude now has full thread history for more relevant responses in threads.
+- **Agent:** Agent system prompt updated for better response quality.
+- **Search:** Uploaded files are now indexed and searchable.
+- **Search, Jams:** Jam transcripts are now fully searchable.
+- **Agent, Jams:** Agents can now search across Jam transcripts.
+- **Jams:** Post-call recordings include auto-generated chapters with action items and topic transitions.
+- **Cmd+K:** Cmd+K reworked with improved channel creation and group creation flows.
+- **Jams:** Jam discoverability improved: polished sidebar icons, join button with split popover, and active call polling on workspace load.
+- **Inbox:** Inbox stacked notifications. Related events are now grouped into stack items.
+- **Inbox:** Inbox filters shipped.
+- **Inbox, Threads:** Inbox thread replies implemented.
+- **Threads:** Thread subscriptions: follow/unfollow from context menu, subscription items in sidebar.
+- **Channels:** Conversation header cleaned up.
+
+### Fixes
+
+- **Threads:** Fixed typing indicator positioning in threads.
+- **Onboarding:** Duplicate invite links prevented. Existing members can no longer be re-invited.
+- **Inbox:** DM inbox items now deeplink to the correct message.
+- **Jams:** Active call entry properly removed when current call ends.
+- **Agent, Threads:** Agent reply no longer auto-subscribes user to thread.
+- **Jams, Search:** Transcript indexing fixed for more accurate search results.
+
+</Update>
+
+<Update label="February 13, 2026" description="2026-02-13" tags={["Agent","Channels","Clipboard","Cmd+K","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "February 13, 2026 - Thread Subscriptions", description: "Ando updates from February 13, 2026." }}>
+
+## Featured
+
+### Thread Subscriptions
+
+**Categories:** Threads
+
+Subscribe or unsubscribe to any thread to control which replies notify you. Thread and conversation notifications are now separated. Thread replies no longer trigger channel-level unread state.
+
+### Copy Thread for Agents
+
+**Categories:** Threads, Agent
+
+Threads now have a copy button with two formats: a default plain-text copy for pasting into model interfaces like ChatGPT and Claude, and a "copy for agent" format that includes resource IDs so agents can use the Ando API directly.
+
+<video controls alt="Copy Thread for Agents demo video" src="/videos/copy-thread-for-agents.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Agent:** Agent response messages are now collapsible with show all/less button.
+- **Agent, Threads:** Agent now receives full thread context when responding in threads.
+- **Desktop:** Initial real-time sync infrastructure stood up.
+- **Clipboard:** Clipboard data layer normalized for context bundles and items.
+- **Agent:** Agent server moved to separate host. Deploys no longer log users out.
+- **Search:** Search API now supports exact text match across all entity types.
+- **Inbox:** Inbox layout updated with new event-list-item design and header.
+- **Jams:** Active Jam indicators shown in sidebar and conversation view.
+- **Composer:** Rich text rendering now supported in the composer.
+- **Cmd+K, Channels:** Channels visually differentiated from conversations in Cmd+K.
+- **Channels:** Channel listing scoped to valid workspace channels.
+- **Inbox:** Stale inbox views cleaned up.
+
+### Fixes
+
+- **Inbox:** DM inbox items now deeplink to the correct message.
+- **Desktop:** Desktop app update fixed to enable screen sharing.
+- **Composer:** Typing indicator no longer obscures text in chat.
+- **Jams:** Multiple speakers on one mic now display correctly in transcripts.
+- **Jams:** Fixed race condition causing user transcript to not get created.
+- **Channels:** Fixed duplicate active membership bug.
+- **Threads:** Fixed thread message vertical spacing.
+- **Channels:** Fixed optimistic channel join.
+- **Composer:** Clicking behind typing indicator gradient no longer blocked.
+
+</Update>
+
+<Update label="February 6, 2026" description="2026-02-06" tags={["Agent","Channels","Clipboard","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 6, 2026 - Jams: Screen Sharing & Transcript Pipeline", description: "Ando updates from February 6, 2026." }}>
+
+## Featured
+
+### Jams: Screen Sharing & Transcript Pipeline
+
+**Categories:** Jams
+
+Jams now supports screen sharing with full UI controls and multiple simultaneous presenters. Post-call transcripts use live speaker diarization for accurate attribution, with auto-generated chapters and summaries. All transcripts are indexed for search.
+
+<video controls alt="Jams: Screen Sharing & Transcript Pipeline demo video" src="/videos/jams-screen-sharing.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Deterministic Inbox
+
+**Categories:** Inbox
+
+Inbox rebuilt with deterministic grouping and display rules. Sidebar unread counts now match the inbox view, and new events appear in real-time without a hard refresh.
+
+### Improvements
+
+- **Agent:** Claude responses now stream in real-time with a thinking indicator while processing.
+- **Agent:** Agent mentions more reliable, thread context passed on invocation.
+- **Clipboard:** Clipboard data layer rebuilt with normalized stores for context bundles and items.
+- **Search:** Search API exposes individual context bundle items including underlying messages.
+- **Search:** Search ranking evaluated and tuned for relevance.
+- **Onboarding:** Onboarding flow finalized and polished to design parity.
+- **Cmd+K:** Cmd+K search styling updated and visual prominence reduced.
+- **Desktop:** Image attachments support zoom when enlarged.
+- **Composer:** Message composer renders HTML and markdown.
+- **Onboarding:** Invite and auth code emails improved with error states.
+- **Agent:** Agent presence indicators added to member group menu.
+- **Desktop:** Font ligatures disabled.
+
+### Fixes
+
+- **Desktop:** Resolved unintended app refresh issue.
+- **Composer:** Edit message functionality restored.
+- **Threads:** Thread issues regression fixed.
+- **Threads, Composer:** Thread message composer now sticks to the bottom.
+- **Cmd+K:** Group DMs no longer display "joined" incorrectly in Cmd+K.
+- **Composer:** Typing indicators scoped to main canvas or thread.
+- **Inbox:** Message deeplinks working correctly.
+- **Composer:** Group tags populate properly when editing a message.
+- **Channels:** Optimistic conversations show member names.
+- **Channels:** New conversation no longer double-renders membership in sidebar.
+- **Desktop:** Fixed server crashes from brief connection interruptions.
+- **Jams:** Fixed Firefox media device errors in Jams.
+
+</Update>
+
+<Update label="January 30, 2026" description="2026-01-30" tags={["Agent","Channels","Clipboard","Composer","Desktop","Inbox","Jams","Onboarding"]} rss={{ title: "January 30, 2026 - Claude Code Agent Launch", description: "Ando updates from January 30, 2026." }}>
+
+## Featured
+
+### Claude Code Agent Launch
+
+**Categories:** Agent
+
+Claude can now access GitHub through MCP, enabling richer context for development-related conversations. When Claude is processing a response, users see a "thinking" indicator for better feedback during longer operations. You can also disconnect the Claude integration from workspace settings if needed.
+
+<video controls alt="Claude Code Agent Launch demo video" src="/videos/claude-in-ando.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Jams Improvements
+
+**Categories:** Jams
+
+Jams, Ando's native calling with live transcription, screen sharing, and in-thread messaging, got key upgrades. Calls now generate high-quality post-call transcripts, live transcription is more reliable, and multi-participant calls now work correctly.
+
+<video controls alt="Jams Improvements demo video" src="/videos/jams-improvements.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Attachment Downloads
+
+**Categories:** Desktop
+
+Download any file shared in chat directly to your device. Downloads show progress toasts with cancel support, and the completion toast lets you jump straight to the file in Finder (or Explorer on Windows). Available from image previews, video previews, and the file context menu.
+
+<Note>Demo video coming soon</Note>
+
+### Improvements
+
+- **Onboarding:** Login flow redesigned to match new onboarding experience.
+- **Desktop:** Workspace switching added to sidebar selector.
+- **Agent:** Workspace-level API keys now supported.
+- **Desktop:** Member avatars show a fallback component when no profile image is available.
+- **Clipboard:** Save selection modal allows adding messages to existing Clipboards.
+
+### Fixes
+
+- **Desktop:** State cleanup during logout now works correctly when switching workspaces.
+- **Inbox:** Message focus in inbox now selects the correct message.
+- **Channels:** Archived users filtered from conversation member lists.
+- **Channels:** New conversations display member names properly.
+- **Composer:** Edited message pill positioned correctly.
+- **Channels:** "New message" line indicator showing properly.
+- **Onboarding:** Duplicate invite links resolved.
+- **Desktop:** Hard refresh removed from navigation flows.
+
+</Update>
+
+<Update label="January 25, 2026" description="2026-01-25" tags={["Channels","Clipboard","Composer","Desktop","Inbox","Jams","Onboarding","Search"]} rss={{ title: "January 25, 2026 - Jams!", description: "Ando updates from January 25, 2026." }}>
+
+## Featured
+
+### Jams!
+
+**Categories:** Jams
+
+Jams is live. Audio and video calling directly in Ando with full call recording and live transcription. Transcripts are stored in full, as chapters, and as segments, all indexed for search and usable as context for agents.
+
+<video controls alt="Jams! demo video" src="/videos/jams!.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Clipboard Improvements
+
+**Categories:** Clipboard
+
+New backend APIs give users more control over curated collections. Add messages and items directly to an existing Clipboard without creating a new one, and remove individual items from a Clipboard to clean up without deleting the entire collection.
+
+<video controls alt="Clipboard Improvements demo video" src="/videos/clipboard.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Desktop:** File uploads now use a blocklist instead of allowlist, supporting .json, .dmg, spreadsheets, and more.
+- **Search:** Search now supports date range filters.
+- **Channels:** Sidebar improvements added to production.
+- **Channels, Composer:** Typing indicators added to channels and sidebar.
+
+### Fixes
+
+- **Inbox:** Deeplinks to messages and threads fixed.
+- **Inbox:** @here no longer shows as @undefined in inbox.
+- **Desktop:** Stale profile pictures in selection preview now refresh properly.
+- **Desktop:** Drag + Cmd+C no longer activates selection mode.
+- **Search:** Multi-select shows previews correctly from search selections.
+- **Channels:** Collapsed sidebar no longer cuts off icons.
+- **Channels:** New DMs appear in active channels without requiring refresh.
+- **Channels:** Creating a new conversation no longer double-renders membership in sidebar.
+- **Onboarding:** Invite button properly hidden for non-admin roles.
+
+</Update>
+
+<Update label="January 11, 2026" description="2026-01-11" tags={["Agent","Channels","Composer","Desktop","Inbox","Onboarding","Search"]} rss={{ title: "January 11, 2026 - Full-Screen Search", description: "Ando updates from January 11, 2026." }}>
+
+## Featured
+
+### Full-Screen Search
+
+**Categories:** Search
+
+Search is now a dedicated full-screen experience. Find messages across your workspace with improved relevance ranking. Includes clear button, no-results page, and entity rendering in search results.
+
+### Inactive Conversations Group
+
+**Categories:** Channels
+
+Conversations without activity in the last 7 days are now automatically grouped in a collapsible "Inactive" section in your sidebar, keeping your active conversations front and center.
+
+### Connection Reliability
+
+**Categories:** Desktop
+
+Added heartbeats and retries to websocket infrastructure for more reliable real-time updates.
+
+### Improvements
+
+- **Desktop:** Timestamp tooltips: hover over message timestamps or date separators to see the full date and time.
+- **Desktop:** App now opens to your most recently viewed conversation on launch.
+- **Composer:** Chat input redesigned with improved styling.
+- **Composer:** Fixed composer formatting issues when pasting text.
+- **Composer:** Archived users no longer appear in @mention suggestions.
+- **Channels:** Collapsible sidebar groups: click to collapse/expand conversation groups.
+- **Desktop:** Optimistic attachments: images appear in chat immediately while uploading.
+- **Inbox:** Inbox now shows unread count badge in the sidebar.
+- **Channels:** Create Channel from Conversation: convert any group DM into a channel.
+
+### Fixes
+
+- **Desktop:** Messages, events, and memberships now automatically refresh after reconnecting.
+- **Inbox:** Fixed messages appearing unread in inbox after being viewed in conversation.
+- **Desktop:** Files nearing expiration are now automatically refreshed.
+- **Onboarding:** Fixed auth code inputs not being centered.
+- **Channels:** Fixed issues with fetching newer messages in long conversations.
+
+### Experiments
+
+- **Inbox:** Exploring smarter message stack grouping.
+- **Agent:** Investigating topic-based conversation segmentation for structured context.
+
+</Update>
+
+<Update label="January 4, 2026" description="2026-01-04" tags={["Agent","Channels","Desktop","Inbox","Search"]} rss={{ title: "January 4, 2026 - View Channel Before Joining", description: "Ando updates from January 4, 2026." }}>
+
+## Featured
+
+### View Channel Before Joining
+
+**Categories:** Channels
+
+Preview any channel before joining. Click a channel to browse its message history and read recent conversations. When you're ready, join with one click and the channel appears in your sidebar.
+
+<video controls alt="View Channel Before Joining demo video" src="/videos/view-channel-before-joining.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Channel Member Management
+
+**Categories:** Channels
+
+Manage channel members directly from the sidebar. Right-click any channel to view current members, search through the member list, or add new people. Channel info, member counts, and quick actions are now accessible without navigating away.
+
+<video controls alt="Channel Member Management demo video" src="/videos/channel-member-management.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Full-Screen Search
+
+**Categories:** Search
+
+Search is now a dedicated full-screen experience with its own surface. Find messages across your workspace with improved relevance ranking. This lays the foundation for context management, multiselect, and AI-powered answers.
+
+### Improvements
+
+- **Inbox:** Real-time inbox updates: items now appear instantly.
+- **Channels:** New dedicated panel for viewing conversation details, members, and channel info.
+- **Desktop:** Image aspect ratios are now preserved in chat previews.
+- **Channels:** Pin/unpin channels from the channel details dialog.
+- **Channels:** Right-click any channel to leave without opening channel settings.
+- **Desktop:** Desktop app builds available for Mac Intel and Silicon.
+
+### Fixes
+
+- **Channels:** Fixed critical bug where messages in non-active channels were being lost.
+- **Channels:** Conversation sidebar items now correctly clear unread state when visited.
+- **Inbox:** Messages already read in a conversation no longer show as unread in Inbox.
+- **Inbox:** Fixed unread counter incorrectly incrementing for your own sent messages.
+
+### Experiments
+
+- **Inbox:** Exploring smarter message stack creation.
+- **Agent:** Investigating topic-based conversation segmentation for structured context.
+
+</Update>
+
+<Update label="December 28, 2025" description="2025-12-28" tags={["Channels","Cmd+K","Desktop","Inbox","Search"]} rss={{ title: "December 28, 2025 - Inbox & Stack Improvements", description: "Ando updates from December 28, 2025." }}>
+
+## Featured
+
+### Inbox & Stack Improvements
+
+**Categories:** Inbox
+
+Stacks now factor in recency when grouping related messages. Inbox views have an AI summary toggle. The UI was also updated based on new designs.
+
+<video controls alt="Inbox & Stack Improvements demo video" src="/videos/inbox-stacks.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Search API Foundation
+
+**Categories:** Search
+
+Backend infrastructure for the new search experience is complete. The Search API supports time filters, conversation filters, user filters, and intelligent reranking.
+
+### Improvements
+
+- **Channels:** Archive channels directly from the sidebar via right-click.
+- **Inbox:** Inbox notification UI updated to match new design system.
+- **Inbox:** Inbox now properly displays stacked notification groups.
+- **Inbox:** Create custom inbox views, switch between views, and toggle stack grouping.
+- **Desktop:** Online/offline presence indicators now working.
+
+### Fixes
+
+- **Inbox:** Fixed bug where recent notifications weren't appearing in Inbox.
+- **Channels:** Active and pinned memberships now properly update when archiving or unarchiving channels.
+- **Channels:** Navigating to a non-active channel now correctly shows it in the sidebar.
+
+### Experiments
+
+- **Inbox:** Running evaluations on stack grouping quality.
+- **Search:** Exploring saved searches that proactively surface new matching results.
+- **Cmd+K:** Continued iteration on command palette interface patterns.
+
+</Update>
+
+<Update label="December 21, 2025" description="2025-12-21" tags={["Channels","Cmd+K","Inbox","Search"]} rss={{ title: "December 21, 2025 - Inbox Rules", description: "Ando updates from December 21, 2025." }}>
+
+## Featured
+
+### Inbox Rules
+
+**Categories:** Inbox
+
+A domain-specific language for defining custom inbox filtering rules, applied to incoming events. Rules let you control what surfaces in your inbox and how it's organized.
+
+### Command Center & Create Channel
+
+**Categories:** Cmd+K, Channels
+
+Press Cmd+K and type to create a new channel instantly. Name your channel, set visibility (public or private), and add initial members.
+
+<video controls alt="Command Center & Create Channel demo video" src="/videos/create-channel-from-comman-k.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Channels:** Pin your most important conversations to a dedicated Favorites section at the top of the sidebar.
+- **Channels:** Complete rebuild of sidebar UI with favorites, active conversations, and archive sections.
+- **Channels:** New backend endpoints track which conversations you've been active in recently.
+- **Channels:** Added loading spinner when creating conversations to prevent duplicate submissions.
+
+### Fixes
+
+- **Channels:** Fixed unwanted horizontal scrolling in the sidebar.
+
+### Experiments
+
+- **Inbox:** Working on improving how stacks are ranked for more intuitive grouping.
+- **Search:** Defined Navigate, Find, and Ask as distinct search modes.
+
+</Update>
+
+<Update label="December 14, 2025" description="2025-12-14" tags={["Channels","Cmd+K","Inbox","Onboarding","Search"]} rss={{ title: "December 14, 2025 - Browse and Join Channels", description: "Ando updates from December 14, 2025." }}>
+
+## Featured
+
+### Browse and Join Channels
+
+**Categories:** Channels, Cmd+K
+
+Discover channels across your workspace from the command center. Browse public channels, see member counts and recent activity, and join with one click. Joined channels immediately appear in your sidebar.
+
+<video controls alt="Browse and Join Channels demo video" src="/videos/nav-to-channel.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Create Conversation Flow
+
+**Categories:** Cmd+K, Channels
+
+Start new conversations directly from Cmd+K. Search for workspace members, select one or multiple people, and create the conversation instantly.
+
+### Improvements
+
+- **Channels:** New views and components for the create channel flow.
+- **Channels:** Member selection improved for consistency across flows.
+- **Onboarding:** New Members page and Account settings page for workspace administration.
+- **Inbox:** Core UI code for the inbox experience.
+- **Inbox:** Created evaluation framework for measuring stack grouping quality.
+
+### Fixes
+
+- **Onboarding:** Archived workspace members no longer appear in the invite modal.
+
+### Experiments
+
+- **Search:** Testing search quality and defining success criteria for relevance ranking.
+- **Inbox:** Finalized inbox component designs with clear logic for stacks.
+
+</Update>
+
+<Update label="December 7, 2025" description="2025-12-07" tags={["Cmd+K","Composer","Inbox","Search"]} rss={{ title: "December 7, 2025 - Stack Generation", description: "Ando updates from December 7, 2025." }}>
+
+## Featured
+
+### Stack Generation
+
+**Categories:** Inbox
+
+The backend now generates Stacks from event list items, intelligently grouping related messages together. This is the core infrastructure for the inbox's grouped notification experience.
+
+### Command Center Foundation
+
+**Categories:** Cmd+K
+
+Introducing Cmd+K as the new keyboard-first command center. The initial release includes a modal with search and one action (Join Channel). This foundation enables rapid keyboard navigation and will expand to support all major workspace actions.
+
+<video controls alt="Command Center Foundation demo video" src="/videos/command-k-foundation.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Improvements
+
+- **Inbox:** Improved how stacks group related content together.
+- **Composer:** #/@ syntax in text UI to reference users and conversations.
+- **Inbox:** Inbox Rules now evaluate with surrounding message context for better classification.
+- **Search:** Moved search from top of app to sidebar for better space utilization.
+
+
+### Experiments
+
+- **Inbox:** Exploring how context should be organized in the inbox experience.
+
+</Update>
