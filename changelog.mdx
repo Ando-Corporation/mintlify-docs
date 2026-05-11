@@ -21,7 +21,8 @@ Connect any third-party MCP server to your workspace, including the apps your te
 
 Pin any thread to a dedicated section at the top of the sidebar, alongside favorites. Drag to reorder, and pinned threads stay visible with their reply count and last activity at a glance.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="11 items">
 
 - **Desktop:** Mobile light mode support.
 - **Inbox:** Email notification settings page with per-event controls.
@@ -35,7 +36,8 @@ Pin any thread to a dedicated section at the top of the sidebar, alongside favor
 - **Onboarding:** Help center redesigned, with a dynamic changelog now live in-product.
 - **Cmd+K:** Faster Cmd+K opens and snappier tooltip close timing.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="8 items">
 
 - **Onboarding, Channels:** Onboarding completion cache handoff, workspace invites, and conversation invite flow fixed.
 - **Inbox, Threads:** Inbox preview, sidebar threads initial loading, and thread deeplink routing corrected.
@@ -45,6 +47,9 @@ Pin any thread to a dedicated section at the top of the sidebar, alongside favor
 - **Inbox, Desktop:** Desktop notification deeplinks and inbox fan-out corrected.
 - **Inbox, Agent:** Channel catchup email grammar and three-recipient bug fixed; managed agent and custom MCP OAuth recovery hardened.
 - **Composer, Desktop:** Public channel mentions in messages and mobile rendering regressions resolved.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -66,7 +71,8 @@ Every new workspace now starts with Ando, a built-in agent that's part of the te
 
 Stay caught up via email when you're away from Ando. A daily digest summarises unread channel activity, and targeted emails surface missed Jams and direct messages as they happen. Each email type has its own decision logic, so you only get notifications you'd actually act on.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="12 items">
 
 - **Channels, Desktop:** Switch between workspaces without reloading the app. The switcher shows unread counts per workspace, supports drag-to-reorder, and has dedicated mobile and desktop entrypoints.
 - **Jams, Desktop:** Full-screen mobile Jams experience with transcript view and audio device options.
@@ -81,7 +87,8 @@ Stay caught up via email when you're away from Ando. A daily digest summarises u
 - **Desktop:** Polished error UI for recoverable web errors instead of a blank screen.
 - **Desktop:** Desktop now prompts to enable system notifications on first launch.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="7 items">
 
 - **Desktop, Threads:** Conversation scroll stability, thread composer layout, and workspace skeleton flicker on switch fixed.
 - **Channels:** Conversations blue dot no longer always appears.
@@ -90,6 +97,9 @@ Stay caught up via email when you're away from Ando. A daily digest summarises u
 - **Cmd+K, Inbox, Onboarding:** Cmd+K agent ordering, mention channel ordering, reaction inbox counts, login button click region, and desktop verification code paste fixed.
 - **Jams, Channels:** Jam fullscreen titlebar offset and non-member join channel banner fixed.
 - **Agent:** Agent mentions in DMs now ignored, agents only respond when explicitly addressed.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -111,7 +121,8 @@ Search messages and Jam transcripts directly in the app, with results that updat
 
 Workspace agents are faster to invoke and can take more actions in a conversation. Mentions resolve quicker, and agents can now react with emoji, reply, post into threads, and DM, the same actions a human teammate would take. Agent-specific proactive reactions and improved turn orchestration also make their behavior feel more natural.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="7 items">
 
 - **Channels, Composer:** Sidebar typing indicators, so you can see who's responding in any conversation without opening it.
 - **Desktop:** Settings redesigned as a modal with sidebar navigation and section deep-linking.
@@ -121,7 +132,8 @@ Workspace agents are faster to invoke and can take more actions in a conversatio
 - **Desktop:** Faster cold-start workspace loads from a parallelized bootstrap.
 - **Agent:** Third-party agents now configurable from settings, with API keys for the Ando API.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="9 items">
 
 - **Desktop:** Conversation auto-scroll state preserved during navigation.
 - **Channels:** Reaction counts no longer double-increment.
@@ -132,6 +144,9 @@ Workspace agents are faster to invoke and can take more actions in a conversatio
 - **Desktop:** Scroll-down arrow no longer always shows when at the bottom.
 - **Channels:** Conversation view bottom padding and fresh channel header rendering fixed.
 - **Jams:** Jam reentry, connection status, and volume clarity improved.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -155,7 +170,8 @@ When a managed agent sends a message, click on the reasoning trace shows the too
 
 <video controls alt="Live Agent Traces & Interrupt demo video" src="/videos/agent-traces.mp4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="13 items">
 
 - **Channels, Onboarding:** Add members directly from the conversation panel, with invite-by-email support.
 - **Inbox:** Notification settings page with per-event controls for messages, reactions, threads, and Jams.
@@ -171,7 +187,8 @@ When a managed agent sends a message, click on the reasoning trace shows the too
 - **Channels:** Member groups and channels render inline in preview links.
 - **Composer:** @here in 1-1 DMs now labels its broadcast behavior to prevent confusion.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="10 items">
 
 - **Desktop:** Scroll-to-bottom pill now lands at the true bottom of the conversation.
 - **Desktop:** Reader scroll position stays stable during in-flight message prepends.
@@ -183,6 +200,9 @@ When a managed agent sends a message, click on the reasoning trace shows the too
 - **Composer:** First chat input upload no longer disappears on entry.
 - **Composer:** Newline rendering in messages and ordered lists with start ≥ 100 fixed.
 - **Jams:** Restored Jam panel, tooltip, and hover contrast after the visual nav refactor.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -206,7 +226,8 @@ Group conversations into custom folders with drag-to-reorder, plus a dedicated f
 
 <video controls alt="Sidebar Folders demo video" src="/videos/sidebar-folders.mp4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="9 items">
 
 - **Desktop:** Profile and workspace settings revamped with new layout and auto-save throughout.
 - **Channels, Search:** Inline sidebar search to quickly find people and conversations without opening Cmd+K.
@@ -218,7 +239,8 @@ Group conversations into custom folders with drag-to-reorder, plus a dedicated f
 - **Desktop:** Member avatars now circular and served from a stable public bucket with per-surface variants.
 - **Desktop:** Conversations open faster and stay in sync across tabs and devices without polling.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="10 items">
 
 - **Composer:** @mention popup presence indicator size fixed.
 - **Channels:** Conversation header membership count corrected.
@@ -230,6 +252,9 @@ Group conversations into custom folders with drag-to-reorder, plus a dedicated f
 - **Channels:** Self-DM resolution and direct message naming fixed.
 - **Inbox:** Deeplinks to messages now resolve correctly.
 - **Cmd+K, Channels:** Cmd+K join-public-channel-then-navigate flow restored.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -245,7 +270,8 @@ Claude can now join conversations as a persistent member, listening to every mes
 
 <video controls alt="Proactive Agent demo video" src="/videos/proactive-agent.mp4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="8 items">
 
 - **Onboarding:** Import your Slack message history into Ando during onboarding.
 - **Desktop:** Dark mode no longer flashes white during page reload.
@@ -256,7 +282,8 @@ Claude can now join conversations as a persistent member, listening to every mes
 - **Desktop:** Message list spacing improved for readability.
 - **Desktop:** Online presence indicators are now more consistent across the app.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="7 items">
 
 - **Inbox:** Fixed crash when opening inbox with certain conversation parameters.
 - **Desktop:** Fixed Mac fullscreen shortcut incorrectly triggering search.
@@ -265,6 +292,9 @@ Claude can now join conversations as a persistent member, listening to every mes
 - **Agent:** Fixed agents responding to @here mentions instead of only direct mentions.
 - **Channels:** Fixed duplicate DM conversations caused by agent memberships.
 - **Channels:** Fixed emoji reaction counts showing incorrect values.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -288,7 +318,8 @@ Ando is now available as a native iOS app. Browse conversations, send messages, 
 
 <video controls alt="Mobile App demo video" src="/videos/mobile-app.MP4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="7 items">
 
 - **Composer:** Up arrow key shortcut edits your most recent message in the composer.
 - **Composer:** Code block rendering improved with better layout and formatting.
@@ -298,12 +329,16 @@ Ando is now available as a native iOS app. Browse conversations, send messages, 
 - **Channels:** DM content hidden when message links are shared with non-members.
 - **Agent:** Start DMs with agents directly from the sidebar.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="4 items">
 
 - **Threads:** Message and date divider alignment fixed across main and thread views.
 - **Onboarding:** Dark mode logout screen color mismatch resolved.
 - **Threads:** Removed stale "no replies" tag from empty threads.
 - **Desktop:** Mobile: video playback, iOS 26 header transparency, floating tab bar, DM list flickering, and scroll position restoration fixed.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -325,7 +360,8 @@ A completely redesigned onboarding experience that researches your company autom
 
 Invoke Claude during a live Jam by saying "hey Claude" or other keyword triggers. Claude responds via chat so it doesn't disrupt your conversation. This release also adds ephemeral emoji reactions for quick feedback, a pre-call device selector for mic, camera, and speakers, mute indicators, and improved transcription accuracy.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="6 items">
 
 - **Desktop:** Keyboard shortcuts added for navigating conversations, opening search, starting a Jam, and accessing settings with Cmd+Comma.
 - **Desktop:** Messages now load and sync through a local-first data layer. Conversations open faster, scrolling stays smooth, and messages render instantly.
@@ -334,13 +370,17 @@ Invoke Claude during a live Jam by saying "hey Claude" or other keyword triggers
 - **Search:** Search filters now include transcript segments for more granular Jam search.
 - **Jams, Inbox:** Jam invites now surface in the inbox with a start Jam button, plus highlight-to-reply in Jam threads.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="5 items">
 
 - **Composer:** Hyperlink rendering and emoji reaction colors and ordering fixed across the composer.
 - **Desktop:** Message creation race condition resolved, preventing duplicate or missing messages.
 - **Desktop:** Desktop app unread badge now matches inbox count.
 - **Jams:** Post-call speaker mapping accuracy improved for multi-participant Jams.
 - **Threads, Channels, Cmd+K:** Thread tree titles, sidebar scrolling, and Cmd+K dialog width on small windows fixed.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -364,7 +404,8 @@ Threads can now open in a dedicated full-screen view for focused conversation. D
 
 <video controls alt="Full-Screen Thread View demo video" src="/videos/full-screen-thread-view.mov" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="10 items">
 
 - **Desktop:** Message list is now virtualized. Long conversations scroll without lag.
 - **Desktop:** Settings redesigned as a modal dialog with auto-save.
@@ -377,7 +418,8 @@ Threads can now open in a dedicated full-screen view for focused conversation. D
 - **Desktop:** Quote-reply tooltip appears when highlighting text in messages.
 - **Desktop:** Real-time connection auth scoped per-room. Session recording integrated for debugging.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="7 items">
 
 - **Threads:** Multiple thread panel fixes: opens at latest replies, correct content-type titles, hover bar no longer overlaps header.
 - **Composer:** Composer fixes: code block bugs, message submit after ":" character, mentions after "(", and @mention sizing.
@@ -386,6 +428,9 @@ Threads can now open in a dedicated full-screen view for focused conversation. D
 - **Desktop:** Message line height and double rendering on reconnect fixed.
 - **Jams:** Transcription fixed for unsupported languages.
 - **Inbox:** Inbox events suppressed when user is focused on the affected conversation.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -409,7 +454,8 @@ Drafts now save automatically and persist as you navigate between channels. The 
 
 <video controls alt="Draft Messages & New Composer demo video" src="/videos/claude-agent-improvements.mov" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="10 items">
 
 - **Jams:** Jam notifications shipped, Jams UI redesigned with resizable panel, and per-user diarization improves transcript accuracy.
 - **Search:** Search UI updated with improved layout, message truncation, and "see more" links.
@@ -422,7 +468,8 @@ Drafts now save automatically and persist as you navigate between channels. The 
 - **Desktop:** UI density tightened across message canvas and sidebar.
 - **Desktop:** Error monitoring and event tracking added.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="6 items">
 
 - **Threads:** Thread reply no longer triggers incorrect channel unread state.
 - **Composer:** Typing indicator layout, emoji picker, and suggestion click selection in composer fixed.
@@ -430,6 +477,9 @@ Drafts now save automatically and persist as you navigate between channels. The 
 - **Channels:** Sidebar header icon colors, pagination ordering, and archived members in workspace selection fixed.
 - **Jams:** Multiple Jams fixes: screensharing UI, emoji picker, graceful start without microphone, and audio during screen share.
 - **Search:** Search deeplinks to messages now work correctly.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -453,7 +503,8 @@ The chat composer now features a formatting toolbar, an emoji picker, and a GIF 
 
 <video controls alt="Rich Composer & GIFs demo video" src="/videos/gif-sending.mov" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="20 items">
 
 - **Search:** Search results now highlight matching words and phrases.
 - **Search:** Search results can now be sorted, with new result headers for better organization.
@@ -476,7 +527,8 @@ The chat composer now features a formatting toolbar, an emoji picker, and a GIF 
 - **Inbox:** Stale event list logic removed, simplifying inbox data flow.
 - **Onboarding:** Public docs pages and onboarding READMEs improved.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="10 items">
 
 - **Jams:** Deep link navigation no longer disconnects active Jams.
 - **Jams:** Jam top-bar visibility no longer disappears when a new call starts in a channel.
@@ -488,6 +540,9 @@ The chat composer now features a formatting toolbar, an emoji picker, and a GIF 
 - **Channels:** Archived members removed from channel detail side panel.
 - **Channels:** Sticky header fixed on workspace conversations.
 - **Agent:** Agent deployment stabilized.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -509,7 +564,8 @@ Jams now have full thread support. Send and view messages during live calls. Aft
 
 Messages now render with full markdown support: code blocks, inline code, bullet lists, ordered lists, and proper formatting. The new composer supports @mentions for both members and conversations.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="14 items">
 
 - **Agent:** Agent can now read and understand uploaded files.
 - **Agent:** Claude now has full thread history for more relevant responses in threads.
@@ -526,7 +582,8 @@ Messages now render with full markdown support: code blocks, inline code, bullet
 - **Threads:** Thread subscriptions: follow/unfollow from context menu, subscription items in sidebar.
 - **Channels:** Conversation header cleaned up.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="6 items">
 
 - **Threads:** Fixed typing indicator positioning in threads.
 - **Onboarding:** Duplicate invite links prevented. Existing members can no longer be re-invited.
@@ -534,6 +591,9 @@ Messages now render with full markdown support: code blocks, inline code, bullet
 - **Jams:** Active call entry properly removed when current call ends.
 - **Agent, Threads:** Agent reply no longer auto-subscribes user to thread.
 - **Jams, Search:** Transcript indexing fixed for more accurate search results.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -555,7 +615,8 @@ Threads now have a copy button with two formats: a default plain-text copy for p
 
 <video controls alt="Copy Thread for Agents demo video" src="/videos/copy-thread-for-agents.mov" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="12 items">
 
 - **Agent:** Agent response messages are now collapsible with show all/less button.
 - **Agent, Threads:** Agent now receives full thread context when responding in threads.
@@ -570,7 +631,8 @@ Threads now have a copy button with two formats: a default plain-text copy for p
 - **Channels:** Channel listing scoped to valid workspace channels.
 - **Inbox:** Stale inbox views cleaned up.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="9 items">
 
 - **Inbox:** DM inbox items now deeplink to the correct message.
 - **Desktop:** Desktop app update fixed to enable screen sharing.
@@ -581,6 +643,9 @@ Threads now have a copy button with two formats: a default plain-text copy for p
 - **Threads:** Fixed thread message vertical spacing.
 - **Channels:** Fixed optimistic channel join.
 - **Composer:** Clicking behind typing indicator gradient no longer blocked.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -602,7 +667,8 @@ Jams now supports screen sharing with full UI controls and multiple simultaneous
 
 Inbox rebuilt with deterministic grouping and display rules. Sidebar unread counts now match the inbox view, and new events appear in real-time without a hard refresh.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="12 items">
 
 - **Agent:** Claude responses now stream in real-time with a thinking indicator while processing.
 - **Agent:** Agent mentions more reliable, thread context passed on invocation.
@@ -617,7 +683,8 @@ Inbox rebuilt with deterministic grouping and display rules. Sidebar unread coun
 - **Agent:** Agent presence indicators added to member group menu.
 - **Desktop:** Font ligatures disabled.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="12 items">
 
 - **Desktop:** Resolved unintended app refresh issue.
 - **Composer:** Edit message functionality restored.
@@ -631,6 +698,9 @@ Inbox rebuilt with deterministic grouping and display rules. Sidebar unread coun
 - **Channels:** New conversation no longer double-renders membership in sidebar.
 - **Desktop:** Fixed server crashes from brief connection interruptions.
 - **Jams:** Fixed Firefox media device errors in Jams.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -662,7 +732,8 @@ Download any file shared in chat directly to your device. Downloads show progres
 
 <Note>Demo video coming soon</Note>
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="5 items">
 
 - **Onboarding:** Login flow redesigned to match new onboarding experience.
 - **Desktop:** Workspace switching added to sidebar selector.
@@ -670,7 +741,8 @@ Download any file shared in chat directly to your device. Downloads show progres
 - **Desktop:** Member avatars show a fallback component when no profile image is available.
 - **Clipboard:** Save selection modal allows adding messages to existing Clipboards.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="8 items">
 
 - **Desktop:** State cleanup during logout now works correctly when switching workspaces.
 - **Inbox:** Message focus in inbox now selects the correct message.
@@ -680,6 +752,9 @@ Download any file shared in chat directly to your device. Downloads show progres
 - **Channels:** "New message" line indicator showing properly.
 - **Onboarding:** Duplicate invite links resolved.
 - **Desktop:** Hard refresh removed from navigation flows.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -703,14 +778,16 @@ New backend APIs give users more control over curated collections. Add messages 
 
 <video controls alt="Clipboard Improvements demo video" src="/videos/clipboard.mp4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="4 items">
 
 - **Desktop:** File uploads now use a blocklist instead of allowlist, supporting .json, .dmg, spreadsheets, and more.
 - **Search:** Search now supports date range filters.
 - **Channels:** Sidebar improvements added to production.
 - **Channels, Composer:** Typing indicators added to channels and sidebar.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="9 items">
 
 - **Inbox:** Deeplinks to messages and threads fixed.
 - **Inbox:** @here no longer shows as @undefined in inbox.
@@ -721,6 +798,9 @@ New backend APIs give users more control over curated collections. Add messages 
 - **Channels:** New DMs appear in active channels without requiring refresh.
 - **Channels:** Creating a new conversation no longer double-renders membership in sidebar.
 - **Onboarding:** Invite button properly hidden for non-admin roles.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -746,7 +826,8 @@ Conversations without activity in the last 7 days are now automatically grouped 
 
 Added heartbeats and retries to websocket infrastructure for more reliable real-time updates.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="9 items">
 
 - **Desktop:** Timestamp tooltips: hover over message timestamps or date separators to see the full date and time.
 - **Desktop:** App now opens to your most recently viewed conversation on launch.
@@ -758,7 +839,8 @@ Added heartbeats and retries to websocket infrastructure for more reliable real-
 - **Inbox:** Inbox now shows unread count badge in the sidebar.
 - **Channels:** Create Channel from Conversation: convert any group DM into a channel.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="5 items">
 
 - **Desktop:** Messages, events, and memberships now automatically refresh after reconnecting.
 - **Inbox:** Fixed messages appearing unread in inbox after being viewed in conversation.
@@ -766,10 +848,14 @@ Added heartbeats and retries to websocket infrastructure for more reliable real-
 - **Onboarding:** Fixed auth code inputs not being centered.
 - **Channels:** Fixed issues with fetching newer messages in long conversations.
 
-### Experiments
+</Accordion>
+<Accordion title="Experiments" description="2 items">
 
 - **Inbox:** Exploring smarter message stack grouping.
 - **Agent:** Investigating topic-based conversation segmentation for structured context.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -799,7 +885,8 @@ Manage channel members directly from the sidebar. Right-click any channel to vie
 
 Search is now a dedicated full-screen experience with its own surface. Find messages across your workspace with improved relevance ranking. This lays the foundation for context management, multiselect, and AI-powered answers.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="6 items">
 
 - **Inbox:** Real-time inbox updates: items now appear instantly.
 - **Channels:** New dedicated panel for viewing conversation details, members, and channel info.
@@ -808,17 +895,22 @@ Search is now a dedicated full-screen experience with its own surface. Find mess
 - **Channels:** Right-click any channel to leave without opening channel settings.
 - **Desktop:** Desktop app builds available for Mac Intel and Silicon.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="4 items">
 
 - **Channels:** Fixed critical bug where messages in non-active channels were being lost.
 - **Channels:** Conversation sidebar items now correctly clear unread state when visited.
 - **Inbox:** Messages already read in a conversation no longer show as unread in Inbox.
 - **Inbox:** Fixed unread counter incorrectly incrementing for your own sent messages.
 
-### Experiments
+</Accordion>
+<Accordion title="Experiments" description="2 items">
 
 - **Inbox:** Exploring smarter message stack creation.
 - **Agent:** Investigating topic-based conversation segmentation for structured context.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -840,7 +932,8 @@ Stacks now factor in recency when grouping related messages. Inbox views have an
 
 Backend infrastructure for the new search experience is complete. The Search API supports time filters, conversation filters, user filters, and intelligent reranking.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="5 items">
 
 - **Channels:** Archive channels directly from the sidebar via right-click.
 - **Inbox:** Inbox notification UI updated to match new design system.
@@ -848,17 +941,22 @@ Backend infrastructure for the new search experience is complete. The Search API
 - **Inbox:** Create custom inbox views, switch between views, and toggle stack grouping.
 - **Desktop:** Online/offline presence indicators now working.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="3 items">
 
 - **Inbox:** Fixed bug where recent notifications weren't appearing in Inbox.
 - **Channels:** Active and pinned memberships now properly update when archiving or unarchiving channels.
 - **Channels:** Navigating to a non-active channel now correctly shows it in the sidebar.
 
-### Experiments
+</Accordion>
+<Accordion title="Experiments" description="3 items">
 
 - **Inbox:** Running evaluations on stack grouping quality.
 - **Search:** Exploring saved searches that proactively surface new matching results.
 - **Cmd+K:** Continued iteration on command palette interface patterns.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -880,21 +978,27 @@ Press Cmd+K and type to create a new channel instantly. Name your channel, set v
 
 <video controls alt="Command Center & Create Channel demo video" src="/videos/create-channel-from-comman-k.mp4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="4 items">
 
 - **Channels:** Pin your most important conversations to a dedicated Favorites section at the top of the sidebar.
 - **Channels:** Complete rebuild of sidebar UI with favorites, active conversations, and archive sections.
 - **Channels:** New backend endpoints track which conversations you've been active in recently.
 - **Channels:** Added loading spinner when creating conversations to prevent duplicate submissions.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="1 item">
 
 - **Channels:** Fixed unwanted horizontal scrolling in the sidebar.
 
-### Experiments
+</Accordion>
+<Accordion title="Experiments" description="2 items">
 
 - **Inbox:** Working on improving how stacks are ranked for more intuitive grouping.
 - **Search:** Defined Navigate, Find, and Ask as distinct search modes.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -916,7 +1020,8 @@ Discover channels across your workspace from the command center. Browse public c
 
 Start new conversations directly from Cmd+K. Search for workspace members, select one or multiple people, and create the conversation instantly.
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="5 items">
 
 - **Channels:** New views and components for the create channel flow.
 - **Channels:** Member selection improved for consistency across flows.
@@ -924,14 +1029,19 @@ Start new conversations directly from Cmd+K. Search for workspace members, selec
 - **Inbox:** Core UI code for the inbox experience.
 - **Inbox:** Created evaluation framework for measuring stack grouping quality.
 
-### Fixes
+</Accordion>
+<Accordion title="Fixes" description="1 item">
 
 - **Onboarding:** Archived workspace members no longer appear in the invite modal.
 
-### Experiments
+</Accordion>
+<Accordion title="Experiments" description="2 items">
 
 - **Search:** Testing search quality and defining success criteria for relevance ranking.
 - **Inbox:** Finalized inbox component designs with clear logic for stacks.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
 
@@ -953,16 +1063,20 @@ Introducing Cmd+K as the new keyboard-first command center. The initial release 
 
 <video controls alt="Command Center Foundation demo video" src="/videos/command-k-foundation.mp4" style={{ width: "100%", borderRadius: "8px" }} />
 
-### Improvements
+<AccordionGroup>
+<Accordion title="Improvements" description="4 items">
 
 - **Inbox:** Improved how stacks group related content together.
 - **Composer:** #/@ syntax in text UI to reference users and conversations.
 - **Inbox:** Inbox Rules now evaluate with surrounding message context for better classification.
 - **Search:** Moved search from top of app to sidebar for better space utilization.
 
-
-### Experiments
+</Accordion>
+<Accordion title="Experiments" description="1 item">
 
 - **Inbox:** Exploring how context should be organized in the inbox experience.
+
+</Accordion>
+</AccordionGroup>
 
 </Update>
