@@ -185,7 +185,7 @@ For write actions, prompt agents to verify the target before calling side-effect
 
 ## Tool Reference
 
-### Conversations
+### Workspace actions
 
 | Tool | Use it to | Inputs |
 | --- | --- | --- |
@@ -196,6 +196,7 @@ For write actions, prompt agents to verify the target before calling side-effect
 | `add_to_conversation` | Add members to an accessible conversation. | `conversation_id`, `member_ids`. |
 | `remove_from_conversation` | Remove members from an accessible conversation. | `conversation_id`, `member_ids`. |
 | `create_conversation` | Create a new conversation. | `name`, `member_ids`. Optional: `description`, `is_private`. |
+| `invite_to_workspace` | Invite a new member to the current workspace by email address. | `email` required. |
 
 ### Messages
 
@@ -234,9 +235,3 @@ For write actions, prompt agents to verify the target before calling side-effect
 | --- | --- | --- |
 | `search_clipboard` | Search clipboard/context bundles saved from Ando. | `q` required. |
 | `get_clipboard` | Fetch a clipboard bundle and all saved items. | `clipboard_id` required. |
-
-### Workspace actions
-
-| Tool | Use it to | Inputs |
-| --- | --- | --- |
-| `invite_to_workspace` | Invite a new member to the current workspace by email address. | `email` required. |
