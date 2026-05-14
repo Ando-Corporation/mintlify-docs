@@ -1,0 +1,127 @@
+---
+title: "Import data from other apps"
+description: "Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP."
+icon: "import"
+---
+
+You can bring messages from another app into Ando by giving an agent access to the source app and [Ando MCP](/docs/ando-mcp). The agent reads messages from Discord, Microsoft Teams, Telegram, or another service, then calls Ando MCP's `send_message` tool to post each message into an Ando conversation.
+
+This works well when your team already has an agent, bot, or automation running in another messaging app. Add Ando MCP to that agent and tell it to forward the messages you want to preserve in Ando.
+
+## How it works
+
+The bridge has two sides:
+
+| Side | What the agent needs |
+| --- | --- |
+| Source app | API, bot, webhook, or agent access that can read the messages you want to import. |
+| Ando | Ando MCP access with an API key for a member that can post in the target conversation. |
+
+For each source message, the agent sends a Markdown message to an existing Ando conversation with:
+
+| `send_message` input | Value |
+| --- | --- |
+| `conversation_id` | The Ando conversation where imported messages should appear. |
+| `markdown_content` | The source message body and any attribution you want to include. |
+
+## Before you start
+
+1. Create or choose the target conversation in Ando.
+2. Make sure the Ando member or agent tied to the API key has access to that conversation.
+3. Set up [Ando MCP](/docs/ando-mcp) in the agent that will run the import.
+4. Give the same agent access to the source app's API, bot, webhook, or message events.
+5. Decide whether you want a live mirror, a one-time backfill, or both.
+
+If you need to import a large Slack history export, use [Importing from Slack](/docs/importing-from-slack) instead.
+
+## Set the target conversation
+
+Ask the agent to find the Ando conversation before it starts forwarding messages:
+
+```text
+Use Ando MCP to find the Ando conversation named "discord-general".
+Save its conversation_id.
+Do not send any messages until I confirm the target conversation.
+```
+
+After you confirm the target, the agent can use that `conversation_id` for each `send_message` call.
+
+## Forward live messages
+
+Use a live bridge when you want new messages from another app to appear in Ando as they happen.
+
+```text
+You are mirroring Discord #general into Ando.
+
+For every new Discord message in #general:
+1. Ignore messages from bots unless I explicitly allow them.
+2. Format the message as:
+   **Discord #general - <author display name>**
+   <message text>
+
+   Source: <message permalink>
+3. Call Ando MCP `send_message` with:
+   - conversation_id: <ANDO_CONVERSATION_ID>
+   - markdown_content: the formatted message
+4. Keep a local record of forwarded source message IDs so you do not send duplicates.
+```
+
+The same pattern works for Teams channels, Telegram groups, support tools, or any other service where your agent can read message events.
+
+## Backfill past messages
+
+Use a backfill when you want to copy existing messages into Ando.
+
+```text
+Backfill messages from Discord #general into Ando.
+
+Import messages from 2026-05-01 through 2026-05-14.
+Process messages oldest to newest.
+For each message, include the original author, timestamp, message text, and source permalink.
+Call Ando MCP `send_message` for each message using conversation_id <ANDO_CONVERSATION_ID>.
+Stop and report errors instead of retrying indefinitely.
+Keep a checkpoint after each successful send so the import can resume without duplicates.
+```
+
+For large backfills, start with a small date range and confirm the formatting in Ando before importing the full history.
+
+## Formatting tips
+
+Use Markdown to keep imported messages readable:
+
+```md
+**Discord #general - Maya Chen**
+Can someone review the launch checklist before 3pm?
+
+Source: https://discord.com/channels/...
+Sent: 2026-05-14 09:12 PT
+```
+
+Include enough source metadata to make the message useful later:
+
+- Original author display name
+- Source channel or group name
+- Original timestamp
+- Source permalink, if the app provides one
+- Attachment or file links, if the agent can access them
+
+## Safety checks
+
+Because `send_message` posts into Ando, treat the bridge as a write automation.
+
+- Confirm the target Ando conversation before the first send.
+- Use a dedicated Ando conversation for early tests.
+- Keep a forwarded-message checkpoint keyed by the source message ID.
+- Filter bot messages unless you intentionally want bot output in Ando.
+- Preserve source links so people can inspect the original context.
+- Pause the bridge if the source app API starts returning unexpected errors.
+
+## Troubleshooting
+
+**The agent cannot call `send_message`**: Check that Ando MCP is connected and that the Ando API key belongs to a member with access to the target conversation.
+
+**Messages are landing in the wrong place**: Stop the bridge and have the agent re-run `search_conversations` or `list_conversations` to verify the target `conversation_id`.
+
+**Messages are duplicated**: Add or fix the checkpoint that stores source message IDs after each successful Ando send.
+
+**Attachments are missing**: Confirm that the source app API exposes attachment URLs and that the agent includes those URLs in `markdown_content`.
