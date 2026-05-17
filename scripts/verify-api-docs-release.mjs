@@ -140,6 +140,17 @@ const stalePublicApiPhrases = [
   "GA-candidate search-extended route",
 ];
 const staleLlmsPhrases = [...stalePublicApiPhrases, "Documentation Index"];
+const publicApiIdentityTerms = [
+  "Identity terms are narrower than storage table names",
+  "Human user",
+  "Agent",
+  "Workspace member profile",
+  "Principal",
+  "Author",
+  "API-key owner",
+  "not as a separate public",
+  "resource model",
+];
 
 const checkLocalArtifacts = () => {
   checkDocsConfigOpenApiSource();
@@ -200,6 +211,7 @@ const checkLocalArtifacts = () => {
     "New integrations should send `x-api-key`",
     "Use Ando API keys from a server-side environment",
     "Use the stable messaging endpoints",
+    ...publicApiIdentityTerms,
   ]);
   assertExcludes("llms.txt", after.index, staleLlmsPhrases);
   assertExcludes("llms-full.txt", after.full, staleLlmsPhrases);
@@ -282,6 +294,7 @@ const checkProduction = async () => {
   assertIncludes("/api-reference/overview.md", overview.text, [
     "Use `x-api-key` as the canonical auth header",
     "**stable** means generally available",
+    ...publicApiIdentityTerms,
   ]);
   assertExcludes(
     "/api-reference/overview.md",
@@ -318,6 +331,7 @@ const checkProduction = async () => {
     "Use Ando API keys from a server-side environment",
     "Use the stable messaging endpoints",
     "Searches tasks visible to the authenticated API key. This is a nearly stable task-search route",
+    ...publicApiIdentityTerms,
   ]);
   assertExcludes("/llms-full.txt", llmsFull.text, staleLlmsPhrases);
 
