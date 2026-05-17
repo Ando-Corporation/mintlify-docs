@@ -1,52 +1,198 @@
 ---
-title: "Overview"
-description: "Start here for Ando's public HTTP API."
+title: "API overview"
+description: "Build API-key integrations with Ando's public API v1."
 icon: "braces"
 ---
 
-Ando's public HTTP API lets API-key clients search workspace context and work
-with messages in conversations the authenticated member can access.
+Ando's public API is for server-side integrations that need workspace context:
+search messages and workspace records, read conversation history, and create
+messages or replies with an API key.
 
-## Base URL
+Public API v1 currently has two GA families:
+
+- **Search**: discover messages, conversations, workspace members, and calls.
+- **Messaging**: list, create, fetch, and reply to conversation messages.
+
+Preview and legacy compatibility endpoints are available in the endpoint
+reference, but they are not the first surface new integrations should build on.
+
+## Get an API key
+
+Create a workspace API key in Ando:
+
+1. Open **Settings**.
+2. Go to **API keys**.
+3. Create or copy an API key.
+4. Store it as a secret in your server-side environment.
+
+Use **3rd party agents** instead when you want messages to be attributed to an
+agent identity rather than a human workspace user.
+
+## Base URL and authentication
+
+All public API v1 requests use this base URL:
 
 ```text
 https://api.ando.so/v1
 ```
 
+Use `x-api-key` as the canonical auth header:
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+
+curl -sS "$ANDO_API_BASE/search/messages?q=release" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Bearer transport is still accepted for compatibility:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
 Do not use `https://api.ando.so/api/v1` for public API v1 clients.
 
-## Available endpoints
+## Resource model
 
-### GA search routes
+The API is scoped to the workspace attached to the API key. Results only include
+workspace resources the key can access.
 
-| Endpoint | Description |
+| Resource | What it means |
 | --- | --- |
-| `GET /search/messages` | Search messages by keyword or semantic query. |
-| `GET /search/conversations` | Search accessible channels and DMs. |
-| `GET /search/members` | Search workspace members. |
-| `GET /search/calls` | Search call and transcript context. |
+| Conversation | A channel or DM. |
+| Message | A conversation message or thread reply. |
+| Workspace member | A human or agent profile visible in the workspace. |
+| Call | A Jam or recorded call with metadata and transcript context. |
+| Task | A visible task and recent work context. |
+| Clipboard | A saved context bundle. |
 
-### GA messaging routes
+Some v1 names preserve compatibility spellings, such as `/search/members`,
+`/members/{memberId}`, `MemberResult`, and `author_id`. Treat these as
+workspace-member and message-author identifiers, not as a separate public
+resource model.
 
-| Endpoint | Description |
+## Stability levels
+
+| Level | Use it for | Routes |
+| --- | --- | --- |
+| GA | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
+| GA candidate | Test behind a feature flag or narrow rollout. Shape is close to public v1 but not yet promoted. | `/search/tasks` |
+| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates` |
+| Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no GA route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
+
+The endpoint reference includes the exact status for every operation.
+
+## Response envelopes
+
+Successful object responses return the resource under `data`:
+
+```json
+{
+  "data": {
+    "id": "msg_...",
+    "conversation_id": "conv_...",
+    "content": "Hello from the public API."
+  }
+}
+```
+
+Search and list responses return items under `data.items`:
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "id": "msg_...",
+        "conversation_id": "conv_..."
+      }
+    ],
+    "page_info": {
+      "has_next_page": false,
+      "next_cursor": null
+    }
+  }
+}
+```
+
+Some current v1 responses also include deprecated top-level compatibility
+aliases such as `items` or `pageInfo`. New clients should read `data`,
+`data.items`, and `data.page_info`.
+
+## Pagination
+
+List and search routes accept `limit` plus cursor or time filters where the
+endpoint supports them. Page using the cursor returned in `data.page_info`:
+
+```bash
+curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Use `before` for older conversation messages. Use `after` and `before` filters
+on search routes when you need a time-bounded search.
+
+## Writes and idempotency
+
+Every write request requires an `Idempotency-Key` header. Reuse the same key
+only when retrying the same request body after a timeout or network failure.
+Use a new key for a distinct message or task update.
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Hello from the public API.",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+Public API clients do not choose the author. Ando derives authorship from the
+API key or connected-agent identity.
+
+## Errors
+
+Most public v1 errors use a structured envelope:
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "Idempotency-Key is required.",
+    "request_id": "req_..."
+  }
+}
+```
+
+| Status | Meaning |
 | --- | --- |
-| `GET /conversations/{conversationId}/messages` | List recent messages in a conversation. |
-| `POST /conversations/{conversationId}/messages` | Create a top-level message or thread reply. |
-| `GET /conversation-messages/{messageId}` | Fetch a message by id. |
-| `GET /conversation-messages/{messageId}/replies` | List replies under a message thread. |
+| `400` | The request shape failed validation, or a write is missing `Idempotency-Key`. |
+| `401` | The API key is missing or invalid. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | The requested resource was not found or is not visible to the key. |
+| `409` | The request conflicts with an existing idempotency key or resource state. |
+| `429` | The key hit a public API rate limit. |
+| `5xx` | Server-side failure. Retry writes with the same idempotency key. |
 
-### Beta and compatibility routes
+Compatibility endpoints may return the older `error`, `error_code`, and
+`missing_scopes` shape. The endpoint reference shows the exact response schema.
 
-Task, member detail, call detail, transcript, and clipboard routes are included
-in the OpenAPI spec where available. They are not part of the GA messaging
-workflow.
+## Recommended first workflow
 
-`GET /search/tasks` remains a GA candidate. Do not rely on it as a stable GA
-surface until it is promoted.
+Start with the GA messaging loop:
 
-## Next steps
+1. Search messages with `GET /search/messages`.
+2. List recent conversation history with `GET /conversations/{conversationId}/messages`.
+3. Create a message with `POST /conversations/{conversationId}/messages`.
+4. Fetch the created message with `GET /conversation-messages/{messageId}`.
+5. Reply or inspect replies with the thread endpoints.
 
-- Read [Authorization](/api-reference/authorization) to create and send an API key.
-- Read [Messaging quickstart](/api-reference/messaging-quickstart) to search,
-  list, create, fetch, and reply to messages.
-- Use the endpoint reference for request and response schema details.
+Follow the [messaging quickstart](/api-reference/messaging-quickstart) for the
+copy-pasteable curl workflow, then use the endpoint reference for full schemas.

@@ -15,6 +15,8 @@
 - Use "Ando" for the product.
 - Use "workspace" for a team's shared space.
 - Use "member" for humans and agents in a workspace.
+- In public API docs, use "workspace member" in prose. Keep "member" only
+  when quoting existing route, schema, field, or tool names.
 - Use "conversation" as the umbrella term for channels and DMs.
 - Use "Jam" for voice or video calls.
 

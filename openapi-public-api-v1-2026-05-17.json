@@ -78,7 +78,7 @@
         "description": "A participant in a call.",
         "properties": {
           "id": {
-            "description": "Member identifier.",
+            "description": "Participant workspace member identifier.",
             "type": "string",
             "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
           },
@@ -359,7 +359,7 @@
             "nullable": true
           },
           "display_name": {
-            "description": "Member display name.",
+            "description": "Workspace member display name.",
             "type": "string",
             "nullable": true
           },
@@ -384,7 +384,7 @@
             "nullable": true
           },
           "type": {
-            "description": "Clipboard item type.",
+            "description": "Clipboard item type. The member value is a v1 compatibility spelling for a workspace member item.",
             "enum": [
               "message",
               "member",
@@ -558,7 +558,7 @@
       },
       "CreateConversationMessageBody": {
         "additionalProperties": false,
-        "description": "Create a conversation message. The authenticated API-key membership is the author; author_id is accepted only for legacy body compatibility and is ignored.",
+        "description": "Create a conversation message. The authenticated API-key workspace member is the author; author_id is accepted only for legacy body compatibility and is ignored.",
         "properties": {
           "markdown_content": {
             "description": "Message markdown content.",
@@ -600,7 +600,7 @@
             "type": "array"
           },
           "initiator_id": {
-            "description": "Initiating member identifier.",
+            "description": "Initiating workspace member identifier.",
             "type": "string",
             "nullable": true
           },
@@ -629,7 +629,7 @@
             "nullable": true
           },
           "author_id": {
-            "description": "Ignored legacy body author identifier. The authenticated API-key membership is always the author.",
+            "description": "Ignored legacy body author workspace member identifier. The authenticated API-key workspace member is always the author.",
             "type": "string"
           }
         },
@@ -667,7 +667,7 @@
         "description": "Search result for a conversation.",
         "properties": {
           "agent_members_count": {
-            "description": "Number of agent members.",
+            "description": "Number of agent workspace members.",
             "type": "integer"
           },
           "description": {
@@ -676,7 +676,7 @@
             "nullable": true
           },
           "human_members_count": {
-            "description": "Number of human members.",
+            "description": "Number of human workspace members.",
             "type": "integer"
           },
           "id": {
@@ -767,7 +767,7 @@
       },
       "MemberResult": {
         "additionalProperties": false,
-        "description": "Member result.",
+        "description": "Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.",
         "properties": {
           "display_name": {
             "description": "Display name.",
@@ -781,7 +781,7 @@
             "nullable": true
           },
           "id": {
-            "description": "Member identifier.",
+            "description": "Workspace member identifier.",
             "type": "string",
             "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
           },
@@ -792,7 +792,7 @@
             "nullable": true
           },
           "title": {
-            "description": "Member title.",
+            "description": "Workspace member title.",
             "type": "string",
             "nullable": true
           }
@@ -811,12 +811,12 @@
         "description": "Public message result. This intentionally omits reply lineage fields such as thread_root_id and replied_to_message_id; use the thread replies route and its thread_root_id payload field to validate thread grouping.",
         "properties": {
           "author_id": {
-            "description": "Author member identifier.",
+            "description": "Author workspace member identifier.",
             "type": "string",
             "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
           },
           "author_name": {
-            "description": "Author display name.",
+            "description": "Author workspace member display name.",
             "type": "string",
             "nullable": true
           },
@@ -878,12 +878,12 @@
         "description": "Message detail response with the standard public data envelope plus legacy top-level aliases.",
         "properties": {
           "author_id": {
-            "description": "Author member identifier.",
+            "description": "Author workspace member identifier.",
             "type": "string",
             "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
           },
           "author_name": {
-            "description": "Author display name.",
+            "description": "Author workspace member display name.",
             "type": "string",
             "nullable": true
           },
@@ -1206,14 +1206,14 @@
       },
       "SearchMembersResponse": {
         "additionalProperties": false,
-        "description": "Search members response. Results are returned in data.items; top-level items is a compatibility alias.",
+        "description": "Search workspace members response. Results are returned in data.items; top-level items is a compatibility alias.",
         "properties": {
           "data": {
             "additionalProperties": false,
             "description": "Standard public response data. New clients should read data.items.",
             "properties": {
               "items": {
-                "description": "Member results.",
+                "description": "Workspace member results.",
                 "items": {
                   "$ref": "#/components/schemas/MemberResult"
                 },
@@ -1342,7 +1342,7 @@
         "type": "object"
       },
       "TaskEntryAuthorKind": {
-        "description": "Task entry author kind.",
+        "description": "Task entry author kind. The member value is a v1 compatibility spelling for a human workspace member author.",
         "enum": [
           "member",
           "managed_agent",
@@ -1375,7 +1375,7 @@
             "type": "string"
           },
           "author_member_id": {
-            "description": "Author member identifier.",
+            "description": "Author workspace member identifier.",
             "type": "string",
             "nullable": true
           },
@@ -1625,7 +1625,7 @@
             "format": "date-time"
           },
           "creator_member_id": {
-            "description": "Creator member identifier.",
+            "description": "Creator workspace member identifier.",
             "type": "string",
             "nullable": true
           },
@@ -2585,16 +2585,16 @@
     },
     "/members/{memberId}": {
       "get": {
-        "description": "Returns a workspace member visible to the authenticated API key.",
+        "description": "Returns a workspace member visible to the authenticated API key. The v1 path and memberId parameter are compatibility spellings for a workspace member identifier.",
         "operationId": "getMember",
         "parameters": [
           {
-            "description": "Member identifier.",
+            "description": "Workspace member identifier. v1 uses the legacy memberId spelling.",
             "in": "path",
             "name": "memberId",
             "required": true,
             "schema": {
-              "description": "Member identifier.",
+              "description": "Workspace member identifier. v1 uses the legacy memberId spelling.",
               "type": "string"
             }
           }
@@ -2608,7 +2608,7 @@
                 }
               }
             },
-            "description": "Member details."
+            "description": "Workspace member details."
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -2640,7 +2640,7 @@
             "BearerApiKey": []
           }
         ],
-        "summary": "Get a member",
+        "summary": "Get a workspace member",
         "tags": [
           "Members"
         ],
@@ -2998,7 +2998,7 @@
     },
     "/search/members": {
       "get": {
-        "description": "Searches members in the authenticated API key workspace.",
+        "description": "Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling.",
         "operationId": "searchMembers",
         "parameters": [
           {
@@ -3018,7 +3018,7 @@
               "application/json": {
                 "examples": {
                   "members": {
-                    "summary": "Member search results.",
+                    "summary": "Workspace member search results.",
                     "value": {
                       "data": {
                         "items": [
@@ -3048,7 +3048,7 @@
                 }
               }
             },
-            "description": "Member search results."
+            "description": "Workspace member search results."
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -3080,7 +3080,7 @@
             "BearerApiKey": []
           }
         ],
-        "summary": "Search members",
+        "summary": "Search workspace members",
         "tags": [
           "Search"
         ],
@@ -3118,11 +3118,11 @@
             }
           },
           {
-            "description": "Comma-separated author member identifiers.",
+            "description": "Comma-separated author workspace member identifiers.",
             "in": "query",
             "name": "author",
             "schema": {
-              "description": "Comma-separated author member identifiers.",
+              "description": "Comma-separated author workspace member identifiers.",
               "type": "string"
             }
           },
@@ -3582,7 +3582,7 @@
       "name": "Clipboards"
     },
     {
-      "description": "Member detail routes.",
+      "description": "Workspace member detail routes. Existing v1 paths keep member compatibility spellings.",
       "name": "Members"
     },
     {

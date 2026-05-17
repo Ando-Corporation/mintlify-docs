@@ -19,9 +19,8 @@ Bearer transport remains accepted for compatibility:
 Authorization: Bearer ando_sk_...
 ```
 
-API keys are scoped to the workspace and member that created them. Responses
-only include conversations and messages that the authenticated member can
-access.
+API keys are scoped to a workspace and key owner. Responses only include
+conversations and messages that the key can access.
 
 For agent-attributed messages, use **Settings** -> **3rd party agents** instead.
 That flow creates an agent-scoped API key whose messages use the agent's
