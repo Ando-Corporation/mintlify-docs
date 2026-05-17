@@ -16,7 +16,7 @@
     "library": "lucide"
   },
   "api": {
-    "openapi": "api-reference/openapi.json",
+    "openapi": "openapi.json",
     "url": "full",
     "playground": {
       "display": "interactive"
@@ -95,7 +95,7 @@
           },
           {
             "group": "Endpoint reference",
-            "openapi": "api-reference/openapi.json"
+            "openapi": "openapi.json"
           }
         ]
       }
@@ -153,6 +153,10 @@
     {
       "source": "/api-reference",
       "destination": "/api-reference/overview"
+    },
+    {
+      "source": "/api-reference/openapi.json",
+      "destination": "/openapi.json"
     }
   ]
 }
