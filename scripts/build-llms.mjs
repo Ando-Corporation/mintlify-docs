@@ -88,9 +88,35 @@ const flattenNavigation = (items, sectionTrail = []) => {
   return { endpoints, pages };
 };
 
+const collectOpenApiConfigValues = (value, results = []) => {
+  if (Array.isArray(value)) {
+    for (const item of value) collectOpenApiConfigValues(item, results);
+    return results;
+  }
+  if (value == null || typeof value !== "object") {
+    return results;
+  }
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (key === "openapi" && typeof nestedValue === "string") {
+      results.push(nestedValue);
+    }
+    collectOpenApiConfigValues(nestedValue, results);
+  }
+  return results;
+};
+
 const docsConfig = JSON.parse(readText("docs.json"));
-if (docsConfig.api?.openapi !== latestOpenApiFile) {
-  throw new Error(`docs.json api.openapi must use ${latestOpenApiFile}.`);
+const openApiConfigValues = collectOpenApiConfigValues(docsConfig);
+const unexpectedOpenApiFiles = openApiConfigValues.filter(
+  (value) => !openApiAliasFiles.includes(value)
+);
+const missingOpenApiAliases = openApiAliasFiles.filter(
+  (value) => !openApiConfigValues.includes(value)
+);
+if (unexpectedOpenApiFiles.length !== 0 || missingOpenApiAliases.length !== 0) {
+  throw new Error(
+    `docs.json OpenAPI sources must use ${openApiAliasFiles.join(", ")}.`
+  );
 }
 const datedOpenApiFiles = fs.readdirSync(rootDir).filter((file) =>
   datedOpenApiPattern.test(file)
