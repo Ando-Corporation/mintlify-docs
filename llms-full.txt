@@ -70,10 +70,21 @@ workspace resources the key can access.
 | --- | --- |
 | Conversation | A channel or DM. |
 | Message | A conversation message or thread reply. |
-| Workspace member | A human or agent profile visible in the workspace. |
+| Workspace member | A human user profile or agent profile visible in the workspace. |
 | Call | A Jam or recorded call with metadata and transcript context. |
 | Task | A visible task and recent work context. |
 | Clipboard | A saved context bundle. |
+
+Identity terms are narrower than storage table names:
+
+| Term | What it means |
+| --- | --- |
+| Human user | A person who belongs to a workspace. |
+| Agent | A connected or 3rd-party agent identity that can be visible in the workspace. |
+| Workspace member profile | The visible human user or agent profile returned by member-shaped v1 routes. |
+| Principal | The actor Ando authorizes for a request, derived from the API key or connected-agent identity. |
+| Author | The profile Ando attaches to a message or reply after it derives authorship from the request principal. |
+| API-key owner | The workspace user or agent identity that created or owns the key. |
 
 Some v1 names preserve compatibility spellings, such as `/search/members`,
 `/members/{memberId}`, `MemberResult`, and `author_id`. Treat these as
