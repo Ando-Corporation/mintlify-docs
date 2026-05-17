@@ -16,7 +16,7 @@
     "library": "lucide"
   },
   "api": {
-    "openapi": "openapi.json",
+    "openapi": "openapi-public-api-v1-2026-05-17.json",
     "url": "full",
     "playground": {
       "display": "interactive"
@@ -95,7 +95,7 @@
           },
           {
             "group": "Endpoint reference",
-            "openapi": "openapi.json"
+            "openapi": "openapi-public-api-v1-2026-05-17.json"
           }
         ]
       }
@@ -156,7 +156,11 @@
     },
     {
       "source": "/api-reference/openapi.json",
-      "destination": "/openapi.json"
+      "destination": "/openapi-public-api-v1-2026-05-17.json"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/openapi-public-api-v1-2026-05-17.json"
     }
   ]
 }
