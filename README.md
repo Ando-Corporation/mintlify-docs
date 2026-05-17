@@ -29,9 +29,9 @@ node scripts/build-llms.mjs
 node scripts/verify-api-docs-release.mjs --local
 ```
 
-`--local` rebuilds `llms.txt` and `llms-full.txt`, verifies they were already
-fresh, runs Mintlify validation, checks broken links, and runs `git diff
---check`.
+`--local` rebuilds `llms.txt`, `llms-full.txt`, and
+`openapi-public-api-v1-latest.json`; verifies they were already fresh; runs
+Mintlify validation; checks broken links; and runs `git diff --check`.
 
 If the versioned OpenAPI file changed, validate the source contract in the Ando
 monorepo and confirm this repo's copied spec matches it:
@@ -55,8 +55,10 @@ After Mintlify publishes to production, run:
 node scripts/verify-api-docs-release.mjs --production
 ```
 
-Production verification covers `/api-reference`, API markdown exports, the
-versioned OpenAPI JSON, `llms.txt`, and `llms-full.txt`. It also checks for
+Production verification covers `/api-reference`, API markdown exports,
+`openapi-public-api-v1-latest.json`, the dated OpenAPI archive, `llms.txt`, and
+`llms-full.txt`. It verifies `/openapi.json` and
+`/api-reference/openapi.json` point at the latest OpenAPI JSON, then checks for
 stale API guidance such as bearer-preferred auth, the old create-message base
 URL, old member-scoped API-key wording, and internal GA-candidate phrasing.
 

@@ -210,11 +210,11 @@
     },
     {
       "source": "/api-reference/openapi.json",
-      "destination": "/openapi-public-api-v1-2026-05-17.json"
+      "destination": "/openapi-public-api-v1-latest.json"
     },
     {
       "source": "/openapi.json",
-      "destination": "/openapi-public-api-v1-2026-05-17.json"
+      "destination": "/openapi-public-api-v1-latest.json"
     }
   ]
 }

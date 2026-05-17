@@ -7,7 +7,8 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const siteUrl = process.env.ANDO_DOCS_URL ?? "https://docs.ando.so";
-const openApiFile = "openapi-public-api-v1-2026-05-17.json";
+const latestOpenApiFile = "openapi-public-api-v1-latest.json";
+const datedOpenApiPattern = /openapi-public-api-v1-\d{4}-\d{2}-\d{2}\.json/g;
 
 const args = process.argv.slice(2);
 
@@ -74,6 +75,17 @@ const assertExcludes = (label, text, needles) => {
   }
 };
 
+const findDatedOpenApiFile = (label, text) => {
+  const matches = [...text.matchAll(datedOpenApiPattern)].map((match) => match[0]);
+  const uniqueMatches = [...new Set(matches)];
+  if (uniqueMatches.length !== 1) {
+    throw new Error(
+      `${label} must link exactly one dated OpenAPI archive; found ${uniqueMatches.length}.`
+    );
+  }
+  return uniqueMatches[0];
+};
+
 const stalePublicApiPhrases = [
   "Public API v1 currently has two GA families",
   "bearer token header is preferred",
@@ -85,9 +97,12 @@ const stalePublicApiPhrases = [
 const staleLlmsPhrases = [...stalePublicApiPhrases, "Documentation Index"];
 
 const checkLocalArtifacts = () => {
+  const beforeIndex = fileText("llms.txt");
+  const openApiFile = findDatedOpenApiFile("llms.txt", beforeIndex);
   const before = {
     full: fileText("llms-full.txt"),
-    index: fileText("llms.txt"),
+    index: beforeIndex,
+    latestOpenApi: fileText(latestOpenApiFile),
   };
 
   run("node", ["scripts/build-llms.mjs"]);
@@ -95,16 +110,31 @@ const checkLocalArtifacts = () => {
   const after = {
     full: fileText("llms-full.txt"),
     index: fileText("llms.txt"),
+    latestOpenApi: fileText(latestOpenApiFile),
   };
-  if (before.full !== after.full || before.index !== after.index) {
+  const afterOpenApiFile = findDatedOpenApiFile("llms.txt", after.index);
+  if (afterOpenApiFile !== openApiFile) {
     throw new Error(
-      "llms artifacts were stale. Re-run node scripts/build-llms.mjs and commit the result."
+      `dated OpenAPI archive changed from ${openApiFile} to ${afterOpenApiFile}.`
     );
+  }
+  if (
+    before.full !== after.full ||
+    before.index !== after.index ||
+    before.latestOpenApi !== after.latestOpenApi
+  ) {
+    throw new Error(
+      "generated docs artifacts were stale. Re-run node scripts/build-llms.mjs and commit the result."
+    );
+  }
+  if (after.latestOpenApi !== fileText(openApiFile)) {
+    throw new Error(`${latestOpenApiFile} does not match ${openApiFile}.`);
   }
 
   assertIncludes("llms.txt", after.index, [
     "## Public API v1",
     "Search quickstart",
+    latestOpenApiFile,
     openApiFile,
   ]);
   assertIncludes("llms-full.txt", after.full, [
@@ -125,6 +155,7 @@ const checkLocalDocs = () => {
 };
 
 const checkMonorepoContracts = (monorepoPath) => {
+  const openApiFile = findDatedOpenApiFile("llms.txt", fileText("llms.txt"));
   const resolved = path.resolve(monorepoPath);
   const monorepoOpenApi = path.join(
     resolved,
@@ -148,10 +179,16 @@ const checkMonorepoContracts = (monorepoPath) => {
   run("git", ["diff", "--check"], { cwd: resolved });
 
   const docsOpenApi = fileText(openApiFile);
+  const latestOpenApi = fileText(latestOpenApiFile);
   const sourceOpenApi = fs.readFileSync(monorepoOpenApi, "utf8");
   if (docsOpenApi !== sourceOpenApi) {
     throw new Error(
       `${openApiFile} does not match ${monorepoOpenApi}. Copy the regenerated spec into this repo.`
+    );
+  }
+  if (latestOpenApi !== sourceOpenApi) {
+    throw new Error(
+      `${latestOpenApiFile} does not match ${monorepoOpenApi}. Re-run node scripts/build-llms.mjs.`
     );
   }
 };
@@ -199,10 +236,12 @@ const checkProduction = async () => {
   }
 
   const llmsIndex = await fetchText("/llms.txt");
+  const openApiFile = findDatedOpenApiFile("/llms.txt", llmsIndex.text);
   assertIncludes("/llms.txt", llmsIndex.text, [
     "# Ando",
     "## Public API v1",
     "Search quickstart",
+    latestOpenApiFile,
     openApiFile,
   ]);
   assertExcludes("/llms.txt", llmsIndex.text, staleLlmsPhrases);
@@ -217,16 +256,34 @@ const checkProduction = async () => {
   ]);
   assertExcludes("/llms-full.txt", llmsFull.text, staleLlmsPhrases);
 
-  const openApi = await fetchText(`/${openApiFile}`);
-  assertIncludes(`/${openApiFile}`, openApi.text, [
+  const latestOpenApi = await fetchText(`/${latestOpenApiFile}`);
+  assertIncludes(`/${latestOpenApiFile}`, latestOpenApi.text, [
     '"name": "x-api-key"',
     "legacy compatibility route kept for older clients",
     "nearly stable task-search route",
   ]);
-  assertExcludes(`/${openApiFile}`, openApi.text, [
+  assertExcludes(`/${latestOpenApiFile}`, latestOpenApi.text, [
     "legacy frozen non-GA compatibility route",
     "GA-candidate search-extended route",
   ]);
+
+  const openApi = await fetchText(`/${openApiFile}`);
+  if (openApi.text !== latestOpenApi.text) {
+    throw new Error(`/${openApiFile} does not match /${latestOpenApiFile}.`);
+  }
+
+  const aliasPaths = ["/openapi.json", "/api-reference/openapi.json"];
+  for (const aliasPath of aliasPaths) {
+    const alias = await fetchText(aliasPath);
+    if (!alias.response.url.endsWith(`/${latestOpenApiFile}`)) {
+      throw new Error(
+        `${aliasPath} redirected to ${alias.response.url}, expected /${latestOpenApiFile}`
+      );
+    }
+    if (alias.text !== latestOpenApi.text) {
+      throw new Error(`${aliasPath} does not match /${latestOpenApiFile}.`);
+    }
+  }
 };
 
 try {
