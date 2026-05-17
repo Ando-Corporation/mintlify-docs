@@ -50,7 +50,7 @@ curl -sS -X POST "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages
   }'
 ```
 
-The authenticated API-key membership or connected agent is the author. Public v1
+Ando derives the author from the API key or connected-agent identity. Public v1
 clients should not send `author_id`.
 
 ## Create a reply
