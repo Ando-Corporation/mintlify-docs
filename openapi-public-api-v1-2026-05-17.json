@@ -1967,7 +1967,7 @@
     },
     "/clipboards/{clipboardId}": {
       "get": {
-        "description": "Returns a clipboard and its included context items. This is a legacy frozen non-GA compatibility route; do not use it for new public API integrations.",
+        "description": "Returns a clipboard and its included context items. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.",
         "operationId": "getClipboard",
         "parameters": [
           {
@@ -2811,7 +2811,7 @@
     },
     "/search/clipboard": {
       "get": {
-        "description": "Searches clipboards accessible to the authenticated API key. This is a legacy frozen non-GA compatibility route; do not use it for new public API integrations.",
+        "description": "Searches clipboards accessible to the authenticated API key. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.",
         "operationId": "searchClipboards",
         "parameters": [
           {
@@ -3276,7 +3276,7 @@
     },
     "/search/tasks": {
       "get": {
-        "description": "Searches tasks visible to the authenticated API key. This is a GA-candidate search-extended route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.",
+        "description": "Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.",
         "operationId": "searchTasks",
         "parameters": [
           {

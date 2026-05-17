@@ -1,0 +1,67 @@
+# Ando
+
+> Documentation and API reference for Ando.
+
+## Public API v1
+
+- [API overview](https://docs.ando.so/api-reference/overview.md): Build API-key integrations with Ando's public API v1.
+- [Authorization](https://docs.ando.so/api-reference/authorization.md): Create an Ando API key, store it safely, and send authenticated API requests.
+- [Messaging quickstart](https://docs.ando.so/api-reference/messaging-quickstart.md): Run the stable message workflow from search through replies.
+- [Search quickstart](https://docs.ando.so/api-reference/search-quickstart.md): Use stable search endpoints to find messages, conversations, workspace members, and calls.
+- [Messaging API](https://docs.ando.so/api-reference/http-api.md): Search, list, create, fetch, and reply to Ando messages.
+- [Endpoint reference map](https://docs.ando.so/api-reference/endpoint-reference.md): Scan public API v1 endpoints by stability level before opening generated schemas.
+
+## Endpoint reference
+
+### Stable search
+
+- [Search messages](https://docs.ando.so/api-reference/search/search-messages.md): Searches messages in conversations accessible to the authenticated API key.
+- [Search conversations](https://docs.ando.so/api-reference/search/search-conversations.md): Searches conversations accessible to the authenticated API key.
+- [Search workspace members](https://docs.ando.so/api-reference/search/search-workspace-members.md): Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling.
+- [Search calls](https://docs.ando.so/api-reference/search/search-calls.md): Searches calls accessible to the authenticated API key.
+
+### Stable messaging
+
+- [List conversation messages](https://docs.ando.so/api-reference/messages/list-conversation-messages.md): Returns messages in a conversation.
+- [Create a conversation message](https://docs.ando.so/api-reference/messages/create-a-conversation-message.md): Creates a message in a conversation using the authenticated API-key workspace membership as the author.
+- [Get a message](https://docs.ando.so/api-reference/messages/get-a-message.md): Returns a single conversation message by identifier.
+- [List thread replies](https://docs.ando.so/api-reference/messages/list-thread-replies.md): Returns replies for a thread root message.
+
+### Nearly stable
+
+- [Search tasks](https://docs.ando.so/api-reference/tasks/search-tasks.md): Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.
+
+### Preview
+
+- [Get a workspace member](https://docs.ando.so/api-reference/members/get-a-workspace-member.md): Returns a workspace member visible to the authenticated API key. The v1 path and memberId parameter are compatibility spellings for a workspace member identifier.
+- [Get a call](https://docs.ando.so/api-reference/calls/get-a-call.md): Returns call metadata, participants, summary, and timing.
+- [Get a call transcript](https://docs.ando.so/api-reference/calls/get-a-call-transcript.md): Returns transcript segments for a call.
+- [Get a task](https://docs.ando.so/api-reference/tasks/get-a-task.md): Returns task context, including task entries and resources.
+- [Record a task update](https://docs.ando.so/api-reference/tasks/record-a-task-update.md): Records a task update and optional task/resource changes.
+
+### Legacy compatibility
+
+- [Search clipboards](https://docs.ando.so/api-reference/search/search-clipboards.md): Searches clipboards accessible to the authenticated API key. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.
+- [Get a clipboard](https://docs.ando.so/api-reference/clipboards/get-a-clipboard.md): Returns a clipboard and its included context items. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.
+
+## Product docs
+
+- [Ando](https://docs.ando.so/index.md): Documentation and weekly updates for Ando.
+- [Start guide](https://docs.ando.so/docs/start-guide.md): New to Ando? Start here to understand the basics, set up your workspace, and learn from teams already using it.
+- [Concepts](https://docs.ando.so/docs/concepts.md): Core ideas that shape how Ando works—from workspaces and conversations to AI agents and context.
+- [Download Ando](https://docs.ando.so/docs/download-ando.md): Get the Ando desktop and mobile apps for notifications, keyboard shortcuts, and quick access wherever you work.
+- [Inbox](https://docs.ando.so/docs/inbox.md): Your personalized view of what needs attention—mentions, replies, and updates from conversations you follow.
+- [Search](https://docs.ando.so/docs/search.md): Find anything that's been shared or discussed in your workspace—messages, files, people, and transcripts.
+- [Messages](https://docs.ando.so/docs/messages.md): Your direct messages and private conversations with people and AI agents in your workspace.
+- [Ando MCP](https://docs.ando.so/docs/ando-mcp.md): Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
+- [Import data from other apps](https://docs.ando.so/docs/import-data-from-other-apps.md): Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
+- [Importing from Slack](https://docs.ando.so/docs/importing-from-slack.md): Export your Slack workspace data, upload the ZIP to Ando, and choose the channels you want to import.
+
+## Changelog
+
+- [Changelog](https://docs.ando.so/changelog.md): Weekly updates on what's new in Ando.
+- [Coming soon](https://docs.ando.so/coming-soon.md): Upcoming Ando product work.
+
+## OpenAPI Specs
+
+- [openapi-public-api-v1-2026-05-17](https://docs.ando.so/openapi-public-api-v1-2026-05-17.json)
