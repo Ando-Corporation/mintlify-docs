@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const siteUrl = "https://docs.ando.so";
-const openApiFile = "openapi-public-api-v1-2026-05-17.json";
+const latestOpenApiFile = "openapi-public-api-v1-latest.json";
 
 const readText = (relativePath) =>
   fs.readFileSync(path.join(rootDir, relativePath), "utf8");
@@ -87,7 +87,12 @@ const flattenNavigation = (items, sectionTrail = []) => {
 };
 
 const docsConfig = JSON.parse(readText("docs.json"));
-const openApi = JSON.parse(readText(openApiFile));
+const openApiFile = docsConfig.api?.openapi;
+if (typeof openApiFile !== "string") {
+  throw new Error("docs.json must define api.openapi.");
+}
+const openApiSource = readText(openApiFile);
+const openApi = JSON.parse(openApiSource);
 const tabs = docsConfig.navigation?.tabs ?? [];
 
 const allPages = [{ page: "index", sectionTrail: ["Home"] }];
@@ -198,6 +203,7 @@ const llmsTxt = [
   "",
   "## OpenAPI Specs",
   "",
+  `- [${path.basename(latestOpenApiFile, ".json")}](${siteUrl}/${latestOpenApiFile})`,
   `- [${path.basename(openApiFile, ".json")}](${siteUrl}/${openApiFile})`,
 ].join("\n");
 
@@ -304,3 +310,4 @@ const llmsFullTxt = [
 
 writeText("llms.txt", llmsTxt);
 writeText("llms-full.txt", llmsFullTxt);
+writeText(latestOpenApiFile, openApiSource);

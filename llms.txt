@@ -64,4 +64,5 @@
 
 ## OpenAPI Specs
 
+- [openapi-public-api-v1-latest](https://docs.ando.so/openapi-public-api-v1-latest.json)
 - [openapi-public-api-v1-2026-05-17](https://docs.ando.so/openapi-public-api-v1-2026-05-17.json)
