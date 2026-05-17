@@ -1,0 +1,2938 @@
+# Ando
+
+> Documentation and API reference for Ando.
+
+Public API v1 uses `https://api.ando.so/v1` as the base URL. New integrations should send `x-api-key` from server-side code. Bearer transport is accepted only for compatibility with older clients.
+
+## Public API pages
+
+# API overview
+Source: https://docs.ando.so/api-reference/overview
+
+> Build API-key integrations with Ando's public API v1.
+
+Ando's public API is for server-side integrations that need workspace context:
+search messages and workspace records, read conversation history, and create
+messages or replies with an API key.
+
+The stable, supported part of public API v1 is built around two jobs:
+
+- **Find context**: search messages, conversations, workspace members, and calls.
+- **Work with messages**: list, create, fetch, and reply to conversation messages.
+
+Other endpoints exist for testing or older compatibility, but they are not the
+first surface new integrations should build on.
+
+## Get an API key
+
+Create a workspace API key in Ando:
+
+1. Open **Settings**.
+2. Go to **API keys**.
+3. Create or copy an API key.
+4. Store it as a secret in your server-side environment.
+
+Use **3rd party agents** instead when you want messages to be attributed to an
+agent identity rather than a human workspace user.
+
+## Base URL and authentication
+
+All public API v1 requests use this base URL:
+
+```text
+https://api.ando.so/v1
+```
+
+Use `x-api-key` as the canonical auth header:
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+
+curl -sS "$ANDO_API_BASE/search/messages?q=release" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Bearer transport is still accepted for compatibility:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+Do not use `https://api.ando.so/api/v1` for public API v1 clients.
+
+## Resource model
+
+The API is scoped to the workspace attached to the API key. Results only include
+workspace resources the key can access.
+
+| Resource | What it means |
+| --- | --- |
+| Conversation | A channel or DM. |
+| Message | A conversation message or thread reply. |
+| Workspace member | A human or agent profile visible in the workspace. |
+| Call | A Jam or recorded call with metadata and transcript context. |
+| Task | A visible task and recent work context. |
+| Clipboard | A saved context bundle. |
+
+Some v1 names preserve compatibility spellings, such as `/search/members`,
+`/members/{memberId}`, `MemberResult`, and `author_id`. Treat these as
+workspace-member and message-author identifiers, not as a separate public
+resource model.
+
+## Stability levels
+
+In this guide, **stable** means generally available: supported for production
+integrations and covered by the public API v1 compatibility promise.
+
+| Level | Use it for | Routes |
+| --- | --- | --- |
+| Stable | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
+| Nearly stable | Test behind a feature flag or narrow rollout. Shape is close to public v1 but not yet promoted. | `/search/tasks` |
+| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates` |
+| Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no stable route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
+
+The endpoint reference includes the exact status for every operation.
+
+## Response envelopes
+
+Successful object responses return the resource under `data`:
+
+```json
+{
+  "data": {
+    "id": "msg_...",
+    "conversation_id": "conv_...",
+    "content": "Hello from the public API."
+  }
+}
+```
+
+Search and list responses return items under `data.items`:
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "id": "msg_...",
+        "conversation_id": "conv_..."
+      }
+    ],
+    "page_info": {
+      "has_next_page": false,
+      "next_cursor": null
+    }
+  }
+}
+```
+
+Some current v1 responses also include deprecated top-level compatibility
+aliases such as `items` or `pageInfo`. New clients should read `data`,
+`data.items`, and `data.page_info`.
+
+## Pagination
+
+List and search routes accept `limit` plus cursor or time filters where the
+endpoint supports them. Page using the cursor returned in `data.page_info`:
+
+```bash
+curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Use `before` for older conversation messages. Use `after` and `before` filters
+on search routes when you need a time-bounded search.
+
+## Writes and idempotency
+
+Every write request requires an `Idempotency-Key` header. Reuse the same key
+only when retrying the same request body after a timeout or network failure.
+Use a new key for a distinct message or task update.
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Hello from the public API.",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+Public API clients do not choose the author. Ando derives authorship from the
+API key or connected-agent identity.
+
+## Errors
+
+Most public v1 errors use a structured envelope:
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "Idempotency-Key is required.",
+    "request_id": "req_..."
+  }
+}
+```
+
+| Status | Meaning |
+| --- | --- |
+| `400` | The request shape failed validation, or a write is missing `Idempotency-Key`. |
+| `401` | The API key is missing or invalid. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | The requested resource was not found or is not visible to the key. |
+| `409` | The request conflicts with an existing idempotency key or resource state. |
+| `429` | The key hit a public API rate limit. |
+| `5xx` | Server-side failure. Retry writes with the same idempotency key. |
+
+Compatibility endpoints may return the older `error`, `error_code`, and
+`missing_scopes` shape. The endpoint reference shows the exact response schema.
+
+## Recommended first workflow
+
+Start with the stable message workflow:
+
+1. Search messages with `GET /search/messages`.
+2. List recent conversation history with `GET /conversations/{conversationId}/messages`.
+3. Create a message with `POST /conversations/{conversationId}/messages`.
+4. Fetch the created message with `GET /conversation-messages/{messageId}`.
+5. Reply or inspect replies with the thread endpoints.
+
+Follow the [messaging quickstart](/api-reference/messaging-quickstart) for the
+copy-pasteable curl workflow, then use the endpoint reference for full schemas.
+# Authorization
+Source: https://docs.ando.so/api-reference/authorization
+
+> Create an Ando API key, store it safely, and send authenticated API requests.
+
+Use Ando API keys from a server-side environment. Do not put them in browser,
+mobile, desktop, or other client-side code.
+
+## Create a key
+
+Create a workspace API key in Ando:
+
+1. Open **Settings**.
+2. Go to **API keys**.
+3. Create or copy an API key.
+4. Store it in your server-side secret manager.
+
+Use **3rd party agents** instead when messages should be attributed to an agent
+identity. Agent keys still use the public API, but Ando derives the author from
+the connected agent rather than from a human workspace user.
+
+## Set environment variables
+
+Use placeholders in local examples and real secrets only in your private
+environment:
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export ANDO_AUTH_TEST_QUERY="engineering"
+```
+
+## Send the key
+
+Use `x-api-key` for new integrations:
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_AUTH_TEST_QUERY" \
+  --data-urlencode "limit=1"
+```
+
+Bearer transport is accepted for compatibility with older clients:
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "Authorization: Bearer $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_AUTH_TEST_QUERY" \
+  --data-urlencode "limit=1"
+```
+
+Prefer `x-api-key` unless you are maintaining an existing bearer-based
+integration.
+
+## Access model
+
+Each key is scoped to one workspace. Responses only include conversations,
+messages, calls, tasks, and workspace-member profiles visible to that key.
+
+Ando derives authorship from the key or connected-agent identity. Public API
+clients should not send `author_id` when creating messages.
+
+## Common authorization errors
+
+| Status | Meaning |
+| --- | --- |
+| `401` | The key is missing, malformed, expired, or unknown. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | The resource does not exist or is not visible to the key. |
+
+Treat generated keys as secrets. Do not commit them, paste them into support
+tickets, add them to screenshots, or include them in validation logs.
+# Messaging quickstart
+Source: https://docs.ando.so/api-reference/messaging-quickstart
+
+> Run the stable message workflow from search through replies.
+
+This quickstart uses a test conversation and synthetic message text. It carries
+ids between steps so you can verify the whole stable message workflow end to
+end.
+
+The examples use `jq` to read ids from responses.
+
+## 1. Set variables
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export ANDO_CONVERSATION_QUERY="engineering"
+export ANDO_MESSAGE_SEARCH_QUERY="public api quickstart"
+export ANDO_QUICKSTART_DIR="${TMPDIR:-/tmp}/ando-public-api-quickstart"
+
+mkdir -p "$ANDO_QUICKSTART_DIR"
+```
+
+## 2. Find a conversation
+
+Search for a test channel or DM and save the first visible conversation id:
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_CONVERSATION_QUERY" \
+  --data-urlencode "limit=5" \
+  | tee "$ANDO_QUICKSTART_DIR/conversations.json"
+
+export CONVERSATION_ID="$(
+  jq -r '.data.items[0].id // empty' "$ANDO_QUICKSTART_DIR/conversations.json"
+)"
+
+test -n "$CONVERSATION_ID" || {
+  echo "No visible conversation matched ANDO_CONVERSATION_QUERY."
+  exit 1
+}
+```
+
+## 3. Search for message context
+
+Search inside the conversation and save an optional context message id:
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_MESSAGE_SEARCH_QUERY" \
+  --data-urlencode "conversation=$CONVERSATION_ID" \
+  --data-urlencode "limit=5" \
+  | tee "$ANDO_QUICKSTART_DIR/message-search.json"
+
+export CONTEXT_MESSAGE_ID="$(
+  jq -r '.data.items[0].id // empty' "$ANDO_QUICKSTART_DIR/message-search.json"
+)"
+```
+
+## 4. List recent messages
+
+List the recent conversation history. Use `data.items` for the messages and
+`data.page_info` for pagination.
+
+```bash
+curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  | tee "$ANDO_QUICKSTART_DIR/recent-messages.json"
+```
+
+## 5. Create a message
+
+Every write needs an `Idempotency-Key`. Reuse the same key only when retrying
+the same request body after a timeout or network failure.
+
+```bash
+export MESSAGE_BODY="Public API quickstart validation $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+export CONTEXT_MESSAGE_IDS="[]"
+
+if [ -n "$CONTEXT_MESSAGE_ID" ]; then
+  export CONTEXT_MESSAGE_IDS="[\"$CONTEXT_MESSAGE_ID\"]"
+fi
+
+jq -n \
+  --arg markdown_content "$MESSAGE_BODY" \
+  --argjson explicit_context_message_ids "$CONTEXT_MESSAGE_IDS" \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: $explicit_context_message_ids,
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > "$ANDO_QUICKSTART_DIR/create-message.json"
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @"$ANDO_QUICKSTART_DIR/create-message.json" \
+  | tee "$ANDO_QUICKSTART_DIR/created-message.json"
+
+export MESSAGE_ID="$(
+  jq -r '.data.id // empty' "$ANDO_QUICKSTART_DIR/created-message.json"
+)"
+
+test -n "$MESSAGE_ID" || {
+  echo "Create message did not return data.id."
+  exit 1
+}
+```
+
+Ando derives the author from the API key or connected-agent identity. Do not
+send `author_id`.
+
+## 6. Fetch the message
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  | tee "$ANDO_QUICKSTART_DIR/fetched-message.json"
+```
+
+## 7. Reply in a thread
+
+Use the created message as the thread root. The same create route creates both
+top-level messages and replies.
+
+```bash
+jq -n \
+  --arg markdown_content "Thread reply from the public API." \
+  --arg thread_root_id "$MESSAGE_ID" \
+  --arg replied_to_message_id "$MESSAGE_ID" \
+  '{
+    markdown_content: $markdown_content,
+    thread_root_id: $thread_root_id,
+    replied_to_message_id: $replied_to_message_id,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > "$ANDO_QUICKSTART_DIR/create-reply.json"
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @"$ANDO_QUICKSTART_DIR/create-reply.json" \
+  | tee "$ANDO_QUICKSTART_DIR/created-reply.json"
+```
+
+## 8. List replies
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID/replies?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  | tee "$ANDO_QUICKSTART_DIR/replies.json"
+
+jq -r '.data.thread_root_id' "$ANDO_QUICKSTART_DIR/replies.json"
+```
+
+Thread replies appear in `data.items`. `MessageResult` objects intentionally do
+not expose internal reply lineage fields such as `thread_root_id` or
+`replied_to_message_id`; validate grouping through the requested root id and the
+reply-list response's `data.thread_root_id`.
+
+## Expected errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request shape failed validation, or a write is missing `Idempotency-Key`. |
+| `401` | The API key is missing or invalid. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | The requested conversation or message was not found or is not visible to the key. |
+| `429` | The key hit a public API rate limit. |
+| `5xx` | Server-side failure. Retry writes with the same idempotency key. |
+# Search quickstart
+Source: https://docs.ando.so/api-reference/search-quickstart
+
+> Use stable search endpoints to find messages, conversations, workspace members, and calls.
+
+Use search endpoints when an integration needs to discover context before it
+reads or writes messages.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+## Search messages
+
+Start with message search when you have a keyword, phrase, or semantic query.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=release plan" \
+  --data-urlencode "limit=10"
+```
+
+Read matches from `data.items`. Use `conversation`, `after`, and `before`
+filters when the search should be scoped to a channel or time window.
+
+## Search conversations
+
+Use conversation search when you need a channel or DM id before listing or
+creating messages.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=engineering" \
+  --data-urlencode "limit=10"
+```
+
+Use the returned `conversation_id` with the stable messaging endpoints.
+
+## Search workspace members
+
+Use workspace member search to resolve a visible human or agent profile by
+name or email.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/members" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=alex" \
+  --data-urlencode "limit=10"
+```
+
+The route keeps the v1 `/search/members` spelling for compatibility. Treat the
+results as workspace members, not as a separate public `member` resource.
+
+## Search calls
+
+Use call search when you need meeting or transcript context.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/calls" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=launch review" \
+  --data-urlencode "limit=10"
+```
+
+Call detail and transcript routes are preview endpoints. Search results are
+stable, but durable workflows should avoid depending on preview detail routes
+unless that risk is acceptable.
+
+## Next step
+
+After search returns the context you need, use the
+[messaging quickstart](/api-reference/messaging-quickstart) to list recent
+messages, create a message, fetch it, and inspect replies.
+# Messaging API
+Source: https://docs.ando.so/api-reference/http-api
+
+> Search, list, create, fetch, and reply to Ando messages.
+
+Use the stable messaging endpoints when an integration needs to find context,
+read conversation history, create a message, or manage thread replies.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export CONVERSATION_ID="conv_..."
+export MESSAGE_ID="msg_..."
+```
+
+## Search messages
+
+Use search when your client has text or semantic context but does not know the
+message id.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=incident" \
+  --data-urlencode "conversation=$CONVERSATION_ID" \
+  --data-urlencode "limit=10"
+```
+
+Search results are returned in `data.items`.
+
+## List conversation messages
+
+Use this when the client already has a conversation id and needs recent channel
+or DM history.
+
+```bash
+curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Paginated list responses use `data.items` and `data.page_info`. Pass
+`before=<cursor-or-iso-timestamp>` to page backward. Some v1 responses also
+include top-level `items` and `pageInfo` compatibility aliases; new clients
+should read the `data` envelope.
+
+## Create a message
+
+Every write requires an `Idempotency-Key` header. Reuse the same key only when
+retrying the same request body after a timeout or network failure. Use a new key
+for a different message.
+
+```bash
+jq -n \
+  --arg markdown_content "Public API guide validation." \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-create-message.json
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @/tmp/ando-create-message.json
+```
+
+The created message is returned in `data`. Ando derives the author from the API
+key or connected-agent identity. Public API clients should not send `author_id`.
+
+## Fetch a message
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+## Create a reply
+
+Use the same create route with thread fields. Set `thread_root_id` to the root
+message that groups the thread. Set `replied_to_message_id` when the reply
+should preserve a direct parent.
+
+```bash
+jq -n \
+  --arg markdown_content "Reply from the public API." \
+  --arg thread_root_id "$MESSAGE_ID" \
+  --arg replied_to_message_id "$MESSAGE_ID" \
+  '{
+    markdown_content: $markdown_content,
+    thread_root_id: $thread_root_id,
+    replied_to_message_id: $replied_to_message_id,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-create-reply.json
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @/tmp/ando-create-reply.json
+```
+
+## List thread replies
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID/replies?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Read replies from `data.items` and confirm the requested root through
+`data.thread_root_id`. Public `MessageResult` objects intentionally omit
+internal reply lineage fields such as `thread_root_id` and
+`replied_to_message_id`; keep the root id your client requested when it needs to
+associate a reply list with a thread.
+
+## Expected errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request shape failed validation, or a write is missing `Idempotency-Key`. |
+| `401` | API key is missing or invalid. |
+| `403` | The API key is valid but cannot access the requested workspace resource. |
+| `404` | The requested conversation or message was not found or is not visible to the key. |
+| `409` | The request conflicts with an existing idempotency key or resource state. |
+| `429` | The API key hit a public API rate limit. |
+| `5xx` | Server-side failure. Retry writes with the same idempotency key. |
+# Endpoint reference map
+Source: https://docs.ando.so/api-reference/endpoint-reference
+
+> Scan public API v1 endpoints by stability level before opening generated schemas.
+
+Use the endpoint groups below by stability level, not by internal implementation
+area. Stable endpoints are ready for production integrations; nearly stable,
+preview, and legacy compatibility endpoints need narrower rollout judgment.
+
+| Group | Stability | Use it for |
+| --- | --- | --- |
+| Stable search | Production discovery workflows for messages, conversations, workspace members, and calls. | Start here when an integration needs context ids before reading or writing. |
+| Stable messaging | Production message workflows. | List, create, fetch, and reply to conversation messages. |
+| Nearly stable | Endpoint shape that is close to public v1 but not fully promoted. | Test behind a feature flag or limited internal integration. |
+| Preview | Exploratory integrations. | Build only when the risk of shape changes is acceptable. |
+| Legacy compatibility | Existing compatibility behavior. | Avoid for new integrations unless no stable route covers the use case. |
+
+The generated endpoint pages show request parameters, response schemas, and
+examples for each route. Start from [API overview](/api-reference/overview)
+when you need the resource model, auth header, response envelope, pagination,
+idempotency, and error model in one place.
+
+# Endpoint reference
+Source: https://docs.ando.so/api-reference/endpoint-reference
+
+## Stable search
+
+### GET /search/messages
+
+Source: https://docs.ando.so/api-reference/search/search-messages
+
+Stability: Stable
+
+Searches messages in conversations accessible to the authenticated API key.
+
+Canonical request: `GET https://api.ando.so/v1/search/messages`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `q` | query | Yes | Search query text. |
+| `author` | query | No | Comma-separated author workspace member identifiers. |
+| `conversation` | query | No | Comma-separated conversation identifiers. |
+| `thread` | query | No | Thread root message identifier. |
+| `after` | query | No | Cursor or ISO timestamp after which results should be returned. |
+| `before` | query | No | Cursor or ISO timestamp before which results should be returned. |
+| `mode` | query | No | Search mode. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Message search results.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /search/conversations
+
+Source: https://docs.ando.so/api-reference/search/search-conversations
+
+Stability: Stable
+
+Searches conversations accessible to the authenticated API key.
+
+Canonical request: `GET https://api.ando.so/v1/search/conversations`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `q` | query | Yes | Search query text. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Conversation search results.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /search/members
+
+Source: https://docs.ando.so/api-reference/search/search-workspace-members
+
+Stability: Stable
+
+Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling.
+
+Canonical request: `GET https://api.ando.so/v1/search/members`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `q` | query | Yes | Search query text. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Workspace member search results.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /search/calls
+
+Source: https://docs.ando.so/api-reference/search/search-calls
+
+Stability: Stable
+
+Searches calls accessible to the authenticated API key.
+
+Canonical request: `GET https://api.ando.so/v1/search/calls`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `q` | query | Yes | Search query text. |
+| `conversation` | query | No | Comma-separated conversation identifiers to filter to. |
+| `after` | query | No | Cursor or ISO timestamp after which results should be returned. |
+| `before` | query | No | Cursor or ISO timestamp before which results should be returned. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Call search results.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Stable messaging
+
+### GET /conversations/{conversationId}/messages
+
+Source: https://docs.ando.so/api-reference/messages/list-conversation-messages
+
+Stability: Stable
+
+Returns messages in a conversation.
+
+Canonical request: `GET https://api.ando.so/v1/conversations/{conversationId}/messages`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `conversationId` | path | Yes | Conversation identifier. |
+| `limit` | query | No | Maximum number of records to return. |
+| `before` | query | No | Cursor or ISO timestamp before which results should be returned. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Conversation messages.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /conversations/{conversationId}/messages
+
+Source: https://docs.ando.so/api-reference/messages/create-a-conversation-message
+
+Stability: Stable
+
+Creates a message in a conversation using the authenticated API-key workspace membership as the author.
+
+Canonical request: `POST https://api.ando.so/v1/conversations/{conversationId}/messages`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `conversationId` | path | Yes | Conversation identifier. |
+| `Idempotency-Key` | header | Yes | Required idempotency key for safely retrying this write. |
+
+Request body:
+
+JSON body: `CreateConversationMessageBody`.
+
+Responses:
+
+- 200: Created message.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /conversation-messages/{messageId}
+
+Source: https://docs.ando.so/api-reference/messages/get-a-message
+
+Stability: Stable
+
+Returns a single conversation message by identifier.
+
+Canonical request: `GET https://api.ando.so/v1/conversation-messages/{messageId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `messageId` | path | Yes | Message identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Message details.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /conversation-messages/{messageId}/replies
+
+Source: https://docs.ando.so/api-reference/messages/list-thread-replies
+
+Stability: Stable
+
+Returns replies for a thread root message.
+
+Canonical request: `GET https://api.ando.so/v1/conversation-messages/{messageId}/replies`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `messageId` | path | Yes | Thread root message identifier. |
+| `limit` | query | No | Maximum number of records to return. |
+| `after` | query | No | Cursor or ISO timestamp after which results should be returned. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Thread replies.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Nearly stable
+
+### GET /search/tasks
+
+Source: https://docs.ando.so/api-reference/tasks/search-tasks
+
+Stability: Candidate
+
+Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.
+
+Canonical request: `GET https://api.ando.so/v1/search/tasks`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `q` | query | No | Search query text. When omitted, returns the default task list ordering. |
+| `limit` | query | No | Maximum number of records to return. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Task search results.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Preview
+
+### GET /members/{memberId}
+
+Source: https://docs.ando.so/api-reference/members/get-a-workspace-member
+
+Stability: Preview
+
+Returns a workspace member visible to the authenticated API key. The v1 path and memberId parameter are compatibility spellings for a workspace member identifier.
+
+Canonical request: `GET https://api.ando.so/v1/members/{memberId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `memberId` | path | Yes | Workspace member identifier. v1 uses the legacy memberId spelling. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Workspace member details.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /calls/{callId}
+
+Source: https://docs.ando.so/api-reference/calls/get-a-call
+
+Stability: Preview
+
+Returns call metadata, participants, summary, and timing.
+
+Canonical request: `GET https://api.ando.so/v1/calls/{callId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `callId` | path | Yes | Call identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Call details.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /calls/{callId}/transcript
+
+Source: https://docs.ando.so/api-reference/calls/get-a-call-transcript
+
+Stability: Preview
+
+Returns transcript segments for a call.
+
+Canonical request: `GET https://api.ando.so/v1/calls/{callId}/transcript`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `callId` | path | Yes | Call identifier. |
+| `limit` | query | No | Maximum number of records to return. |
+| `cursor` | query | No | Pagination cursor. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Call transcript.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /tasks/{taskId}
+
+Source: https://docs.ando.so/api-reference/tasks/get-a-task
+
+Stability: Preview
+
+Returns task context, including task entries and resources.
+
+Canonical request: `GET https://api.ando.so/v1/tasks/{taskId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `taskId` | path | Yes | Task identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Task context.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /tasks/{taskId}/updates
+
+Source: https://docs.ando.so/api-reference/tasks/record-a-task-update
+
+Stability: Preview
+
+Records a task update and optional task/resource changes.
+
+Canonical request: `POST https://api.ando.so/v1/tasks/{taskId}/updates`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `taskId` | path | Yes | Task identifier. |
+| `Idempotency-Key` | header | No | Idempotency key for safely retrying this write. |
+
+Request body:
+
+JSON body: `RecordTaskUpdateBody`.
+
+Responses:
+
+- 200: Recorded task update.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Legacy compatibility
+
+### GET /search/clipboard
+
+Source: https://docs.ando.so/api-reference/search/search-clipboards
+
+Stability: Legacy
+
+Searches clipboards accessible to the authenticated API key. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.
+
+Canonical request: `GET https://api.ando.so/v1/search/clipboard`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `q` | query | Yes | Search query text. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Clipboard search results.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /clipboards/{clipboardId}
+
+Source: https://docs.ando.so/api-reference/clipboards/get-a-clipboard
+
+Stability: Legacy
+
+Returns a clipboard and its included context items. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.
+
+Canonical request: `GET https://api.ando.so/v1/clipboards/{clipboardId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `clipboardId` | path | Yes | Clipboard identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Clipboard details.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Product docs
+
+# Ando
+Source: https://docs.ando.so/index
+
+> Documentation and weekly updates for Ando.
+
+Learn how to use Ando, get the latest updates on what we're doing, or learn how to use Ando's developer toolkit to build your own agents.
+
+<Columns cols={2}>
+  <Card title="Docs" icon="book-open" href="/docs/start-guide">
+    Learn how to set up your workspace and get the most out of Ando.
+  </Card>
+  <Card title="Changelog" icon="history" href="/changelog">
+    Read weekly updates on features, improvements, and fixes.
+  </Card>
+    <Card title="API Reference" icon="code" href="/api-reference">
+    Learn how to use the Ando API to build custom agents.
+  </Card>
+</Columns>
+# Start guide
+Source: https://docs.ando.so/docs/start-guide
+
+> New to Ando? Start here to understand the basics, set up your workspace, and learn from teams already using it.
+
+## Learn the fundamentals
+
+Ando organizes conversations in channels and threads. Channels keep topics separate—like #engineering or #marketing. Threads keep discussions focused without cluttering the main channel. Use @mentions to notify specific people, and reactions to acknowledge messages without adding noise. If you're joining an existing workspace, start by exploring pinned channels and watching how your team uses threads.
+
+## Set up your workspace
+
+If you're creating a workspace from scratch, start small. Create 3-5 core channels based on how your team actually works—don't mirror your org chart. Invite your team in batches so early members can help onboard later ones. Set channel naming conventions early (like team- or project- prefixes) so the workspace stays navigable as you grow. Configure notification defaults that respect focus time while keeping critical alerts visible.
+
+## How teams use Ando
+
+Successful teams establish clear norms early. Some use #announcements for broadcast-only updates and require emoji reactions for acknowledgment. Others create dedicated decision channels where final calls get documented with context. Remote teams often run daily standups async in threads, tagging blockers for immediate visibility. The pattern that works depends on your team's size, timezone spread, and meeting culture—but the key is making the implicit explicit.
+
+## Get help and connect
+
+Use your #feedback channel to report bugs, request features, or ask questions—the Ando team monitors these actively. For urgent issues, email hello@ando.so. If you want to see how other teams structure their workspaces or troubleshoot specific use cases, ask in #feedback or reach out directly. We're a small team and still learning what works, so your input directly shapes the product.
+# Concepts
+Source: https://docs.ando.so/docs/concepts
+
+> Core ideas that shape how Ando works—from workspaces and conversations to AI agents and context.
+
+## The basics
+
+Your workspace is where your team collaborates. It contains all your conversations, files, and members—both people and AI agents. Members are the people and AI agents in your workspace. Everyone has a role (Guest, Member, Admin, or Owner) and their own personalized inbox.
+
+## Where you work
+
+Conversations are where things happen. They come in two types: Channels—shared spaces for teams, projects, or topics that can be public or private. DMs—direct conversations between specific people and agents. Messages are how you communicate. You can send text, images, and files, reply in threads to keep discussions organized, react with emojis, mention people or agents with @, and attach specific context for AI agents.
+
+## AI agents
+
+Agents in Ando aren't bots—they're workspace members. You can add them to any conversation, @ mention them for help, give them specific context to work with, and see their activity in your event feed. Each agent can have different capabilities, models, and tools depending on how it's configured.
+
+## Jams (calls)
+
+Jams are voice or video calls within conversations. Every Jam happens right in the conversation thread, gets automatically recorded (if you want), generates a searchable transcript with timestamps, and becomes part of your workspace knowledge. You can search transcripts later and reference specific moments just like you'd cite a message.
+
+## Context
+
+Here's where Ando works differently. Context is something you can see and manage, not just something buried in the background. Curations are saved collections of messages, files, transcripts, or member profiles that you want to keep together. Think of them as bookmarks++ that you can create once and reuse across conversations, share with team members or AI agents, and update as things evolve. When you give an agent a curation, you're explicitly showing it what information matters for the task at hand.
+
+## Staying current
+
+Your inbox shows you what needs attention: new mentions and replies, messages in conversations you follow, reactions to your messages, and updates grouped by thread or conversation. You can customize views, mark things as read, archive noise, and star what's important. Search works across everything—messages, files, people, transcripts. Find anything that's been shared or discussed in your workspace.
+
+## Integrations
+
+Connect external tools to bring context into Ando. Linear syncs issues and discussions. MCP servers give agents access to tools and data.
+# Download Ando
+Source: https://docs.ando.so/docs/download-ando
+
+> Get the Ando desktop and mobile apps for notifications, keyboard shortcuts, and quick access wherever you work.
+
+## Desktop apps
+
+Ando is available for macOS Intel, macOS Apple Silicon, and Windows. Download the desktop app at [download.ando.so](https://download.ando.so). Most features match the web app, but you get native OS notifications, always-on access with dock alerts for unread messages, and keyboard shortcuts that won't conflict with your browser presets or custom shortcuts.
+
+## Mobile apps
+
+Ando on mobile lets you unblock work wherever you are and complements use of Ando on other clients. You can request access to the iOS and Android apps from the Ando team directly by emailing us at [hello@ando.so](mailto:hello@ando.so), or pinging one of our team members in your #feedback channel.
+# Inbox
+Source: https://docs.ando.so/docs/inbox
+
+> Your personalized view of what needs attention—mentions, replies, and updates from conversations you follow.
+
+## What shows up in your inbox
+
+Your inbox surfaces messages where you're mentioned, replies to your messages, and activity in conversations you're following. It groups updates by thread and conversation so you can process related items together. Think of it as your notification center—filtered down to what actually matters to you.
+
+## Manage your inbox flow
+
+Mark items as read to clear them from view, or archive entire threads when they're resolved. Star important messages to create a persistent reference list you can return to later. Use inbox filters to focus on specific types of updates—just mentions, just DMs, or just specific channels.
+
+## Stay on top without staying online
+
+Configure which conversations auto-follow (channels you join, threads you start) and which require manual opt-in. Set quiet hours so late-night messages don't interrupt focus time. Your inbox respects these boundaries while still surfacing everything when you're ready to catch up.
+# Search
+Source: https://docs.ando.so/docs/search
+
+> Find anything that's been shared or discussed in your workspace—messages, files, people, and transcripts.
+
+## How search works
+
+Search indexes everything in your workspace: message content, file names and contents, people's names and roles, and Jam transcripts with timestamps. Results rank by relevance and recency. Use quotes for exact phrases, or search within specific channels or date ranges to narrow results.
+
+## Search filters and operators
+
+Filter by type (messages, files, people), by channel, by sender, or by date. Combine filters to pinpoint exactly what you need—like 'from:alex in:#engineering before:2026-03-01' to find all of Alex's messages in the engineering channel from February. Saved searches let you reuse common queries without retyping.
+
+## Finding context, not just keywords
+
+Search doesn't just match text—it understands thread structure. When you find a message, you see the full thread context. For Jam transcripts, search results link to the exact timestamp where keywords appear, so you can jump right to the relevant moment.
+# Messages
+Source: https://docs.ando.so/docs/messages
+
+> Your direct messages and private conversations with people and AI agents in your workspace.
+
+## DMs vs channels
+
+Direct messages are for quick coordination, private discussions, or one-on-one work with AI agents. Unlike channels, DMs don't have a persistent topic—they're organized by participant, not subject. Use DMs when the conversation is temporary or only relevant to specific people.
+
+## Managing DM conversations
+
+Your DM list shows recent conversations and unread counts. Pin important DMs to keep them at the top. Mute DMs that are active but not urgent—they'll still show unread badges without sending notifications. You can search within a DM to find past exchanges without scrolling.
+
+## Group DMs and ad-hoc collaboration
+
+Start a group DM when you need to pull a few people together quickly—no need to create a formal channel. Group DMs work well for project kick-offs, quick decisions, or coordinating across teams. If the conversation becomes ongoing, convert it to a channel so it's discoverable and can outlive the original participants.
+# Ando MCP
+Source: https://docs.ando.so/docs/ando-mcp
+
+> Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
+
+<iframe
+  src="https://www.loom.com/embed/735cf66b9da0404ca5aa57176e6ba4de"
+  title="Ando MCP tutorial video"
+  style={{ width: "100%", aspectRatio: "100 / 62.82722513089005", border: 0, borderRadius: "8px" }}
+  allowFullScreen
+/>
+
+To have your coding agent install Ando MCP for you, paste these instructions into the agent:
+
+```text
+Install Ando MCP for me.
+
+Follow these steps:
+
+1. Ask me for my Ando API key before running any install command. Tell me I can get one by opening Ando, going to Settings -> API keys, then creating or copying an API key.
+2. Ask which coding agent I want to install Ando MCP in. Supported choices are Claude Code or Codex CLI.
+3. After I provide both the API key and the coding agent, run the necessary command for that agent.
+
+Use these install commands:
+
+Claude Code:
+claude mcp add --transport http ando https://mcp.ando.so/mcp --header "Authorization: Bearer <ANDO_API_KEY>"
+
+Codex CLI:
+export ANDO_API_KEY="<ANDO_API_KEY>"
+codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
+
+Replace <ANDO_API_KEY> with the key I provide.
+```
+
+## What is Ando MCP?
+
+Ando MCP is Ando's hosted Model Context Protocol server. It lets MCP-capable coding agents search and fetch context from your Ando workspace at:
+
+`https://mcp.ando.so/mcp`
+
+The server uses streamable HTTP MCP and API-key authentication.
+
+## Available Tools
+
+Ando MCP includes public tools for conversations, messages, members, calls/Jams, clipboard items, and workspace actions. It supports both read actions like search, list, and fetch and explicit write actions like creating conversations, managing conversation members, sending messages, replying in threads, sending DMs, reacting to messages, deleting messages, and inviting workspace members.
+
+## Supported Clients
+
+Ando MCP currently supports:
+
+- Claude Code
+- Codex CLI
+- Cursor
+
+Other MCP clients can connect if they support remote streamable HTTP servers with custom request headers.
+
+## Setup
+
+First, create an Ando API key:
+
+1. Open Ando.
+2. Go to Settings -> API keys.
+3. Create or copy an API key.
+4. Use it anywhere the examples below show `ando_sk_...` or `ANDO_API_KEY`.
+
+Ando expects the key in a bearer token header:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+Keys are scoped to the Ando member and workspace that created them. Tool results are limited to the workspaces and entities that member can access.
+
+## Claude Code
+
+Add Ando MCP from your project directory:
+
+```bash
+claude mcp add --transport http ando https://mcp.ando.so/mcp \
+  --header "Authorization: Bearer ando_sk_..."
+```
+
+Then start Claude Code:
+
+```bash
+claude
+```
+
+To check the connection, run `/mcp` inside Claude Code and confirm that `ando` is listed.
+
+## Codex CLI
+
+Store your Ando API key in an environment variable:
+
+```bash
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Add Ando MCP:
+
+```bash
+codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
+```
+
+Then start Codex:
+
+```bash
+codex
+```
+
+Codex reads the bearer token from `ANDO_API_KEY` when it connects to the MCP server.
+
+## Cursor
+
+Set the `ANDO_API_KEY` environment variable before launching Cursor:
+
+```bash
+export ANDO_API_KEY="ando_sk_..."
+open -a Cursor
+```
+
+Then add Ando to `.cursor/mcp.json` in your project or to `~/.cursor/mcp.json` globally:
+
+```json
+{
+  "mcpServers": {
+    "ando": {
+      "url": "https://mcp.ando.so/mcp",
+      "headers": {
+        "Authorization": "Bearer ando_sk_..."
+      }
+    }
+  }
+}
+```
+
+After saving the file, open Cursor Settings -> MCP and confirm that `ando` is enabled.
+
+## Common Usage Patterns
+
+**Find a person, then browse their messages**: Call `search_members` with a name or email, or `list_members` when you need active workspace members by exact display name. Take the returned member ID. Call `get_conversation_messages` with `author` to browse recent messages in a known conversation, or call `search_messages` with `author` if you need search instead of browsing.
+
+**Inspect a channel or DM roster**: Call `search_conversations` or `list_conversations` to identify the conversation, then call `list_conversation_members` with the conversation ID.
+
+**Search for a topic, then inspect the full thread**: Call `search_messages` with a keyword or semantic query. Inspect the returned `replies_count`. If the message is a thread root or has replies, call `get_thread_replies` with that message ID. If needed, call `get_message` for the exact source message.
+
+**Find meetings about a topic, then read the transcript**: Call `list_calls` for recent calls/Jams or `search_calls` for transcript search. Pick a matching `call_id`. Call `get_call` for metadata. Call `get_call_transcript` to page through the transcript.
+
+**Find or update a task**: Call `search_tasks` to discover visible tasks, then `get_task` for the task summary, recent work log entries, and active task URLs. Use `record_task_update` only when the user explicitly asks you to update a task.
+
+**Send a user-requested DM**: Call `search_members` for each recipient unless IDs are already known. Then call `send_direct_message` with `member_ids` and `markdown_content`. Report the returned `message_id` and `conversation_id`.
+
+**React to a user-specified message**: Confirm the exact target with `get_message` unless the user already provided a precise message ID, then call `react_to_message` with `message_id` and `emoji`.
+
+**Invite a user to the workspace**: Call `invite_to_workspace` only when the user explicitly asks to invite an email address.
+
+**Start broad, then narrow**: The usual workflow is to search or list conversations, members, messages, clipboards, calls, or tasks, capture the relevant IDs, then use the matching `get_*` or paginated tool for full details.
+
+## Behavior
+
+Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
+
+`get_conversation_messages` returns messages in reverse chronological order. `get_thread_replies` returns replies in chronological order. `get_call_transcript` is paginated and should be called repeatedly with the returned cursor when needed. Use `list_calls` for recent calls/Jams without a search query, and `search_calls` when searching transcript content. Use `list_conversations`, `list_members`, and `list_conversation_members` for browse-style discovery without a fuzzy search query.
+
+Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
+
+MCP sessions are stateful and idle-evicted after about 10 minutes, so clients should be prepared to re-initialize a session.
+
+## Recommended Prompting For Agents
+
+Ando MCP works best when agents use `search_*` and `list_*` tools to discover the right IDs first, use `get_conversation_messages` instead of forcing search queries for recent history, use `get_thread_replies` when a message has replies, use `list_calls` for recent calls/Jams, use `get_call_transcript` only after identifying the right call, and avoid wildcard search inputs.
+
+For write actions, prompt agents to verify the target before calling side-effecting tools. Examples: identify the conversation before `send_message`, identify the thread root before `reply_to_message`, identify recipients before `send_direct_message`, identify the message before `react_to_message`, confirm the email before `invite_to_workspace`, and fetch the task before `record_task_update`.
+
+## Troubleshooting
+
+**Unauthorized - API key required**: Your client is not sending a valid bearer token. Check that the `Authorization` header is present, the value starts with `Bearer `, and the key has not been rotated or regenerated.
+
+**Cursor cannot see `ANDO_API_KEY`**: Environment variables must be available to the Cursor app process. Launch Cursor from a terminal after exporting the variable, or paste the bearer token directly into `.cursor/mcp.json`.
+
+**Session errors**: Ando MCP uses session-based streamable HTTP transport. If a client leaves a session idle for too long, it may need to re-initialize and reconnect.
+
+**Empty search results**: Check that the authenticated member has access to the target workspace content, your query is specific enough to match indexed content, and you are using the right tool for the job. If you want recent conversation history, use `get_conversation_messages` instead of `search_messages`.
+
+## Tool Reference
+
+### Workspace actions
+
+| Tool | Use it to | Inputs |
+| --- | --- | --- |
+| `search_conversations` | Search channels and DMs by name or description. | `q` required. |
+| `list_conversations` | List accessible channels and DMs, optionally filtered by name or description. | Optional: `q`, `limit` (default 50, max 100). |
+| `list_conversation_members` | List active members in an accessible conversation, including humans, agents, and workspace roles. | `conversation_id` required. |
+| `join_conversation` | Join an accessible conversation as the current member. | `conversation_id` required. |
+| `add_to_conversation` | Add members to an accessible conversation. | `conversation_id`, `member_ids`. |
+| `remove_from_conversation` | Remove members from an accessible conversation. | `conversation_id`, `member_ids`. |
+| `create_conversation` | Create a new conversation. | `name`, `member_ids`. Optional: `description`, `is_private`. |
+| `invite_to_workspace` | Invite a new member to the current workspace by email address. | `email` required. |
+
+### Messages
+
+| Tool | Use it to | Inputs |
+| --- | --- | --- |
+| `search_messages` | Search accessible messages by keyword or semantic similarity. Rejects empty and wildcard-only queries. | `q` required. Optional: `author`, `conversation`, `thread`, `after`, `before`, `mode` (`full-text` or `semantic`). |
+| `get_message` | Fetch a single message with author, conversation, and content. | `message_id` required. |
+| `get_conversation_messages` | Browse recent messages from a conversation in reverse chronological order. | `conversation_id` required. Optional: `author`, `limit`, `before`. |
+| `get_thread_replies` | Fetch replies for a thread root message in chronological order. | `message_id` required. Optional: `limit`, `after`. |
+| `send_message` | Send a message to an accessible existing conversation. | `conversation_id`, `markdown_content`. |
+| `reply_to_message` | Reply in a message's thread. If the target is already a reply, posts to the same thread. | `message_id`, `markdown_content`. |
+| `react_to_message` | React to a message with a supported standard emoji or active workspace custom emoji. | `message_id`, `emoji`. |
+| `delete_message` | Delete a message the current member can delete. | `message_id` required. |
+
+### Members
+
+| Tool | Use it to | Inputs |
+| --- | --- | --- |
+| `search_members` | Search workspace members by name, email, or title. | `q` required. |
+| `list_members` | List active workspace members, optionally filtered by exact display name. | Optional: `names`. |
+| `get_member` | Fetch a single workspace member profile. | `member_id` required. |
+| `send_direct_message` | Reuse or create a DM and send a message. | `member_ids`, `markdown_content`. |
+
+### Calls / Jams
+
+| Tool | Use it to | Inputs |
+| --- | --- | --- |
+| `search_calls` | Search call/Jam transcript content. | `q` required. Optional: `conversation`, `after`, `before`. |
+| `list_calls` | List accessible calls/Jams without a search query. | Optional: `conversation`, `status` (`active` or `ended`), `recorded`, `after`, `before`, `limit` (default/max 20). |
+| `get_call` | Fetch call/Jam metadata. | `call_id` required. |
+| `get_call_transcript` | Fetch a paginated transcript for a call. | `call_id` required. Optional: `limit`, `cursor`. |
+
+### Clipboard
+
+| Tool | Use it to | Inputs |
+| --- | --- | --- |
+| `search_clipboard` | Search clipboard/context bundles saved from Ando. | `q` required. |
+| `get_clipboard` | Fetch a clipboard bundle and all saved items. | `clipboard_id` required. |
+# Import data from other apps
+Source: https://docs.ando.so/docs/import-data-from-other-apps
+
+> Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
+
+You can bring messages from another app into Ando by giving an agent access to the source app and [Ando MCP](/docs/ando-mcp). The agent reads messages from Discord, Microsoft Teams, Telegram, or another service, then calls Ando MCP's `send_message` tool to post each message into an Ando conversation.
+
+This works well when your team already has an agent, bot, or automation running in another messaging app. Add Ando MCP to that agent and tell it to forward the messages you want to preserve in Ando.
+
+## How it works
+
+The bridge has two sides:
+
+| Side | What the agent needs |
+| --- | --- |
+| Source app | API, bot, webhook, or agent access that can read the messages you want to import. |
+| Ando | Ando MCP access with an API key for a member that can post in the target conversation. |
+
+For each source message, the agent sends a Markdown message to an existing Ando conversation with:
+
+| `send_message` input | Value |
+| --- | --- |
+| `conversation_id` | The Ando conversation where imported messages should appear. |
+| `markdown_content` | The source message body and any attribution you want to include. |
+
+## Before you start
+
+1. Create or choose the target conversation in Ando.
+2. Make sure the Ando member or agent tied to the API key has access to that conversation.
+3. Set up [Ando MCP](/docs/ando-mcp) in the agent that will run the import.
+4. Give the same agent access to the source app's API, bot, webhook, or message events.
+5. Decide whether you want a live mirror, a one-time backfill, or both.
+
+If you need to import a large Slack history export, use [Importing from Slack](/docs/importing-from-slack) instead.
+
+## Set the target conversation
+
+Ask the agent to find the Ando conversation before it starts forwarding messages:
+
+```text
+Use Ando MCP to find the Ando conversation named "discord-general".
+Save its conversation_id.
+Do not send any messages until I confirm the target conversation.
+```
+
+After you confirm the target, the agent can use that `conversation_id` for each `send_message` call.
+
+## Forward live messages
+
+Use a live bridge when you want new messages from another app to appear in Ando as they happen.
+
+```text
+You are mirroring Discord #general into Ando.
+
+For every new Discord message in #general:
+1. Ignore messages from bots unless I explicitly allow them.
+2. Format the message as:
+   **Discord #general - <author display name>**
+   <message text>
+
+   Source: <message permalink>
+3. Call Ando MCP `send_message` with:
+   - conversation_id: <ANDO_CONVERSATION_ID>
+   - markdown_content: the formatted message
+4. Keep a local record of forwarded source message IDs so you do not send duplicates.
+```
+
+The same pattern works for Teams channels, Telegram groups, support tools, or any other service where your agent can read message events.
+
+## Backfill past messages
+
+Use a backfill when you want to copy existing messages into Ando.
+
+```text
+Backfill messages from Discord #general into Ando.
+
+Import messages from 2026-05-01 through 2026-05-14.
+Process messages oldest to newest.
+For each message, include the original author, timestamp, message text, and source permalink.
+Call Ando MCP `send_message` for each message using conversation_id <ANDO_CONVERSATION_ID>.
+Stop and report errors instead of retrying indefinitely.
+Keep a checkpoint after each successful send so the import can resume without duplicates.
+```
+
+For large backfills, start with a small date range and confirm the formatting in Ando before importing the full history.
+
+## Formatting tips
+
+Use Markdown to keep imported messages readable:
+
+```md
+**Discord #general - Maya Chen**
+Can someone review the launch checklist before 3pm?
+
+Source: https://discord.com/channels/...
+Sent: 2026-05-14 09:12 PT
+```
+
+Include enough source metadata to make the message useful later:
+
+- Original author display name
+- Source channel or group name
+- Original timestamp
+- Source permalink, if the app provides one
+- Attachment or file links, if the agent can access them
+
+## Safety checks
+
+Because `send_message` posts into Ando, treat the bridge as a write automation.
+
+- Confirm the target Ando conversation before the first send.
+- Use a dedicated Ando conversation for early tests.
+- Keep a forwarded-message checkpoint keyed by the source message ID.
+- Filter bot messages unless you intentionally want bot output in Ando.
+- Preserve source links so people can inspect the original context.
+- Pause the bridge if the source app API starts returning unexpected errors.
+
+## Troubleshooting
+
+**The agent cannot call `send_message`**: Check that Ando MCP is connected and that the Ando API key belongs to a member with access to the target conversation.
+
+**Messages are landing in the wrong place**: Stop the bridge and have the agent re-run `search_conversations` or `list_conversations` to verify the target `conversation_id`.
+
+**Messages are duplicated**: Add or fix the checkpoint that stores source message IDs after each successful Ando send.
+
+**Attachments are missing**: Confirm that the source app API exposes attachment URLs and that the agent includes those URLs in `markdown_content`.
+# Importing from Slack
+Source: https://docs.ando.so/docs/importing-from-slack
+
+> Export your Slack workspace data, upload the ZIP to Ando, and choose the channels you want to import.
+
+<iframe
+  src="https://www.loom.com/embed/e59bfcd90bdc4310a3a0dd39bb9ab46b"
+  title="Slack import tutorial video"
+  style={{ width: "100%", aspectRatio: "16 / 9", border: 0, borderRadius: "8px" }}
+  allowFullScreen
+/>
+
+> If you expect to import a very large amount of data, please contact us so we can increase import limits for you.
+
+## Before you start
+
+Ando imports Slack history from the official Slack export `.zip` file. Export the data from Slack, download the ZIP when Slack emails you, then upload that original ZIP to Ando. Do not unzip, rename, or edit the export before uploading it.
+
+Slack's export rules depend on your Slack plan, your role, and whether your workspace or organization has been approved for broader export tools. Read more in [this article from Slack](https://slack.com/help/articles/201658943-Export-your-workspace-data).
+
+## Who can export from Slack
+
+| Slack plan | Who can export | What they can usually export |
+| --- | --- | --- |
+| Free | Workspace Owners and Admins | Messages and file links from public channels. Free workspaces can only export links to files from the last 90 days. |
+| Pro | Workspace Owners and Admins | Messages and file links from public channels. |
+| Business+ | Workspace Owners and Admins | Messages and file links from public channels. Workspace Owners can apply for additional export types, including all channels and conversations or a channel audit report. |
+| Enterprise | Org Owners and Admins | Enterprise export tools, once enabled, can export data by conversation type, member, workspace, all channels and conversations, or channel audit. |
+
+Slack also supports an Export Admin system role. If your organization uses that role, members with Export Admin permissions may be able to use export features where configured.
+
+Private channels and DMs are not included in a standard public-channel export. They generally require Business+ or Enterprise export access and approval from Slack. If those conversations are missing from the ZIP, Ando cannot import them from that file.
+
+## Export your Slack ZIP
+
+For Free, Pro, and Business+ workspaces:
+
+1. Open Slack on desktop.
+2. Click **Admin** in the sidebar.
+3. Select **Workspace settings**, then click **Security**.
+4. Click **Import & export data**.
+5. Open the **Export** tab.
+6. Choose the export date range and, if Slack shows more than one option, the export type you want to use.
+7. Click **Start Export**.
+8. Wait for Slack to email you when the export file is ready.
+9. Open the email and click **Visit your workspace's export page**.
+10. Click **Ready for download** to download the ZIP file.
+
+For Enterprise organizations:
+
+1. Open Slack on desktop.
+2. Click your organization name in the sidebar.
+3. Select **Tools & settings**, then click **Organization settings**.
+4. In the left sidebar, click **Security**, then select **Exports**.
+5. Click **Export** next to the export option you want to use.
+6. Select the scope, parameters, and format if Slack asks for them.
+7. Start the export.
+8. Wait for Slack to email you when the export file is ready.
+9. Open the email and click **Visit your workspace's export page**.
+10. Open the **Downloads** tab and click **Download** next to your export to download the ZIP file.
+
+## Import the ZIP into Ando
+
+Once you have the Slack export ZIP:
+
+1. Unzip the `.zip` file you got from Slack.
+2. Open Ando.
+3. Go to **Settings**.
+4. Open **Slack bridge**.
+5. If this is your first time, drop the Unzipped `.zip` file into the uploader, or select it from your computer. If your workspace has imported data from Slack before, you can click **Import Slack Data again** before uploading the file.
+6. Wait for Ando to scan the export.
+7. Choose the Slack channels you want to import.
+8. Click on "Import channels"
+9. Do NOT leave the page until the first step has complete. Ando will tell you when it's safe to navigate away.
+10. Once the import is complete, you'll see your new channels in the sidebar!
+
+Large workspaces can take longer to upload and process.
+
+## What gets imported
+
+Ando imports the channels you select from the Slack export file and brings the historical message context into your Ando workspace so your team can search and reference prior work. What Ando can import depends on what Slack included in the ZIP. If the export only contains public channels, only those channels will be available to select.
+
+The ZIP may include Slack metadata, message JSON files, and file links. Ando reads the export directly, so upload the ZIP exactly as Slack provided it.
+
+## Troubleshooting
+
+**I do not see export settings in Slack**: Ask a Workspace Owner or Admin on Free, Pro, or Business+, or an Org Owner or Admin on Enterprise, to export the data for you. Your Slack workspace may also restrict exports to members with the Export Admin system role.
+
+**Private channels or DMs are missing**: Your Slack export probably did not include them. Standard Free, Pro, and Business+ public-channel exports do not include private channels or DMs.
+
+**Slack says the export is not ready**: Wait for Slack's email. Slack creates the ZIP asynchronously and sends a link when it is ready to download.
+
+**The Ando upload fails**: Make sure you are uploading the original `.zip` file from Slack. If the file was unzipped, renamed, recompressed, or edited, download a fresh copy from Slack and try again. Contact us if you continue to encounter errors.
+
+## Changelog
+
+# Changelog
+Source: https://docs.ando.so/changelog
+
+> Weekly updates on what's new in Ando.
+
+Weekly updates on features, improvements, and fixes.
+
+<span data-ando-changelog-latest data-date="2026-05-10" data-title="Custom MCP Apps" data-description="Connect any third-party MCP server to your workspace." />
+
+<a id="2026-05-10" />
+
+<Update label="May 10, 2026" description="2026-05-10" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "May 10, 2026 - Custom MCP Apps", description: "Ando updates from May 10, 2026." }}>
+
+## Featured
+
+### Custom MCP Apps
+
+**Categories:** Agent, Channels
+
+Connect any third-party MCP server to your workspace, including the apps your team already uses. Add an MCP endpoint, sign in with OAuth, and the connected app shows up across Ando: as tools for your agents, as suggestions in chat, and as a permissions surface in settings. Token refresh and health checks are handled for you, so connections stay live without manual maintenance.
+
+### Pinned Threads
+
+**Categories:** Threads, Channels
+
+Pin any thread to a dedicated section at the top of the sidebar, alongside favorites. Drag to reorder, and pinned threads stay visible with their reply count and last activity at a glance.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="11 items">
+
+- **Desktop:** Mobile light mode support.
+- **Inbox:** Email notification settings page with per-event controls.
+- **Onboarding, Channels:** Slack import via zip file, with access opened to non-admins.
+- **Jams:** Customizable Jam sound choices for join, leave, and reactions.
+- **Onboarding, Desktop:** Update your account email from settings, even across multiple workspaces.
+- **Agent:** More MCP tools for agents: delete messages, manage conversation memberships, and bulk-archive members.
+- **Composer, Agent:** In-chat suggestions surface relevant connected apps as you type.
+- **Desktop, Jams:** Mobile home shows sidebar folders, plus mobile Jam recording playback.
+- **Desktop:** App update toast with explicit download URL and verified ToDesktop domain.
+- **Onboarding:** Help center redesigned, with a dynamic changelog now live in-product.
+- **Cmd+K:** Faster Cmd+K opens and snappier tooltip close timing.
+
+</Accordion>
+<Accordion title="Fixes" description="8 items">
+
+- **Onboarding, Channels:** Onboarding completion cache handoff, workspace invites, and conversation invite flow fixed.
+- **Inbox, Threads:** Inbox preview, sidebar threads initial loading, and thread deeplink routing corrected.
+- **Search:** Search history, result deeplinks, and message transcript filtering fixed.
+- **Composer, Channels:** Optimistic reactions, message draft persistence during quick navigation, and message send echo handoff stabilized.
+- **Channels, Threads:** Sidebar folder creation, ghost unread navigation, and thread tree visibility fixed.
+- **Inbox, Desktop:** Desktop notification deeplinks and inbox fan-out corrected.
+- **Inbox, Agent:** Channel catchup email grammar and three-recipient bug fixed; managed agent and custom MCP OAuth recovery hardened.
+- **Composer, Desktop:** Public channel mentions in messages and mobile rendering regressions resolved.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-05-03" />
+
+<Update label="May 3, 2026" description="2026-05-03" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Threads"]} rss={{ title: "May 3, 2026 - Workspace Agent", description: "Ando updates from May 3, 2026." }}>
+
+## Featured
+
+### Workspace Agent
+
+**Categories:** Agent, Onboarding
+
+Every new workspace now starts with Ando, a built-in agent that's part of the team from day one. Ando sees every message in any conversation it's in and decides on its own whether to chime in, just like a human teammate. You can also @mention Ando directly. It welcomes new members with a guided onboarding DM and has tools to search messages, list members, manage invites, and review calls.
+
+<video controls alt="Workspace Agent demo video" src="/videos/workspace-agent.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Email Catch-Up
+
+**Categories:** Inbox
+
+Stay caught up via email when you're away from Ando. A daily digest summarises unread channel activity, and targeted emails surface missed Jams and direct messages as they happen. Each email type has its own decision logic, so you only get notifications you'd actually act on.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="12 items">
+
+- **Channels, Desktop:** Switch between workspaces without reloading the app. The switcher shows unread counts per workspace, supports drag-to-reorder, and has dedicated mobile and desktop entrypoints.
+- **Jams, Desktop:** Full-screen mobile Jams experience with transcript view and audio device options.
+- **Composer, Channels:** Right-click any message to reply with it quoted inline.
+- **Threads:** Reply to a specific message inside a thread by quoting any earlier reply when responding.
+- **Agent:** Archive agents you no longer need from agent settings.
+- **Agent:** Member-scoped API keys in settings, with per-member tokens for the Ando API.
+- **Desktop:** Desktop sound preferences for messages, mentions, and Jams.
+- **Inbox:** Reaction notifications suppressed when the conversation is in focus.
+- **Agent:** list_members and conversation listing/reactions added to MCP for managed agents.
+- **Agent:** Workspace invite MCP tool, so agents can invite new members on your behalf.
+- **Desktop:** Polished error UI for recoverable web errors instead of a blank screen.
+- **Desktop:** Desktop now prompts to enable system notifications on first launch.
+
+</Accordion>
+<Accordion title="Fixes" description="7 items">
+
+- **Desktop, Threads:** Conversation scroll stability, thread composer layout, and workspace skeleton flicker on switch fixed.
+- **Channels:** Conversations blue dot no longer always appears.
+- **Channels, Agent:** Avatar propagation, default Ando avatar lookup, and workspace image URL updates corrected.
+- **Inbox:** Email link routing (now app.ando.so, not dev) and daily digest send issues resolved.
+- **Cmd+K, Inbox, Onboarding:** Cmd+K agent ordering, mention channel ordering, reaction inbox counts, login button click region, and desktop verification code paste fixed.
+- **Jams, Channels:** Jam fullscreen titlebar offset and non-member join channel banner fixed.
+- **Agent:** Agent mentions in DMs now ignored, agents only respond when explicitly addressed.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-04-27" />
+
+<Update label="April 27, 2026" description="2026-04-27" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "April 27, 2026 - Live Search Across Transcripts", description: "Ando updates from April 27, 2026." }}>
+
+## Featured
+
+### Live Search Across Transcripts
+
+**Categories:** Search, Jams, Agent
+
+Search messages and Jam transcripts directly in the app, with results that update live as new content lands. The same search surface is available to agents via MCP, so any connected agent can find a recording by what was discussed, not just who joined. Right-click any search result to copy a direct link.
+
+<video controls alt="Live Search Across Transcripts demo video" src="/videos/search-jams.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Agent Upgrades
+
+**Categories:** Agent
+
+Workspace agents are faster to invoke and can take more actions in a conversation. Mentions resolve quicker, and agents can now react with emoji, reply, post into threads, and DM, the same actions a human teammate would take. Agent-specific proactive reactions and improved turn orchestration also make their behavior feel more natural.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="7 items">
+
+- **Channels, Composer:** Sidebar typing indicators, so you can see who's responding in any conversation without opening it.
+- **Desktop:** Settings redesigned as a modal with sidebar navigation and section deep-linking.
+- **Desktop:** Mobile custom emoji reaction picker.
+- **Jams:** Active Jams appear in the sidebar in real-time, no polling delay.
+- **Agent:** Images are passed to agents as content blocks instead of raw URLs.
+- **Desktop:** Faster cold-start workspace loads from a parallelized bootstrap.
+- **Agent:** Third-party agents now configurable from settings, with API keys for the Ando API.
+
+</Accordion>
+<Accordion title="Fixes" description="9 items">
+
+- **Desktop:** Conversation auto-scroll state preserved during navigation.
+- **Channels:** Reaction counts no longer double-increment.
+- **Channels:** Conversation membership loading race resolved.
+- **Inbox:** Duplicate unread increments fixed.
+- **Threads:** Thread tree visibility separated from subscriptions; mentioned users now subscribed correctly.
+- **Channels:** Channel authorization corrected for non-members previewing public channels.
+- **Desktop:** Scroll-down arrow no longer always shows when at the bottom.
+- **Channels:** Conversation view bottom padding and fresh channel header rendering fixed.
+- **Jams:** Jam reentry, connection status, and volume clarity improved.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-04-20" />
+
+<Update label="April 20, 2026" description="2026-04-20" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "April 20, 2026 - Custom Emoji", description: "Ando updates from April 20, 2026." }}>
+
+## Featured
+
+### Custom Emoji
+
+**Categories:** Composer, Channels
+
+Upload custom emoji at the workspace level and use them anywhere: in messages, message reactions, and Jam reactions. A dedicated settings page lets workspace admins manage the library. Emoji sync across web, desktop, and mobile.
+
+<Note>Screen recording coming soon</Note>
+
+### Live Agent Traces & Interrupt
+
+**Categories:** Agent
+
+When a managed agent sends a message, click on the reasoning trace shows the tool calls and reasoning steps the agent made. Click on any tool pill to see what was passed in and returned.
+
+<video controls alt="Live Agent Traces & Interrupt demo video" src="/videos/agent-traces.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="13 items">
+
+- **Channels, Onboarding:** Add members directly from the conversation panel, with invite-by-email support.
+- **Inbox:** Notification settings page with per-event controls for messages, reactions, threads, and Jams.
+- **Inbox:** Mark any message as unread to revisit later.
+- **Channels:** Sidebar drag polish, conversation folder context menu, and folder icon customization.
+- **Threads:** Threads pinned to a dedicated sidebar view alongside chats.
+- **Jams:** Jam volume control, press-to-zoom video tiles, and live-only (unrecorded) Jam mode.
+- **Composer, Search:** Copy button on markdown code blocks and right-click copy on search results.
+- **Desktop:** Service worker and persistent bootstrap cache for cache-first cold loads.
+- **Desktop:** Speculative prefetch on sidebar hover for faster conversation opens.
+- **Desktop:** Attachment thumbnails are now sized per surface for faster image delivery.
+- **Onboarding:** Default channels now seeded for new workspaces.
+- **Channels:** Member groups and channels render inline in preview links.
+- **Composer:** @here in 1-1 DMs now labels its broadcast behavior to prevent confusion.
+
+</Accordion>
+<Accordion title="Fixes" description="10 items">
+
+- **Desktop:** Scroll-to-bottom pill now lands at the true bottom of the conversation.
+- **Desktop:** Reader scroll position stays stable during in-flight message prepends.
+- **Threads:** Fixed infinite re-render loop when opening pinned-message threads.
+- **Threads:** Inactive thread dismissal loop fixed.
+- **Channels:** Sidebar blue dot now only fires on @mention or any DM unread.
+- **Jams, Threads:** Jam join/leave events no longer counted as thread replies.
+- **Jams:** Duplicate live transcripts caused by zombie transcription sessions resolved.
+- **Composer:** First chat input upload no longer disappears on entry.
+- **Composer:** Newline rendering in messages and ordered lists with start ≥ 100 fixed.
+- **Jams:** Restored Jam panel, tooltip, and hover contrast after the visual nav refactor.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-04-13" />
+
+<Update label="April 13, 2026" description="2026-04-13" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "April 13, 2026 - Continuous Slack Sync", description: "Ando updates from April 13, 2026." }}>
+
+## Featured
+
+### Continuous Slack Sync
+
+**Categories:** Onboarding, Channels
+
+Slack import goes from one-time to ongoing. After connecting Slack during onboarding, new messages, channels, and members continue to sync into Ando in the background, so teams can move onto Ando incrementally without losing context or splitting attention across both tools.
+
+<Note>Screen recording coming soon</Note>
+
+### Sidebar Folders
+
+**Categories:** Channels
+
+Group conversations into custom folders with drag-to-reorder, plus a dedicated favorites section pinned to the top of the sidebar. Folders collapse, remember their state, and show unread indicators when activity is hidden inside.
+
+<video controls alt="Sidebar Folders demo video" src="/videos/sidebar-folders.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="9 items">
+
+- **Desktop:** Profile and workspace settings revamped with new layout and auto-save throughout.
+- **Channels, Search:** Inline sidebar search to quickly find people and conversations without opening Cmd+K.
+- **Agent:** Create managed agents directly from settings: define their tools, permissions, and workspace access without leaving the app.
+- **Desktop:** HEIC image support on web for iPhone screenshots.
+- **Desktop:** Buttons standardized across the app. Legacy button-V2 retired.
+- **Composer, Desktop:** Mobile composer mentions, formatting, and search overhauled, plus OTP paste support in sign-in.
+- **Desktop:** Mobile app rebranded to Ando.
+- **Desktop:** Member avatars now circular and served from a stable public bucket with per-surface variants.
+- **Desktop:** Conversations open faster and stay in sync across tabs and devices without polling.
+
+</Accordion>
+<Accordion title="Fixes" description="10 items">
+
+- **Composer:** @mention popup presence indicator size fixed.
+- **Channels:** Conversation header membership count corrected.
+- **Channels:** Sidebar conversation name truncation overflow resolved.
+- **Threads, Composer:** Thread composer cursor reset on send fixed.
+- **Channels:** Group DM preview metadata fixed for 4-person DMs.
+- **Jams, Threads:** Jam thread reload on navigation fixed.
+- **Jams:** Active call detection batched into a single workspace query for faster sidebar load.
+- **Channels:** Self-DM resolution and direct message naming fixed.
+- **Inbox:** Deeplinks to messages now resolve correctly.
+- **Cmd+K, Channels:** Cmd+K join-public-channel-then-navigate flow restored.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-04-06" />
+
+<Update label="April 6, 2026" description="2026-04-06" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding"]} rss={{ title: "April 6, 2026 - Proactive Agent", description: "Ando updates from April 6, 2026." }}>
+
+## Featured
+
+### Proactive Agent
+
+**Categories:** Agent
+
+Claude can now join conversations as a persistent member, listening to every message and autonomously deciding whether to reply, start a thread, or stay silent. It adapts to per-channel preferences over time and uses emoji reactions to signal when it's processing a response.
+
+<video controls alt="Proactive Agent demo video" src="/videos/proactive-agent.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="8 items">
+
+- **Onboarding:** Import your Slack message history into Ando during onboarding.
+- **Desktop:** Dark mode no longer flashes white during page reload.
+- **Composer:** Blockquotes now render immediately on ">" keystroke in the composer.
+- **Channels:** Link previews show richer inline content when URLs are shared in messages.
+- **Jams:** Active speakers are visually highlighted in Jams video tiles.
+- **Jams:** You can now start a Jam in your self-DM for personal recordings.
+- **Desktop:** Message list spacing improved for readability.
+- **Desktop:** Online presence indicators are now more consistent across the app.
+
+</Accordion>
+<Accordion title="Fixes" description="7 items">
+
+- **Inbox:** Fixed crash when opening inbox with certain conversation parameters.
+- **Desktop:** Fixed Mac fullscreen shortcut incorrectly triggering search.
+- **Jams:** Fixed blank screen when reopening Jams after closing.
+- **Desktop:** Fixed scroll flicker caused by attachment loading placeholders.
+- **Agent:** Fixed agents responding to @here mentions instead of only direct mentions.
+- **Channels:** Fixed duplicate DM conversations caused by agent memberships.
+- **Channels:** Fixed emoji reaction counts showing incorrect values.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-03-27" />
+
+<Update label="March 27, 2026" description="2026-03-27" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Jams","Onboarding","Threads"]} rss={{ title: "March 27, 2026 - Jams Picture-in-Picture", description: "Ando updates from March 27, 2026." }}>
+
+## Featured
+
+### Jams Picture-in-Picture
+
+**Categories:** Jams
+
+A floating video widget appears when you navigate away from an active Jam. The overlay is draggable with snap-to-corner animation, resizable with aspect-ratio lock, and automatically selects the best video track from screen share, active speaker, last speaker, or local camera. Hover to see the conversation name, participant info, and send reactions without returning to the call.
+
+<video controls alt="Jams Picture-in-Picture demo video" src="/videos/jams-picture-in-picture.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Mobile App
+
+**Categories:** Desktop
+
+Ando is now available as a native iOS app. Browse conversations, send messages, participate in threads, and join Jams from your phone. Built for speed. Content loads instantly, scrolling stays smooth, and skeleton placeholders keep the UI responsive throughout.
+
+<video controls alt="Mobile App demo video" src="/videos/mobile-app.MP4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="7 items">
+
+- **Composer:** Up arrow key shortcut edits your most recent message in the composer.
+- **Composer:** Code block rendering improved with better layout and formatting.
+- **Cmd+K:** Cmd+K button in the sidebar updated with animation.
+- **Channels:** Sidebar icons highlight blue when selected; last active conversation loads first on open.
+- **Channels:** Archived channels can now be unarchived from channel settings.
+- **Channels:** DM content hidden when message links are shared with non-members.
+- **Agent:** Start DMs with agents directly from the sidebar.
+
+</Accordion>
+<Accordion title="Fixes" description="4 items">
+
+- **Threads:** Message and date divider alignment fixed across main and thread views.
+- **Onboarding:** Dark mode logout screen color mismatch resolved.
+- **Threads:** Removed stale "no replies" tag from empty threads.
+- **Desktop:** Mobile: video playback, iOS 26 header transparency, floating tab bar, DM list flickering, and scroll position restoration fixed.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-03-20" />
+
+<Update label="March 20, 2026" description="2026-03-20" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "March 20, 2026 - Smart Onboarding", description: "Ando updates from March 20, 2026." }}>
+
+## Featured
+
+### Smart Onboarding
+
+**Categories:** Onboarding
+
+A completely redesigned onboarding experience that researches your company automatically and uses what it finds to structure your workspace channels and seed the team memory system, so your team is productive from the first login.
+
+<video controls alt="Smart Onboarding demo video" src="/videos/smart-onboarding.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Hey Claude, in Jams
+
+**Categories:** Jams, Agent
+
+Invoke Claude during a live Jam by saying "hey Claude" or other keyword triggers. Claude responds via chat so it doesn't disrupt your conversation. This release also adds ephemeral emoji reactions for quick feedback, a pre-call device selector for mic, camera, and speakers, mute indicators, and improved transcription accuracy.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="6 items">
+
+- **Desktop:** Keyboard shortcuts added for navigating conversations, opening search, starting a Jam, and accessing settings with Cmd+Comma.
+- **Desktop:** Messages now load and sync through a local-first data layer. Conversations open faster, scrolling stays smooth, and messages render instantly.
+- **Composer:** Hyperlink editing added to the composer. Insert, edit, and remove links inline.
+- **Channels:** Unread navigation pills in the sidebar and auto-expanding inactive section for unread conversations.
+- **Search:** Search filters now include transcript segments for more granular Jam search.
+- **Jams, Inbox:** Jam invites now surface in the inbox with a start Jam button, plus highlight-to-reply in Jam threads.
+
+</Accordion>
+<Accordion title="Fixes" description="5 items">
+
+- **Composer:** Hyperlink rendering and emoji reaction colors and ordering fixed across the composer.
+- **Desktop:** Message creation race condition resolved, preventing duplicate or missing messages.
+- **Desktop:** Desktop app unread badge now matches inbox count.
+- **Jams:** Post-call speaker mapping accuracy improved for multi-participant Jams.
+- **Threads, Channels, Cmd+K:** Thread tree titles, sidebar scrolling, and Cmd+K dialog width on small windows fixed.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-03-13" />
+
+<Update label="March 13, 2026" description="2026-03-13" tags={["Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "March 13, 2026 - Dark Mode", description: "Ando updates from March 13, 2026." }}>
+
+## Featured
+
+### Dark Mode
+
+**Categories:** Desktop
+
+Full dark theme across the entire app: sidebar, message canvas, settings, and login screen. Toggle it in Settings.
+
+<video controls alt="Dark Mode demo video" src="/videos/dark-mode.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Full-Screen Thread View
+
+**Categories:** Threads
+
+Threads can now open in a dedicated full-screen view for focused conversation. DM threads auto-subscribe on reply, and thread trees are now opt-in with improved UX, collapsing with the sidebar and displaying correct content-type titles.
+
+<video controls alt="Full-Screen Thread View demo video" src="/videos/full-screen-thread-view.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="10 items">
+
+- **Desktop:** Message list is now virtualized. Long conversations scroll without lag.
+- **Desktop:** Settings redesigned as a modal dialog with auto-save.
+- **Composer:** Composer upgraded with blockquotes, restyled code blocks, expanded toolbar, clickable links, and edit message at full parity.
+- **Composer:** Markdown-formatted drafts persist across channel navigation and pasted rich text parses correctly.
+- **Channels:** Self-DM enabled and sidebar unread indicators show when unread messages are out of view.
+- **Search:** Quick results in search show matching entities before pressing Enter.
+- **Jams:** Noise suppression added to Jams, post-call playback unified with live thread, and Jams start button added to conversation headers.
+- **Cmd+K:** Create channel directly from Cmd+K with improved UI polish and recent conversations.
+- **Desktop:** Quote-reply tooltip appears when highlighting text in messages.
+- **Desktop:** Real-time connection auth scoped per-room. Session recording integrated for debugging.
+
+</Accordion>
+<Accordion title="Fixes" description="7 items">
+
+- **Threads:** Multiple thread panel fixes: opens at latest replies, correct content-type titles, hover bar no longer overlaps header.
+- **Composer:** Composer fixes: code block bugs, message submit after ":" character, mentions after "(", and @mention sizing.
+- **Search:** Link context menu and highlighted mentions in search results fixed.
+- **Desktop:** Profile photo loading and fallback avatar issues resolved.
+- **Desktop:** Message line height and double rendering on reconnect fixed.
+- **Jams:** Transcription fixed for unsupported languages.
+- **Inbox:** Inbox events suppressed when user is focused on the affected conversation.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-03-06" />
+
+<Update label="March 6, 2026" description="2026-03-06" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "March 6, 2026 - Claude Agent Improvements", description: "Ando updates from March 6, 2026." }}>
+
+## Featured
+
+### Claude Agent Improvements
+
+**Categories:** Agent
+
+Claude now types naturally with a unified typing indicator, multi-message responses, and hidden reasoning traces. A new voice trigger lets you invoke Claude during live Jams with full call context, and MCP integrations for GitHub, Linear, and Ando are now enabled with reliable refresh tokens.
+
+<video controls alt="Claude Agent Improvements demo video" src="/videos/draft-messages-composer.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Draft Messages & New Composer
+
+**Categories:** Composer
+
+Drafts now save automatically and persist as you navigate between channels. The new composer adds emoji autocomplete, file uploads, and improved draft saving.
+
+<video controls alt="Draft Messages & New Composer demo video" src="/videos/claude-agent-improvements.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="10 items">
+
+- **Jams:** Jam notifications shipped, Jams UI redesigned with resizable panel, and per-user diarization improves transcript accuracy.
+- **Search:** Search UI updated with improved layout, message truncation, and "see more" links.
+- **Inbox:** Inbox items marked as read on click, UI spacing refined with draggable sidebar rail.
+- **Channels:** Sidebar conversation icons standardized and hover states updated with drag overlay.
+- **Onboarding:** Join Workspace by Slug added and workspace creator set to OWNER role on creation.
+- **Desktop:** Initial sync infrastructure for messages and memberships.
+- **Agent:** Message chunking for agent context. Long conversations are split into retrievable segments.
+- **Desktop:** Theming system shipped. Color tokens migrated, theme switching supported on backend and frontend.
+- **Desktop:** UI density tightened across message canvas and sidebar.
+- **Desktop:** Error monitoring and event tracking added.
+
+</Accordion>
+<Accordion title="Fixes" description="6 items">
+
+- **Threads:** Thread reply no longer triggers incorrect channel unread state.
+- **Composer:** Typing indicator layout, emoji picker, and suggestion click selection in composer fixed.
+- **Desktop:** Desktop badge count and optimistic message double-rendering on reconnect fixed.
+- **Channels:** Sidebar header icon colors, pagination ordering, and archived members in workspace selection fixed.
+- **Jams:** Multiple Jams fixes: screensharing UI, emoji picker, graceful start without microphone, and audio during screen share.
+- **Search:** Search deeplinks to messages now work correctly.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-02-27" />
+
+<Update label="February 27, 2026" description="2026-02-27" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 27, 2026 - Inbox Overhaul", description: "Ando updates from February 27, 2026." }}>
+
+## Featured
+
+### Inbox Overhaul
+
+**Categories:** Inbox
+
+Inbox got a major upgrade. Filters for @mentions, DMs, threads, and unreads let you zero in on what matters. A "mark all as read" button clears everything in one click. Thread replies can now be composed directly from the inbox. Notifications for conversations you're actively viewing are suppressed, and the long-standing hard-refresh bug is fixed.
+
+<video controls alt="Inbox Overhaul demo video" src="/videos/inbox-overhaul.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Rich Composer & GIFs
+
+**Categories:** Composer
+
+The chat composer now features a formatting toolbar, an emoji picker, and a GIF picker integrated directly into the chat input. Search and send GIFs inline, format text with the toolbar, and quickly insert emojis to make conversations more expressive.
+
+<video controls alt="Rich Composer & GIFs demo video" src="/videos/gif-sending.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="20 items">
+
+- **Search:** Search results now highlight matching words and phrases.
+- **Search:** Search results can now be sorted, with new result headers for better organization.
+- **Search:** You can now filter search results by file type.
+- **Channels:** User profile hover card now appears on message avatars with a "Message" action.
+- **Channels:** Sidebar now has a "+ Add channels" button with improved browse/join channel flow.
+- **Threads:** Thread unread state now tracked. Unread threads are visually indicated.
+- **Threads:** Thread trees shipped for nested thread navigation.
+- **Agent:** Agent session now scoped to thread for more focused responses.
+- **Agent, Jams:** Agent now has context of Jam transcripts and summaries.
+- **Agent:** Images can now be passed to the agent.
+- **Agent:** Claude now links directly to relevant messages and conversations in its responses.
+- **Channels:** Workspace URLs are now human-friendly.
+- **Desktop:** Images in messages now have a preview dialog on click.
+- **Desktop:** Panel header heights and borders standardized across the app.
+- **Desktop:** Channel row height, label sizes, and presence indicator positioning matched to design spec.
+- **Desktop:** Workspace header hidden on desktop web browsers for a cleaner layout.
+- **Desktop:** Analytics reworked with agent invocation tracking and conversation metadata.
+- **Inbox:** Notification delivery synced to prevent missed events.
+- **Inbox:** Stale event list logic removed, simplifying inbox data flow.
+- **Onboarding:** Public docs pages and onboarding READMEs improved.
+
+</Accordion>
+<Accordion title="Fixes" description="10 items">
+
+- **Jams:** Deep link navigation no longer disconnects active Jams.
+- **Jams:** Jam top-bar visibility no longer disappears when a new call starts in a channel.
+- **Jams:** Device selector width cleaned up.
+- **Composer:** Blank lines no longer collapse in message rendering.
+- **Inbox:** Inbox messages loading and pagination fixed.
+- **Inbox:** Inbox no longer requires hard-refresh for new events to appear.
+- **Inbox:** Inbox notification count is now computed directly, making it more accurate and instant.
+- **Channels:** Archived members removed from channel detail side panel.
+- **Channels:** Sticky header fixed on workspace conversations.
+- **Agent:** Agent deployment stabilized.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-02-20" />
+
+<Update label="February 20, 2026" description="2026-02-20" tags={["Agent","Channels","Cmd+K","Composer","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 20, 2026 - Jam Threads & Post-Call Playback", description: "Ando updates from February 20, 2026." }}>
+
+## Featured
+
+### Jam Threads & Post-Call Playback
+
+**Categories:** Jams, Threads
+
+Jams now have full thread support. Send and view messages during live calls. After a call ends, the playback view includes a thread tab alongside transcripts and summaries, so nothing gets lost.
+
+<video controls alt="Jam Threads & Post-Call Playback demo video" src="/videos/jams-recording.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Rich Text & Markdown
+
+**Categories:** Composer
+
+Messages now render with full markdown support: code blocks, inline code, bullet lists, ordered lists, and proper formatting. The new composer supports @mentions for both members and conversations.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="14 items">
+
+- **Agent:** Agent can now read and understand uploaded files.
+- **Agent:** Claude now has full thread history for more relevant responses in threads.
+- **Agent:** Agent system prompt updated for better response quality.
+- **Search:** Uploaded files are now indexed and searchable.
+- **Search, Jams:** Jam transcripts are now fully searchable.
+- **Agent, Jams:** Agents can now search across Jam transcripts.
+- **Jams:** Post-call recordings include auto-generated chapters with action items and topic transitions.
+- **Cmd+K:** Cmd+K reworked with improved channel creation and group creation flows.
+- **Jams:** Jam discoverability improved: polished sidebar icons, join button with split popover, and active call polling on workspace load.
+- **Inbox:** Inbox stacked notifications. Related events are now grouped into stack items.
+- **Inbox:** Inbox filters shipped.
+- **Inbox, Threads:** Inbox thread replies implemented.
+- **Threads:** Thread subscriptions: follow/unfollow from context menu, subscription items in sidebar.
+- **Channels:** Conversation header cleaned up.
+
+</Accordion>
+<Accordion title="Fixes" description="6 items">
+
+- **Threads:** Fixed typing indicator positioning in threads.
+- **Onboarding:** Duplicate invite links prevented. Existing members can no longer be re-invited.
+- **Inbox:** DM inbox items now deeplink to the correct message.
+- **Jams:** Active call entry properly removed when current call ends.
+- **Agent, Threads:** Agent reply no longer auto-subscribes user to thread.
+- **Jams, Search:** Transcript indexing fixed for more accurate search results.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-02-13" />
+
+<Update label="February 13, 2026" description="2026-02-13" tags={["Agent","Channels","Clipboard","Cmd+K","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "February 13, 2026 - Thread Subscriptions", description: "Ando updates from February 13, 2026." }}>
+
+## Featured
+
+### Thread Subscriptions
+
+**Categories:** Threads
+
+Subscribe or unsubscribe to any thread to control which replies notify you. Thread and conversation notifications are now separated. Thread replies no longer trigger channel-level unread state.
+
+### Copy Thread for Agents
+
+**Categories:** Threads, Agent
+
+Threads now have a copy button with two formats: a default plain-text copy for pasting into model interfaces like ChatGPT and Claude, and a "copy for agent" format that includes resource IDs so agents can use the Ando API directly.
+
+<video controls alt="Copy Thread for Agents demo video" src="/videos/copy-thread-for-agents.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="12 items">
+
+- **Agent:** Agent response messages are now collapsible with show all/less button.
+- **Agent, Threads:** Agent now receives full thread context when responding in threads.
+- **Desktop:** Initial real-time sync infrastructure stood up.
+- **Clipboard:** Clipboard data layer normalized for context bundles and items.
+- **Agent:** Agent server moved to separate host. Deploys no longer log users out.
+- **Search:** Search API now supports exact text match across all entity types.
+- **Inbox:** Inbox layout updated with new event-list-item design and header.
+- **Jams:** Active Jam indicators shown in sidebar and conversation view.
+- **Composer:** Rich text rendering now supported in the composer.
+- **Cmd+K, Channels:** Channels visually differentiated from conversations in Cmd+K.
+- **Channels:** Channel listing scoped to valid workspace channels.
+- **Inbox:** Stale inbox views cleaned up.
+
+</Accordion>
+<Accordion title="Fixes" description="9 items">
+
+- **Inbox:** DM inbox items now deeplink to the correct message.
+- **Desktop:** Desktop app update fixed to enable screen sharing.
+- **Composer:** Typing indicator no longer obscures text in chat.
+- **Jams:** Multiple speakers on one mic now display correctly in transcripts.
+- **Jams:** Fixed race condition causing user transcript to not get created.
+- **Channels:** Fixed duplicate active membership bug.
+- **Threads:** Fixed thread message vertical spacing.
+- **Channels:** Fixed optimistic channel join.
+- **Composer:** Clicking behind typing indicator gradient no longer blocked.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-02-06" />
+
+<Update label="February 6, 2026" description="2026-02-06" tags={["Agent","Channels","Clipboard","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 6, 2026 - Jams: Screen Sharing & Transcript Pipeline", description: "Ando updates from February 6, 2026." }}>
+
+## Featured
+
+### Jams: Screen Sharing & Transcript Pipeline
+
+**Categories:** Jams
+
+Jams now supports screen sharing with full UI controls and multiple simultaneous presenters. Post-call transcripts use live speaker diarization for accurate attribution, with auto-generated chapters and summaries. All transcripts are indexed for search.
+
+<video controls alt="Jams: Screen Sharing & Transcript Pipeline demo video" src="/videos/jams-screen-sharing.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Deterministic Inbox
+
+**Categories:** Inbox
+
+Inbox rebuilt with deterministic grouping and display rules. Sidebar unread counts now match the inbox view, and new events appear in real-time without a hard refresh.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="12 items">
+
+- **Agent:** Claude responses now stream in real-time with a thinking indicator while processing.
+- **Agent:** Agent mentions more reliable, thread context passed on invocation.
+- **Clipboard:** Clipboard data layer rebuilt with normalized stores for context bundles and items.
+- **Search:** Search API exposes individual context bundle items including underlying messages.
+- **Search:** Search ranking evaluated and tuned for relevance.
+- **Onboarding:** Onboarding flow finalized and polished to design parity.
+- **Cmd+K:** Cmd+K search styling updated and visual prominence reduced.
+- **Desktop:** Image attachments support zoom when enlarged.
+- **Composer:** Message composer renders HTML and markdown.
+- **Onboarding:** Invite and auth code emails improved with error states.
+- **Agent:** Agent presence indicators added to member group menu.
+- **Desktop:** Font ligatures disabled.
+
+</Accordion>
+<Accordion title="Fixes" description="12 items">
+
+- **Desktop:** Resolved unintended app refresh issue.
+- **Composer:** Edit message functionality restored.
+- **Threads:** Thread issues regression fixed.
+- **Threads, Composer:** Thread message composer now sticks to the bottom.
+- **Cmd+K:** Group DMs no longer display "joined" incorrectly in Cmd+K.
+- **Composer:** Typing indicators scoped to main canvas or thread.
+- **Inbox:** Message deeplinks working correctly.
+- **Composer:** Group tags populate properly when editing a message.
+- **Channels:** Optimistic conversations show member names.
+- **Channels:** New conversation no longer double-renders membership in sidebar.
+- **Desktop:** Fixed server crashes from brief connection interruptions.
+- **Jams:** Fixed Firefox media device errors in Jams.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-01-30" />
+
+<Update label="January 30, 2026" description="2026-01-30" tags={["Agent","Channels","Clipboard","Composer","Desktop","Inbox","Jams","Onboarding"]} rss={{ title: "January 30, 2026 - Claude Code Agent Launch", description: "Ando updates from January 30, 2026." }}>
+
+## Featured
+
+### Claude Code Agent Launch
+
+**Categories:** Agent
+
+Claude can now access GitHub through MCP, enabling richer context for development-related conversations. When Claude is processing a response, users see a "thinking" indicator for better feedback during longer operations. You can also disconnect the Claude integration from workspace settings if needed.
+
+<video controls alt="Claude Code Agent Launch demo video" src="/videos/claude-in-ando.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Jams Improvements
+
+**Categories:** Jams
+
+Jams, Ando's native calling with live transcription, screen sharing, and in-thread messaging, got key upgrades. Calls now generate high-quality post-call transcripts, live transcription is more reliable, and multi-participant calls now work correctly.
+
+<video controls alt="Jams Improvements demo video" src="/videos/jams-improvements.mov" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Attachment Downloads
+
+**Categories:** Desktop
+
+Download any file shared in chat directly to your device. Downloads show progress toasts with cancel support, and the completion toast lets you jump straight to the file in Finder (or Explorer on Windows). Available from image previews, video previews, and the file context menu.
+
+<Note>Demo video coming soon</Note>
+
+<AccordionGroup>
+<Accordion title="Improvements" description="5 items">
+
+- **Onboarding:** Login flow redesigned to match new onboarding experience.
+- **Desktop:** Workspace switching added to sidebar selector.
+- **Agent:** Workspace-level API keys now supported.
+- **Desktop:** Member avatars show a fallback component when no profile image is available.
+- **Clipboard:** Save selection modal allows adding messages to existing Clipboards.
+
+</Accordion>
+<Accordion title="Fixes" description="8 items">
+
+- **Desktop:** State cleanup during logout now works correctly when switching workspaces.
+- **Inbox:** Message focus in inbox now selects the correct message.
+- **Channels:** Archived users filtered from conversation member lists.
+- **Channels:** New conversations display member names properly.
+- **Composer:** Edited message pill positioned correctly.
+- **Channels:** "New message" line indicator showing properly.
+- **Onboarding:** Duplicate invite links resolved.
+- **Desktop:** Hard refresh removed from navigation flows.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-01-25" />
+
+<Update label="January 25, 2026" description="2026-01-25" tags={["Channels","Clipboard","Composer","Desktop","Inbox","Jams","Onboarding","Search"]} rss={{ title: "January 25, 2026 - Jams!", description: "Ando updates from January 25, 2026." }}>
+
+## Featured
+
+### Jams!
+
+**Categories:** Jams
+
+Jams is live. Audio and video calling directly in Ando with full call recording and live transcription. Transcripts are stored in full, as chapters, and as segments, all indexed for search and usable as context for agents.
+
+<video controls alt="Jams! demo video" src="/videos/jams!.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Clipboard Improvements
+
+**Categories:** Clipboard
+
+New backend APIs give users more control over curated collections. Add messages and items directly to an existing Clipboard without creating a new one, and remove individual items from a Clipboard to clean up without deleting the entire collection.
+
+<video controls alt="Clipboard Improvements demo video" src="/videos/clipboard.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="4 items">
+
+- **Desktop:** File uploads now use a blocklist instead of allowlist, supporting .json, .dmg, spreadsheets, and more.
+- **Search:** Search now supports date range filters.
+- **Channels:** Sidebar improvements added to production.
+- **Channels, Composer:** Typing indicators added to channels and sidebar.
+
+</Accordion>
+<Accordion title="Fixes" description="9 items">
+
+- **Inbox:** Deeplinks to messages and threads fixed.
+- **Inbox:** @here no longer shows as @undefined in inbox.
+- **Desktop:** Stale profile pictures in selection preview now refresh properly.
+- **Desktop:** Drag + Cmd+C no longer activates selection mode.
+- **Search:** Multi-select shows previews correctly from search selections.
+- **Channels:** Collapsed sidebar no longer cuts off icons.
+- **Channels:** New DMs appear in active channels without requiring refresh.
+- **Channels:** Creating a new conversation no longer double-renders membership in sidebar.
+- **Onboarding:** Invite button properly hidden for non-admin roles.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-01-11" />
+
+<Update label="January 11, 2026" description="2026-01-11" tags={["Agent","Channels","Composer","Desktop","Inbox","Onboarding","Search"]} rss={{ title: "January 11, 2026 - Full-Screen Search", description: "Ando updates from January 11, 2026." }}>
+
+## Featured
+
+### Full-Screen Search
+
+**Categories:** Search
+
+Search is now a dedicated full-screen experience. Find messages across your workspace with improved relevance ranking. Includes clear button, no-results page, and entity rendering in search results.
+
+### Inactive Conversations Group
+
+**Categories:** Channels
+
+Conversations without activity in the last 7 days are now automatically grouped in a collapsible "Inactive" section in your sidebar, keeping your active conversations front and center.
+
+### Connection Reliability
+
+**Categories:** Desktop
+
+Added heartbeats and retries to websocket infrastructure for more reliable real-time updates.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="9 items">
+
+- **Desktop:** Timestamp tooltips: hover over message timestamps or date separators to see the full date and time.
+- **Desktop:** App now opens to your most recently viewed conversation on launch.
+- **Composer:** Chat input redesigned with improved styling.
+- **Composer:** Fixed composer formatting issues when pasting text.
+- **Composer:** Archived users no longer appear in @mention suggestions.
+- **Channels:** Collapsible sidebar groups: click to collapse/expand conversation groups.
+- **Desktop:** Optimistic attachments: images appear in chat immediately while uploading.
+- **Inbox:** Inbox now shows unread count badge in the sidebar.
+- **Channels:** Create Channel from Conversation: convert any group DM into a channel.
+
+</Accordion>
+<Accordion title="Fixes" description="5 items">
+
+- **Desktop:** Messages, events, and memberships now automatically refresh after reconnecting.
+- **Inbox:** Fixed messages appearing unread in inbox after being viewed in conversation.
+- **Desktop:** Files nearing expiration are now automatically refreshed.
+- **Onboarding:** Fixed auth code inputs not being centered.
+- **Channels:** Fixed issues with fetching newer messages in long conversations.
+
+</Accordion>
+<Accordion title="Experiments" description="2 items">
+
+- **Inbox:** Exploring smarter message stack grouping.
+- **Agent:** Investigating topic-based conversation segmentation for structured context.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2026-01-04" />
+
+<Update label="January 4, 2026" description="2026-01-04" tags={["Agent","Channels","Desktop","Inbox","Search"]} rss={{ title: "January 4, 2026 - View Channel Before Joining", description: "Ando updates from January 4, 2026." }}>
+
+## Featured
+
+### View Channel Before Joining
+
+**Categories:** Channels
+
+Preview any channel before joining. Click a channel to browse its message history and read recent conversations. When you're ready, join with one click and the channel appears in your sidebar.
+
+<video controls alt="View Channel Before Joining demo video" src="/videos/view-channel-before-joining.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Channel Member Management
+
+**Categories:** Channels
+
+Manage channel members directly from the sidebar. Right-click any channel to view current members, search through the member list, or add new people. Channel info, member counts, and quick actions are now accessible without navigating away.
+
+<video controls alt="Channel Member Management demo video" src="/videos/channel-member-management.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Full-Screen Search
+
+**Categories:** Search
+
+Search is now a dedicated full-screen experience with its own surface. Find messages across your workspace with improved relevance ranking. This lays the foundation for context management, multiselect, and AI-powered answers.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="6 items">
+
+- **Inbox:** Real-time inbox updates: items now appear instantly.
+- **Channels:** New dedicated panel for viewing conversation details, members, and channel info.
+- **Desktop:** Image aspect ratios are now preserved in chat previews.
+- **Channels:** Pin/unpin channels from the channel details dialog.
+- **Channels:** Right-click any channel to leave without opening channel settings.
+- **Desktop:** Desktop app builds available for Mac Intel and Silicon.
+
+</Accordion>
+<Accordion title="Fixes" description="4 items">
+
+- **Channels:** Fixed critical bug where messages in non-active channels were being lost.
+- **Channels:** Conversation sidebar items now correctly clear unread state when visited.
+- **Inbox:** Messages already read in a conversation no longer show as unread in Inbox.
+- **Inbox:** Fixed unread counter incorrectly incrementing for your own sent messages.
+
+</Accordion>
+<Accordion title="Experiments" description="2 items">
+
+- **Inbox:** Exploring smarter message stack creation.
+- **Agent:** Investigating topic-based conversation segmentation for structured context.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2025-12-28" />
+
+<Update label="December 28, 2025" description="2025-12-28" tags={["Channels","Cmd+K","Desktop","Inbox","Search"]} rss={{ title: "December 28, 2025 - Inbox & Stack Improvements", description: "Ando updates from December 28, 2025." }}>
+
+## Featured
+
+### Inbox & Stack Improvements
+
+**Categories:** Inbox
+
+Stacks now factor in recency when grouping related messages. Inbox views have an AI summary toggle. The UI was also updated based on new designs.
+
+<video controls alt="Inbox & Stack Improvements demo video" src="/videos/inbox-stacks.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Search API Foundation
+
+**Categories:** Search
+
+Backend infrastructure for the new search experience is complete. The Search API supports time filters, conversation filters, user filters, and intelligent reranking.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="5 items">
+
+- **Channels:** Archive channels directly from the sidebar via right-click.
+- **Inbox:** Inbox notification UI updated to match new design system.
+- **Inbox:** Inbox now properly displays stacked notification groups.
+- **Inbox:** Create custom inbox views, switch between views, and toggle stack grouping.
+- **Desktop:** Online/offline presence indicators now working.
+
+</Accordion>
+<Accordion title="Fixes" description="3 items">
+
+- **Inbox:** Fixed bug where recent notifications weren't appearing in Inbox.
+- **Channels:** Active and pinned memberships now properly update when archiving or unarchiving channels.
+- **Channels:** Navigating to a non-active channel now correctly shows it in the sidebar.
+
+</Accordion>
+<Accordion title="Experiments" description="3 items">
+
+- **Inbox:** Running evaluations on stack grouping quality.
+- **Search:** Exploring saved searches that proactively surface new matching results.
+- **Cmd+K:** Continued iteration on command palette interface patterns.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2025-12-21" />
+
+<Update label="December 21, 2025" description="2025-12-21" tags={["Channels","Cmd+K","Inbox","Search"]} rss={{ title: "December 21, 2025 - Inbox Rules", description: "Ando updates from December 21, 2025." }}>
+
+## Featured
+
+### Inbox Rules
+
+**Categories:** Inbox
+
+A domain-specific language for defining custom inbox filtering rules, applied to incoming events. Rules let you control what surfaces in your inbox and how it's organized.
+
+### Command Center & Create Channel
+
+**Categories:** Cmd+K, Channels
+
+Press Cmd+K and type to create a new channel instantly. Name your channel, set visibility (public or private), and add initial members.
+
+<video controls alt="Command Center & Create Channel demo video" src="/videos/create-channel-from-comman-k.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="4 items">
+
+- **Channels:** Pin your most important conversations to a dedicated Favorites section at the top of the sidebar.
+- **Channels:** Complete rebuild of sidebar UI with favorites, active conversations, and archive sections.
+- **Channels:** New backend endpoints track which conversations you've been active in recently.
+- **Channels:** Added loading spinner when creating conversations to prevent duplicate submissions.
+
+</Accordion>
+<Accordion title="Fixes" description="1 item">
+
+- **Channels:** Fixed unwanted horizontal scrolling in the sidebar.
+
+</Accordion>
+<Accordion title="Experiments" description="2 items">
+
+- **Inbox:** Working on improving how stacks are ranked for more intuitive grouping.
+- **Search:** Defined Navigate, Find, and Ask as distinct search modes.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2025-12-14" />
+
+<Update label="December 14, 2025" description="2025-12-14" tags={["Channels","Cmd+K","Inbox","Onboarding","Search"]} rss={{ title: "December 14, 2025 - Browse and Join Channels", description: "Ando updates from December 14, 2025." }}>
+
+## Featured
+
+### Browse and Join Channels
+
+**Categories:** Channels, Cmd+K
+
+Discover channels across your workspace from the command center. Browse public channels, see member counts and recent activity, and join with one click. Joined channels immediately appear in your sidebar.
+
+<video controls alt="Browse and Join Channels demo video" src="/videos/nav-to-channel.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+### Create Conversation Flow
+
+**Categories:** Cmd+K, Channels
+
+Start new conversations directly from Cmd+K. Search for workspace members, select one or multiple people, and create the conversation instantly.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="5 items">
+
+- **Channels:** New views and components for the create channel flow.
+- **Channels:** Member selection improved for consistency across flows.
+- **Onboarding:** New Members page and Account settings page for workspace administration.
+- **Inbox:** Core UI code for the inbox experience.
+- **Inbox:** Created evaluation framework for measuring stack grouping quality.
+
+</Accordion>
+<Accordion title="Fixes" description="1 item">
+
+- **Onboarding:** Archived workspace members no longer appear in the invite modal.
+
+</Accordion>
+<Accordion title="Experiments" description="2 items">
+
+- **Search:** Testing search quality and defining success criteria for relevance ranking.
+- **Inbox:** Finalized inbox component designs with clear logic for stacks.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+
+<a id="2025-12-07" />
+
+<Update label="December 7, 2025" description="2025-12-07" tags={["Cmd+K","Composer","Inbox","Search"]} rss={{ title: "December 7, 2025 - Stack Generation", description: "Ando updates from December 7, 2025." }}>
+
+## Featured
+
+### Stack Generation
+
+**Categories:** Inbox
+
+The backend now generates Stacks from event list items, intelligently grouping related messages together. This is the core infrastructure for the inbox's grouped notification experience.
+
+### Command Center Foundation
+
+**Categories:** Cmd+K
+
+Introducing Cmd+K as the new keyboard-first command center. The initial release includes a modal with search and one action (Join Channel). This foundation enables rapid keyboard navigation and will expand to support all major workspace actions.
+
+<video controls alt="Command Center Foundation demo video" src="/videos/command-k-foundation.mp4" style={{ width: "100%", borderRadius: "8px" }} />
+
+<AccordionGroup>
+<Accordion title="Improvements" description="4 items">
+
+- **Inbox:** Improved how stacks group related content together.
+- **Composer:** #/@ syntax in text UI to reference users and conversations.
+- **Inbox:** Inbox Rules now evaluate with surrounding message context for better classification.
+- **Search:** Moved search from top of app to sidebar for better space utilization.
+
+</Accordion>
+<Accordion title="Experiments" description="1 item">
+
+- **Inbox:** Exploring how context should be organized in the inbox experience.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
+# Coming soon
+Source: https://docs.ando.so/coming-soon
+
+> Upcoming Ando product work.
+
+## Ando Agent with Memory Stores
+
+Memory stores at the workspace, channel, and people level let one Ando agent act like many specialized agents. The same Ando you already chat with grows a per-channel sense of priorities and a per-person sense of history, without you needing to set up custom agents.
+
+## Ando in the App Store
+
+Ando for iOS is heading from TestFlight to the App Store. Launch polish is wrapping up: link previews, emoji search, push reliability, and submission assets.
+
+## Custom MCP Connections
+
+Plug any third-party MCP server into your workspace and expose its tools to Ando agents. If a tool has an MCP, it can live inside Ando without waiting for a native integration.
