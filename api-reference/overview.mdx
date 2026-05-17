@@ -8,13 +8,13 @@ Ando's public API is for server-side integrations that need workspace context:
 search messages and workspace records, read conversation history, and create
 messages or replies with an API key.
 
-Public API v1 currently has two GA families:
+The stable, supported part of public API v1 is built around two jobs:
 
-- **Search**: discover messages, conversations, workspace members, and calls.
-- **Messaging**: list, create, fetch, and reply to conversation messages.
+- **Find context**: search messages, conversations, workspace members, and calls.
+- **Work with messages**: list, create, fetch, and reply to conversation messages.
 
-Preview and legacy compatibility endpoints are available in the endpoint
-reference, but they are not the first surface new integrations should build on.
+Other endpoints exist for testing or older compatibility, but they are not the
+first surface new integrations should build on.
 
 ## Get an API key
 
@@ -75,12 +75,15 @@ resource model.
 
 ## Stability levels
 
+In this guide, **stable** means generally available: supported for production
+integrations and covered by the public API v1 compatibility promise.
+
 | Level | Use it for | Routes |
 | --- | --- | --- |
-| GA | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
-| GA candidate | Test behind a feature flag or narrow rollout. Shape is close to public v1 but not yet promoted. | `/search/tasks` |
+| Stable | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
+| Nearly stable | Test behind a feature flag or narrow rollout. Shape is close to public v1 but not yet promoted. | `/search/tasks` |
 | Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates` |
-| Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no GA route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
+| Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no stable route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
 
 The endpoint reference includes the exact status for every operation.
 
@@ -186,7 +189,7 @@ Compatibility endpoints may return the older `error`, `error_code`, and
 
 ## Recommended first workflow
 
-Start with the GA messaging loop:
+Start with the stable message workflow:
 
 1. Search messages with `GET /search/messages`.
 2. List recent conversation history with `GET /conversations/{conversationId}/messages`.

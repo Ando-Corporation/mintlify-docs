@@ -1,0 +1,22 @@
+---
+title: "Endpoint reference map"
+description: "Scan public API v1 endpoints by stability level before opening generated schemas."
+icon: "list-tree"
+---
+
+Use the endpoint groups below by stability level, not by internal implementation
+area. Stable endpoints are ready for production integrations; nearly stable,
+preview, and legacy compatibility endpoints need narrower rollout judgment.
+
+| Group | Stability | Use it for |
+| --- | --- | --- |
+| Stable search | Production discovery workflows for messages, conversations, workspace members, and calls. | Start here when an integration needs context ids before reading or writing. |
+| Stable messaging | Production message workflows. | List, create, fetch, and reply to conversation messages. |
+| Nearly stable | Endpoint shape that is close to public v1 but not fully promoted. | Test behind a feature flag or limited internal integration. |
+| Preview | Exploratory integrations. | Build only when the risk of shape changes is acceptable. |
+| Legacy compatibility | Existing compatibility behavior. | Avoid for new integrations unless no stable route covers the use case. |
+
+The generated endpoint pages show request parameters, response schemas, and
+examples for each route. Start from [API overview](/api-reference/overview)
+when you need the resource model, auth header, response envelope, pagination,
+idempotency, and error model in one place.
