@@ -8,6 +8,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const siteUrl = process.env.ANDO_DOCS_URL ?? "https://docs.ando.so";
 const latestOpenApiFile = "openapi-public-api-v1-latest.json";
+const openApiAliasFiles = ["openapi.json", "api-reference/openapi.json"];
 const datedOpenApiPattern = /openapi-public-api-v1-\d{4}-\d{2}-\d{2}\.json/g;
 
 const args = process.argv.slice(2);
@@ -140,6 +141,9 @@ const checkLocalArtifacts = () => {
   const beforeIndex = fileText("llms.txt");
   const openApiFile = findDatedOpenApiFile("llms.txt", beforeIndex);
   const before = {
+    aliases: Object.fromEntries(
+      openApiAliasFiles.map((aliasFile) => [aliasFile, fileText(aliasFile)])
+    ),
     full: fileText("llms-full.txt"),
     index: beforeIndex,
     latestOpenApi: fileText(latestOpenApiFile),
@@ -148,6 +152,9 @@ const checkLocalArtifacts = () => {
   run("node", ["scripts/build-llms.mjs"]);
 
   const after = {
+    aliases: Object.fromEntries(
+      openApiAliasFiles.map((aliasFile) => [aliasFile, fileText(aliasFile)])
+    ),
     full: fileText("llms-full.txt"),
     index: fileText("llms.txt"),
     latestOpenApi: fileText(latestOpenApiFile),
@@ -159,6 +166,7 @@ const checkLocalArtifacts = () => {
     );
   }
   if (
+    JSON.stringify(before.aliases) !== JSON.stringify(after.aliases) ||
     before.full !== after.full ||
     before.index !== after.index ||
     before.latestOpenApi !== after.latestOpenApi
@@ -169,6 +177,11 @@ const checkLocalArtifacts = () => {
   }
   if (after.latestOpenApi !== fileText(openApiFile)) {
     throw new Error(`${latestOpenApiFile} does not match ${openApiFile}.`);
+  }
+  for (const aliasFile of openApiAliasFiles) {
+    if (after.aliases[aliasFile] !== after.latestOpenApi) {
+      throw new Error(`${aliasFile} does not match ${latestOpenApiFile}.`);
+    }
   }
 
   assertIncludes("llms.txt", after.index, [
@@ -230,6 +243,13 @@ const checkMonorepoContracts = (monorepoPath) => {
     throw new Error(
       `${latestOpenApiFile} does not match ${monorepoOpenApi}. Re-run node scripts/build-llms.mjs.`
     );
+  }
+  for (const aliasFile of openApiAliasFiles) {
+    if (fileText(aliasFile) !== sourceOpenApi) {
+      throw new Error(
+        `${aliasFile} does not match ${monorepoOpenApi}. Re-run node scripts/build-llms.mjs.`
+      );
+    }
   }
 };
 
@@ -320,7 +340,7 @@ const checkProduction = async () => {
   const latestOpenApiJson = parseJson(`/${latestOpenApiFile}`, latestOpenApi.text);
   const latestOpenApiPaths = Object.keys(latestOpenApiJson.paths ?? {}).sort();
 
-  const aliasPaths = ["/openapi.json", "/api-reference/openapi.json"];
+  const aliasPaths = openApiAliasFiles.map((aliasFile) => `/${aliasFile}`);
   for (const aliasPath of aliasPaths) {
     const alias = await fetchText(aliasPath);
     assertIncludes(aliasPath, alias.text, expectedOpenApiPhrases);

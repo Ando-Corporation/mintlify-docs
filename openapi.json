@@ -1,0 +1,3601 @@
+{
+  "components": {
+    "responses": {
+      "BadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LegacyErrorResponse"
+            }
+          }
+        },
+        "description": "Bad request."
+      },
+      "Conflict": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LegacyErrorResponse"
+            }
+          }
+        },
+        "description": "Conflict."
+      },
+      "Forbidden": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LegacyErrorResponse"
+            }
+          }
+        },
+        "description": "Forbidden."
+      },
+      "InternalError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LegacyErrorResponse"
+            }
+          }
+        },
+        "description": "Internal server error."
+      },
+      "NotFound": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LegacyErrorResponse"
+            }
+          }
+        },
+        "description": "Not found."
+      },
+      "RateLimited": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PublicApiErrorResponse"
+            }
+          }
+        },
+        "description": "Rate limit or quota exceeded."
+      },
+      "Unauthorized": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LegacyErrorResponse"
+            }
+          }
+        },
+        "description": "Missing or invalid API key."
+      }
+    },
+    "schemas": {
+      "CallParticipant": {
+        "additionalProperties": false,
+        "description": "A participant in a call.",
+        "properties": {
+          "id": {
+            "description": "Participant workspace member identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "name": {
+            "description": "Display name.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "CallResponse": {
+        "additionalProperties": false,
+        "description": "Call detail response.",
+        "properties": {
+          "chapters": {
+            "description": "Call summary chapters.",
+            "items": {
+              "$ref": "#/components/schemas/CallTranscriptChapter"
+            },
+            "type": "array"
+          },
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "duration_seconds": {
+            "description": "Call duration in seconds.",
+            "type": "number",
+            "nullable": true
+          },
+          "ended_at": {
+            "description": "Call end timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "id": {
+            "description": "Call identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "participants": {
+            "description": "Call participants.",
+            "items": {
+              "$ref": "#/components/schemas/CallParticipant"
+            },
+            "type": "array"
+          },
+          "started_at": {
+            "description": "Call start timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "description": "Call status.",
+            "type": "string"
+          },
+          "summary": {
+            "description": "Call summary markdown.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "conversation_id",
+          "conversation_name",
+          "status",
+          "duration_seconds",
+          "participants",
+          "summary",
+          "chapters",
+          "started_at",
+          "ended_at"
+        ],
+        "type": "object"
+      },
+      "CallResult": {
+        "additionalProperties": false,
+        "description": "Search result for a call.",
+        "properties": {
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "duration_seconds": {
+            "description": "Call duration in seconds.",
+            "type": "number",
+            "nullable": true
+          },
+          "ended_at": {
+            "description": "Call end timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "id": {
+            "description": "Call identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "participant_count": {
+            "description": "Number of call participants.",
+            "type": "integer"
+          },
+          "participant_names": {
+            "description": "Participant display names.",
+            "items": {
+              "description": "Name.",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "started_at": {
+            "description": "Call start timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "description": "Call status.",
+            "type": "string"
+          },
+          "summary": {
+            "description": "Call summary markdown.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "conversation_id",
+          "conversation_name",
+          "status",
+          "duration_seconds",
+          "participant_names",
+          "participant_count",
+          "summary",
+          "started_at",
+          "ended_at"
+        ],
+        "type": "object"
+      },
+      "CallTranscriptChapter": {
+        "additionalProperties": false,
+        "description": "A summary chapter for a call transcript.",
+        "properties": {
+          "content": {
+            "description": "Chapter content.",
+            "type": "string"
+          },
+          "end_ms": {
+            "description": "Chapter end offset in milliseconds.",
+            "type": "integer"
+          },
+          "start_ms": {
+            "description": "Chapter start offset in milliseconds.",
+            "type": "integer"
+          },
+          "title": {
+            "description": "Chapter title.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "start_ms",
+          "end_ms"
+        ],
+        "type": "object"
+      },
+      "CallTranscriptResponse": {
+        "additionalProperties": false,
+        "description": "Current call transcript compatibility response.",
+        "properties": {
+          "call_id": {
+            "description": "Call identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "duration_seconds": {
+            "description": "Call duration in seconds.",
+            "type": "number",
+            "nullable": true
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/LegacyPageInfo"
+          },
+          "segments": {
+            "description": "Transcript segments.",
+            "items": {
+              "$ref": "#/components/schemas/CallTranscriptSegment"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "call_id",
+          "conversation_name",
+          "duration_seconds",
+          "segments",
+          "pageInfo"
+        ],
+        "type": "object"
+      },
+      "CallTranscriptSegment": {
+        "additionalProperties": false,
+        "description": "A transcript segment.",
+        "properties": {
+          "content": {
+            "description": "Transcript text.",
+            "type": "string"
+          },
+          "end_ms": {
+            "description": "Segment end offset in milliseconds.",
+            "type": "integer"
+          },
+          "speaker_name": {
+            "description": "Speaker display name.",
+            "type": "string",
+            "nullable": true
+          },
+          "start_ms": {
+            "description": "Segment start offset in milliseconds.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "speaker_name",
+          "content",
+          "start_ms",
+          "end_ms"
+        ],
+        "type": "object"
+      },
+      "ClipboardItem": {
+        "additionalProperties": false,
+        "description": "An item inside a clipboard.",
+        "properties": {
+          "author_name": {
+            "description": "Message author name.",
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "description": "Message or file text content.",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Creation timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "display_name": {
+            "description": "Workspace member display name.",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "description": "Item identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "mime_type": {
+            "description": "File MIME type.",
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "description": "Conversation or file name.",
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "description": "Clipboard item title.",
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "description": "Clipboard item type. The member value is a v1 compatibility spelling for a workspace member item.",
+            "enum": [
+              "message",
+              "member",
+              "conversation",
+              "file"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "description": "File URL.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "ClipboardResponse": {
+        "additionalProperties": false,
+        "description": "Clipboard detail response.",
+        "properties": {
+          "created_at": {
+            "description": "Clipboard creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "description": {
+            "description": "Clipboard description.",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "description": "Clipboard identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "items": {
+            "description": "Clipboard items.",
+            "items": {
+              "$ref": "#/components/schemas/ClipboardItem"
+            },
+            "type": "array"
+          },
+          "title": {
+            "description": "Clipboard title.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "created_at",
+          "items"
+        ],
+        "type": "object"
+      },
+      "ClipboardResult": {
+        "additionalProperties": false,
+        "description": "Search result for a clipboard.",
+        "properties": {
+          "created_at": {
+            "description": "Clipboard creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "description": {
+            "description": "Clipboard description.",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "description": "Clipboard identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "item_count": {
+            "description": "Number of items in the clipboard.",
+            "type": "integer"
+          },
+          "title": {
+            "description": "Clipboard title.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "item_count",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "ConversationMessagesResponse": {
+        "additionalProperties": false,
+        "description": "Conversation messages response with the standard public data envelope plus legacy top-level aliases.",
+        "properties": {
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConversationMessagesData"
+          },
+          "items": {
+            "description": "Messages.",
+            "items": {
+              "$ref": "#/components/schemas/MessageResult"
+            },
+            "type": "array"
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/LegacyPageInfo"
+          }
+        },
+        "required": [
+          "data",
+          "conversation_id",
+          "conversation_name",
+          "items",
+          "pageInfo"
+        ],
+        "type": "object"
+      },
+      "ConversationMessagesData": {
+        "additionalProperties": false,
+        "description": "Standard conversation messages payload.",
+        "properties": {
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "description": "Messages.",
+            "items": {
+              "$ref": "#/components/schemas/MessageResult"
+            },
+            "type": "array"
+          },
+          "page_info": {
+            "$ref": "#/components/schemas/PublicApiPageInfo"
+          }
+        },
+        "required": [
+          "conversation_id",
+          "conversation_name",
+          "items",
+          "page_info"
+        ],
+        "type": "object"
+      },
+      "CreateConversationMessageBody": {
+        "additionalProperties": false,
+        "description": "Create a conversation message. The authenticated API-key workspace member is the author; author_id is accepted only for legacy body compatibility and is ignored.",
+        "properties": {
+          "markdown_content": {
+            "description": "Message markdown content.",
+            "type": "string",
+            "nullable": true
+          },
+          "explicit_context_message_ids": {
+            "description": "Message identifiers to include as explicit context.",
+            "items": {
+              "description": "Message identifier.",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "image_urls": {
+            "description": "Image URLs to attach to the message.",
+            "items": {
+              "description": "Image URL.",
+              "type": "string",
+              "format": "uri"
+            },
+            "type": "array"
+          },
+          "file_ids": {
+            "description": "Uploaded file identifiers to attach to the message.",
+            "items": {
+              "description": "File identifier.",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "suppressed_link_preview_urls": {
+            "description": "URLs whose link previews should be suppressed.",
+            "items": {
+              "description": "URL.",
+              "type": "string",
+              "format": "uri"
+            },
+            "type": "array"
+          },
+          "initiator_id": {
+            "description": "Initiating workspace member identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "thread_root_id": {
+            "description": "Thread root message identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "replied_to_message_id": {
+            "description": "Message identifier this message replies to.",
+            "type": "string",
+            "nullable": true
+          },
+          "call_root_id": {
+            "description": "Call root identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "optimistic_id": {
+            "description": "Client optimistic identifier.",
+            "type": "string"
+          },
+          "client_request_id": {
+            "description": "Legacy body idempotency value. Public v1 clients should use the Idempotency-Key header.",
+            "type": "string",
+            "nullable": true
+          },
+          "author_id": {
+            "description": "Ignored legacy body author workspace member identifier. The authenticated API-key workspace member is always the author.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "markdown_content"
+        ],
+        "type": "object"
+      },
+      "CreateConversationMessageResponse": {
+        "additionalProperties": false,
+        "description": "Create-message response with the standard public data envelope plus legacy compatibility aliases.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MessageResult"
+          },
+          "legacy_data": {
+            "additionalProperties": true,
+            "description": "Legacy extended conversation message. New clients should read the standard data message result.",
+            "nullable": true,
+            "type": "object"
+          },
+          "success": {
+            "description": "Compatibility command flag.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ],
+        "type": "object"
+      },
+      "ConversationResult": {
+        "additionalProperties": false,
+        "description": "Search result for a conversation.",
+        "properties": {
+          "agent_members_count": {
+            "description": "Number of agent workspace members.",
+            "type": "integer"
+          },
+          "description": {
+            "description": "Conversation description.",
+            "type": "string",
+            "nullable": true
+          },
+          "human_members_count": {
+            "description": "Number of human workspace members.",
+            "type": "integer"
+          },
+          "id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "description": "Stable public conversation type. Legacy /api/v1 compatibility routes may still emit the internal integer value until migrated.",
+            "enum": [
+              "channel",
+              "direct_message",
+              "task_channel"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "description",
+          "human_members_count",
+          "agent_members_count"
+        ],
+        "type": "object"
+      },
+      "LegacyErrorResponse": {
+        "additionalProperties": false,
+        "description": "Current compatibility error envelope used by legacy /api/v1 routes.",
+        "properties": {
+          "error": {
+            "description": "Error message.",
+            "type": "string"
+          },
+          "error_code": {
+            "description": "Optional machine-readable error code.",
+            "type": "string",
+            "nullable": true
+          },
+          "missing_scopes": {
+            "description": "Missing scopes.",
+            "items": {
+              "description": "Scope.",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "LegacyPageInfo": {
+        "additionalProperties": false,
+        "description": "Current compatibility pagination metadata with camelCase field names.",
+        "properties": {
+          "endCursor": {
+            "description": "Cursor for the last item.",
+            "type": "string",
+            "nullable": true
+          },
+          "hasNextPage": {
+            "description": "Whether another page exists after this page.",
+            "type": "boolean"
+          },
+          "hasPreviousPage": {
+            "description": "Whether another page exists before this page.",
+            "type": "boolean"
+          },
+          "startCursor": {
+            "description": "Cursor for the first item.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "hasNextPage",
+          "hasPreviousPage"
+        ],
+        "type": "object"
+      },
+      "MemberResult": {
+        "additionalProperties": false,
+        "description": "Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.",
+        "properties": {
+          "display_name": {
+            "description": "Display name.",
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "description": "Email address.",
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "id": {
+            "description": "Workspace member identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "profile_image_url": {
+            "description": "Profile image URL.",
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "title": {
+            "description": "Workspace member title.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "email",
+          "title",
+          "profile_image_url"
+        ],
+        "type": "object"
+      },
+      "MessageResult": {
+        "additionalProperties": false,
+        "description": "Public message result. This intentionally omits reply lineage fields such as thread_root_id and replied_to_message_id; use the thread replies route and its thread_root_id payload field to validate thread grouping.",
+        "properties": {
+          "author_id": {
+            "description": "Author workspace member identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "author_name": {
+            "description": "Author workspace member display name.",
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "description": "Message markdown content.",
+            "type": "string",
+            "nullable": true
+          },
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Message creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "id": {
+            "description": "Message identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "image_urls": {
+            "description": "Image URLs extracted from the message.",
+            "items": {
+              "description": "Image URL.",
+              "type": "string",
+              "format": "uri"
+            },
+            "type": "array"
+          },
+          "replies_count": {
+            "description": "Number of thread replies.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "conversation_id",
+          "conversation_name",
+          "author_id",
+          "author_name",
+          "content",
+          "image_urls",
+          "replies_count",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "MessageResultResponse": {
+        "additionalProperties": false,
+        "description": "Message detail response with the standard public data envelope plus legacy top-level aliases.",
+        "properties": {
+          "author_id": {
+            "description": "Author workspace member identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "author_name": {
+            "description": "Author workspace member display name.",
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "description": "Message markdown content.",
+            "type": "string",
+            "nullable": true
+          },
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Message creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MessageResult"
+          },
+          "id": {
+            "description": "Message identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "image_urls": {
+            "description": "Image URLs extracted from the message.",
+            "items": {
+              "description": "Image URL.",
+              "type": "string",
+              "format": "uri"
+            },
+            "type": "array"
+          },
+          "replies_count": {
+            "description": "Number of thread replies.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "data",
+          "id",
+          "conversation_id",
+          "conversation_name",
+          "author_id",
+          "author_name",
+          "content",
+          "image_urls",
+          "replies_count",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "PublicApiErrorResponse": {
+        "additionalProperties": false,
+        "description": "Target public API error envelope.",
+        "properties": {
+          "error": {
+            "additionalProperties": false,
+            "description": "Error details.",
+            "properties": {
+              "code": {
+                "description": "Machine-readable error code.",
+                "type": "string"
+              },
+              "message": {
+                "description": "Human-readable error message.",
+                "type": "string"
+              },
+              "request_id": {
+                "description": "Request identifier.",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "PublicApiPageInfo": {
+        "additionalProperties": false,
+        "description": "Target public API pagination metadata with snake_case field names.",
+        "properties": {
+          "end_cursor": {
+            "description": "Cursor for the last item.",
+            "type": "string",
+            "nullable": true
+          },
+          "has_next_page": {
+            "description": "Whether another page exists after this page.",
+            "type": "boolean"
+          },
+          "has_previous_page": {
+            "description": "Whether another page exists before this page.",
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "description": "Cursor for the next page.",
+            "type": "string",
+            "nullable": true
+          },
+          "previous_cursor": {
+            "description": "Cursor for the previous page.",
+            "type": "string",
+            "nullable": true
+          },
+          "start_cursor": {
+            "description": "Cursor for the first item.",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "has_next_page"
+        ],
+        "type": "object"
+      },
+      "RecordTaskUpdateBody": {
+        "additionalProperties": false,
+        "description": "Record a task worklog/checkpoint update and optional task/resource changes.",
+        "properties": {
+          "entry": {
+            "additionalProperties": false,
+            "description": "Task update entry.",
+            "properties": {
+              "author_kind": {
+                "$ref": "#/components/schemas/TaskEntryAuthorKind"
+              },
+              "author_label": {
+                "description": "Author display label.",
+                "type": "string"
+              },
+              "body_markdown": {
+                "description": "Entry markdown body.",
+                "type": "string",
+                "nullable": true
+              },
+              "kind": {
+                "$ref": "#/components/schemas/TaskEntryKind"
+              },
+              "run_id": {
+                "description": "Agent or local run identifier.",
+                "type": "string",
+                "nullable": true
+              },
+              "source_message_id": {
+                "description": "Source message identifier.",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "kind",
+              "author_kind",
+              "author_label"
+            ],
+            "type": "object"
+          },
+          "expected_state_version": {
+            "description": "Optimistic task state version expected by the caller.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "resource_ops": {
+            "description": "Resource changes.",
+            "items": {
+              "$ref": "#/components/schemas/TaskResourceOperation"
+            },
+            "type": "array"
+          },
+          "task_patch": {
+            "additionalProperties": false,
+            "description": "Task fields to update.",
+            "properties": {
+              "phase": {
+                "$ref": "#/components/schemas/TaskPhase"
+              },
+              "summary": {
+                "description": "Task summary.",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "entry"
+        ],
+        "type": "object"
+      },
+      "RecordTaskUpdateResponse": {
+        "additionalProperties": false,
+        "description": "Recorded task update response.",
+        "properties": {
+          "changed_resources": {
+            "description": "Resources changed by this update.",
+            "items": {
+              "$ref": "#/components/schemas/TaskResourceResult"
+            },
+            "type": "array"
+          },
+          "entry": {
+            "$ref": "#/components/schemas/TaskEntryResult"
+          },
+          "task": {
+            "$ref": "#/components/schemas/TaskResult"
+          }
+        },
+        "required": [
+          "task",
+          "entry",
+          "changed_resources"
+        ],
+        "type": "object"
+      },
+      "SearchCallsResponse": {
+        "additionalProperties": false,
+        "description": "Search calls response. Results are returned in data.items; top-level items is a compatibility alias.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Call results.",
+                "items": {
+                  "$ref": "#/components/schemas/CallResult"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/CallResult"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "SearchClipboardResponse": {
+        "additionalProperties": false,
+        "description": "Search clipboards response.",
+        "properties": {
+          "items": {
+            "description": "Clipboard results.",
+            "items": {
+              "$ref": "#/components/schemas/ClipboardResult"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "SearchConversationsResponse": {
+        "additionalProperties": false,
+        "description": "Search conversations response. Results are returned in data.items; top-level items is a compatibility alias.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Conversation results.",
+                "items": {
+                  "$ref": "#/components/schemas/ConversationResult"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/ConversationResult"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "SearchMembersResponse": {
+        "additionalProperties": false,
+        "description": "Search workspace members response. Results are returned in data.items; top-level items is a compatibility alias.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Workspace member results.",
+                "items": {
+                  "$ref": "#/components/schemas/MemberResult"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/MemberResult"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "SearchMessagesResponse": {
+        "additionalProperties": false,
+        "description": "Search messages response. Results are returned in data.items; top-level items is a compatibility alias.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Message results.",
+                "items": {
+                  "$ref": "#/components/schemas/MessageResult"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/MessageResult"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "SearchTasksResponse": {
+        "additionalProperties": false,
+        "description": "Search tasks response. Results are returned in data.items; top-level items is a compatibility alias.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Task results.",
+                "items": {
+                  "$ref": "#/components/schemas/TaskResult"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/TaskResult"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "TaskContextResponse": {
+        "additionalProperties": false,
+        "description": "Task context response.",
+        "properties": {
+          "entries": {
+            "description": "Task entries.",
+            "items": {
+              "$ref": "#/components/schemas/TaskEntryResult"
+            },
+            "type": "array"
+          },
+          "resources": {
+            "description": "Task resources.",
+            "items": {
+              "$ref": "#/components/schemas/TaskResourceResult"
+            },
+            "type": "array"
+          },
+          "task": {
+            "$ref": "#/components/schemas/TaskResult"
+          }
+        },
+        "required": [
+          "task",
+          "entries",
+          "resources"
+        ],
+        "type": "object"
+      },
+      "TaskEntryAuthorKind": {
+        "description": "Task entry author kind. The member value is a v1 compatibility spelling for a human workspace member author.",
+        "enum": [
+          "member",
+          "managed_agent",
+          "connected_agent",
+          "local_agent",
+          "system"
+        ],
+        "type": "string"
+      },
+      "TaskEntryKind": {
+        "description": "Task entry kind.",
+        "enum": [
+          "memory",
+          "note",
+          "worklog",
+          "checkpoint",
+          "handoff"
+        ],
+        "type": "string"
+      },
+      "TaskEntryResult": {
+        "additionalProperties": false,
+        "description": "Task entry.",
+        "properties": {
+          "author_kind": {
+            "$ref": "#/components/schemas/TaskEntryAuthorKind"
+          },
+          "author_label": {
+            "description": "Author display label.",
+            "type": "string"
+          },
+          "author_member_id": {
+            "description": "Author workspace member identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "body_markdown": {
+            "description": "Entry markdown body.",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Entry creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "id": {
+            "description": "Entry identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/TaskEntryKind"
+          },
+          "run_id": {
+            "description": "Run identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "source_message_id": {
+            "description": "Source message identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "task_id": {
+            "description": "Task identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "updated_at": {
+            "description": "Entry update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "id",
+          "task_id",
+          "workspace_id",
+          "kind",
+          "author_kind",
+          "author_member_id",
+          "author_label",
+          "run_id",
+          "source_message_id",
+          "body_markdown",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "TaskPhase": {
+        "description": "Task phase.",
+        "enum": [
+          "idea",
+          "building",
+          "review",
+          "done"
+        ],
+        "type": "string"
+      },
+      "TaskResourceOperation": {
+        "description": "Task resource operation.",
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "description": "Add a task resource.",
+            "properties": {
+              "label": {
+                "description": "Resource label.",
+                "type": "string"
+              },
+              "op": {
+                "description": "Operation.",
+                "enum": [
+                  "add"
+                ],
+                "type": "string"
+              },
+              "url": {
+                "description": "Resource URL.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "op",
+              "label",
+              "url"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Update a task resource.",
+            "properties": {
+              "label": {
+                "description": "Resource label.",
+                "type": "string"
+              },
+              "op": {
+                "description": "Operation.",
+                "enum": [
+                  "update"
+                ],
+                "type": "string"
+              },
+              "resource_id": {
+                "description": "Resource identifier.",
+                "type": "string",
+                "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+              },
+              "url": {
+                "description": "Resource URL.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "op",
+              "resource_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Archive a task resource.",
+            "properties": {
+              "op": {
+                "description": "Operation.",
+                "enum": [
+                  "archive"
+                ],
+                "type": "string"
+              },
+              "resource_id": {
+                "description": "Resource identifier.",
+                "type": "string",
+                "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+              }
+            },
+            "required": [
+              "op",
+              "resource_id"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "TaskResourceResult": {
+        "additionalProperties": false,
+        "description": "Task resource.",
+        "properties": {
+          "archived_at": {
+            "description": "Archive timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Resource creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "created_by_entry_id": {
+            "description": "Creating entry identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "description": "Resource identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "label": {
+            "description": "Resource label.",
+            "type": "string"
+          },
+          "task_id": {
+            "description": "Task identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "updated_at": {
+            "description": "Resource update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "url": {
+            "description": "Resource URL.",
+            "type": "string",
+            "format": "uri"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "id",
+          "task_id",
+          "workspace_id",
+          "label",
+          "url",
+          "created_by_entry_id",
+          "archived_at",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "TaskResult": {
+        "additionalProperties": false,
+        "description": "Task result.",
+        "properties": {
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Task creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "creator_member_id": {
+            "description": "Creator workspace member identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "description": "Task identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "last_activity_at": {
+            "description": "Last activity timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "name": {
+            "description": "Task name.",
+            "type": "string"
+          },
+          "objective": {
+            "description": "Task objective.",
+            "type": "string"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/TaskPhase"
+          },
+          "state_version": {
+            "description": "Optimistic task state version.",
+            "type": "integer"
+          },
+          "summary": {
+            "description": "Task summary.",
+            "type": "string",
+            "nullable": true
+          },
+          "updated_at": {
+            "description": "Task update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "objective",
+          "phase",
+          "summary",
+          "conversation_id",
+          "conversation_name",
+          "creator_member_id",
+          "state_version",
+          "last_activity_at",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "ThreadRepliesResponse": {
+        "additionalProperties": false,
+        "description": "Thread replies response with the standard public data envelope plus legacy top-level aliases. The response-level thread_root_id identifies the requested root; individual MessageResult items do not expose reply lineage metadata.",
+        "properties": {
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ThreadRepliesData"
+          },
+          "items": {
+            "description": "Thread reply messages.",
+            "items": {
+              "$ref": "#/components/schemas/MessageResult"
+            },
+            "type": "array"
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/LegacyPageInfo"
+          },
+          "thread_root_id": {
+            "description": "Thread root message identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "data",
+          "thread_root_id",
+          "conversation_id",
+          "conversation_name",
+          "items",
+          "pageInfo"
+        ],
+        "type": "object"
+      },
+      "ThreadRepliesData": {
+        "additionalProperties": false,
+        "description": "Standard thread replies payload. Use thread_root_id here to validate thread grouping; individual MessageResult items intentionally omit thread_root_id and replied_to_message_id.",
+        "properties": {
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "description": "Thread reply messages.",
+            "items": {
+              "$ref": "#/components/schemas/MessageResult"
+            },
+            "type": "array"
+          },
+          "page_info": {
+            "$ref": "#/components/schemas/PublicApiPageInfo"
+          },
+          "thread_root_id": {
+            "description": "Thread root message identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "thread_root_id",
+          "conversation_id",
+          "conversation_name",
+          "items",
+          "page_info"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "AndoApiKey": {
+        "description": "Workspace API key. Current accepted keys use the ando_sk_ prefix.",
+        "in": "header",
+        "name": "x-api-key",
+        "type": "apiKey"
+      },
+      "BearerApiKey": {
+        "bearerFormat": "ando_sk",
+        "description": "Compatibility transport for workspace API keys.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.",
+    "title": "Ando Public API",
+    "version": "v1"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/calls/{callId}": {
+      "get": {
+        "description": "Returns call metadata, participants, summary, and timing.",
+        "operationId": "getCall",
+        "parameters": [
+          {
+            "description": "Call identifier.",
+            "in": "path",
+            "name": "callId",
+            "required": true,
+            "schema": {
+              "description": "Call identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallResponse"
+                }
+              }
+            },
+            "description": "Call details."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a call",
+        "tags": [
+          "Calls"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_calls_by_callid.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/calls/:callId",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/calls/{callId}/transcript": {
+      "get": {
+        "description": "Returns transcript segments for a call.",
+        "operationId": "getCallTranscript",
+        "parameters": [
+          {
+            "description": "Call identifier.",
+            "in": "path",
+            "name": "callId",
+            "required": true,
+            "schema": {
+              "description": "Call identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of records to return.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Maximum number of records to return.",
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "Pagination cursor.",
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "description": "Pagination cursor.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallTranscriptResponse"
+                }
+              }
+            },
+            "description": "Call transcript."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a call transcript",
+        "tags": [
+          "Calls"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_calls_by_callid_transcript.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/calls/:callId/transcript",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/clipboards/{clipboardId}": {
+      "get": {
+        "description": "Returns a clipboard and its included context items. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.",
+        "operationId": "getClipboard",
+        "parameters": [
+          {
+            "description": "Clipboard identifier.",
+            "in": "path",
+            "name": "clipboardId",
+            "required": true,
+            "schema": {
+              "description": "Clipboard identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClipboardResponse"
+                }
+              }
+            },
+            "description": "Clipboard details."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a clipboard",
+        "tags": [
+          "Clipboards"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "legacy_frozen_non_ga",
+        "x-ando-migration-target": "legacy_frozen",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_clipboards_by_clipboardid.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "legacy_frozen",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/clipboards/:clipboardId",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/conversation-messages/{messageId}": {
+      "get": {
+        "description": "Returns a single conversation message by identifier.",
+        "operationId": "getConversationMessage",
+        "parameters": [
+          {
+            "description": "Message identifier.",
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "description": "Message identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "message": {
+                    "summary": "Message details.",
+                    "value": {
+                      "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "conversation_name": "Launch planning",
+                      "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "author_name": "Alex Kim",
+                      "content": "Validated the route migration.",
+                      "image_urls": [],
+                      "replies_count": 1,
+                      "created_at": "2026-05-14T08:00:00.000Z",
+                      "data": {
+                        "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_name": "Launch planning",
+                        "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "author_name": "Alex Kim",
+                        "content": "Validated the route migration.",
+                        "image_urls": [],
+                        "replies_count": 1,
+                        "created_at": "2026-05-14T08:00:00.000Z"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResultResponse"
+                }
+              }
+            },
+            "description": "Message details."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a message",
+        "tags": [
+          "Messages"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_conversation_messages_by_messageid.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/conversation-messages/:messageId",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_messaging",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/conversation-messages/{messageId}/replies": {
+      "get": {
+        "description": "Returns replies for a thread root message.",
+        "operationId": "listThreadReplies",
+        "parameters": [
+          {
+            "description": "Thread root message identifier.",
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "description": "Thread root message identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of records to return.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Maximum number of records to return.",
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "Cursor or ISO timestamp after which results should be returned.",
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "description": "Cursor or ISO timestamp after which results should be returned.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "replies": {
+                    "summary": "Thread replies.",
+                    "value": {
+                      "data": {
+                        "thread_root_id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_name": "Launch planning",
+                        "items": [
+                          {
+                            "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4r",
+                            "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_name": "Launch planning",
+                            "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "author_name": "Alex Kim",
+                            "content": "Follow-up looks good.",
+                            "image_urls": [],
+                            "replies_count": 0,
+                            "created_at": "2026-05-14T08:05:00.000Z"
+                          }
+                        ],
+                        "page_info": {
+                          "end_cursor": "2026-05-14T08:05:00.000Z",
+                          "has_next_page": false,
+                          "has_previous_page": false,
+                          "next_cursor": "2026-05-14T08:05:00.000Z",
+                          "start_cursor": "2026-05-14T08:05:00.000Z"
+                        }
+                      },
+                      "thread_root_id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "conversation_name": "Launch planning",
+                      "items": [
+                        {
+                          "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4r",
+                          "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_name": "Launch planning",
+                          "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "author_name": "Alex Kim",
+                          "content": "Follow-up looks good.",
+                          "image_urls": [],
+                          "replies_count": 0,
+                          "created_at": "2026-05-14T08:05:00.000Z"
+                        }
+                      ],
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "hasPreviousPage": false,
+                        "startCursor": "2026-05-14T08:05:00.000Z",
+                        "endCursor": "2026-05-14T08:05:00.000Z"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ThreadRepliesResponse"
+                }
+              }
+            },
+            "description": "Thread replies."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "List thread replies",
+        "tags": [
+          "Messages"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_conversation_messages_by_messageid_replies.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/conversation-messages/:messageId/replies",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_messaging",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/conversations/{conversationId}/messages": {
+      "get": {
+        "description": "Returns messages in a conversation.",
+        "operationId": "listConversationMessages",
+        "parameters": [
+          {
+            "description": "Conversation identifier.",
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "description": "Conversation identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of records to return.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Maximum number of records to return.",
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "Cursor or ISO timestamp before which results should be returned.",
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "description": "Cursor or ISO timestamp before which results should be returned.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "messages": {
+                    "summary": "Conversation messages.",
+                    "value": {
+                      "data": {
+                        "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_name": "Launch planning",
+                        "items": [
+                          {
+                            "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_name": "Launch planning",
+                            "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "author_name": "Alex Kim",
+                            "content": "Validated the route migration.",
+                            "image_urls": [],
+                            "replies_count": 1,
+                            "created_at": "2026-05-14T08:00:00.000Z"
+                          }
+                        ],
+                        "page_info": {
+                          "end_cursor": "2026-05-14T07:45:00.000Z",
+                          "has_next_page": true,
+                          "has_previous_page": false,
+                          "next_cursor": "2026-05-14T08:00:00.000Z",
+                          "start_cursor": "2026-05-14T08:00:00.000Z"
+                        }
+                      },
+                      "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "conversation_name": "Launch planning",
+                      "items": [
+                        {
+                          "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_name": "Launch planning",
+                          "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "author_name": "Alex Kim",
+                          "content": "Validated the route migration.",
+                          "image_urls": [],
+                          "replies_count": 1,
+                          "created_at": "2026-05-14T08:00:00.000Z"
+                        }
+                      ],
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "hasPreviousPage": false,
+                        "startCursor": "2026-05-14T08:00:00.000Z",
+                        "endCursor": "2026-05-14T07:45:00.000Z"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationMessagesResponse"
+                }
+              }
+            },
+            "description": "Conversation messages."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "List conversation messages",
+        "tags": [
+          "Messages"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_conversations_by_conversationid_messages.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/conversations/:conversationId/messages",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_messaging",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      },
+      "post": {
+        "description": "Creates a message in a conversation using the authenticated API-key workspace membership as the author.",
+        "operationId": "createConversationMessage",
+        "parameters": [
+          {
+            "description": "Conversation identifier.",
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "description": "Conversation identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required idempotency key for safely retrying this write.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "Idempotency key.",
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "message": {
+                  "summary": "Create a top-level message.",
+                  "value": {
+                    "markdown_content": "Can you review this?",
+                    "explicit_context_message_ids": [],
+                    "image_urls": [],
+                    "file_ids": [],
+                    "suppressed_link_preview_urls": [],
+                    "thread_root_id": null
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CreateConversationMessageBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "created": {
+                    "summary": "Created message.",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "conversation_name": "Launch planning",
+                        "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "author_name": "Alex Kim",
+                        "content": "Validated the route migration.",
+                        "image_urls": [],
+                        "replies_count": 1,
+                        "created_at": "2026-05-14T08:00:00.000Z"
+                      },
+                      "legacy_data": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConversationMessageResponse"
+                }
+              }
+            },
+            "description": "Created message."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Create a conversation message",
+        "tags": [
+          "Messages"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_conversations_by_conversationid_messages.post",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/conversations/:conversationId/messages",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_messaging",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/members/{memberId}": {
+      "get": {
+        "description": "Returns a workspace member visible to the authenticated API key. The v1 path and memberId parameter are compatibility spellings for a workspace member identifier.",
+        "operationId": "getMember",
+        "parameters": [
+          {
+            "description": "Workspace member identifier. v1 uses the legacy memberId spelling.",
+            "in": "path",
+            "name": "memberId",
+            "required": true,
+            "schema": {
+              "description": "Workspace member identifier. v1 uses the legacy memberId spelling.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberResult"
+                }
+              }
+            },
+            "description": "Workspace member details."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a workspace member",
+        "tags": [
+          "Members"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_members_by_memberid.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/members/:memberId",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/search/calls": {
+      "get": {
+        "description": "Searches calls accessible to the authenticated API key.",
+        "operationId": "searchCalls",
+        "parameters": [
+          {
+            "description": "Search query text.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "Search query text.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated conversation identifiers to filter to.",
+            "in": "query",
+            "name": "conversation",
+            "schema": {
+              "description": "Comma-separated conversation identifiers to filter to.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Cursor or ISO timestamp after which results should be returned.",
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "description": "Cursor or ISO timestamp after which results should be returned.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Cursor or ISO timestamp before which results should be returned.",
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "description": "Cursor or ISO timestamp before which results should be returned.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "calls": {
+                    "summary": "Call search results.",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "id": "call_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_name": "Launch planning",
+                            "status": "ended",
+                            "duration_seconds": 1800,
+                            "participant_names": [
+                              "Alex Kim"
+                            ],
+                            "participant_count": 1,
+                            "summary": "Reviewed launch blockers.",
+                            "started_at": "2026-05-14T08:00:00.000Z",
+                            "ended_at": "2026-05-14T08:30:00.000Z"
+                          }
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "call_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_name": "Launch planning",
+                          "status": "ended",
+                          "duration_seconds": 1800,
+                          "participant_names": [
+                            "Alex Kim"
+                          ],
+                          "participant_count": 1,
+                          "summary": "Reviewed launch blockers.",
+                          "started_at": "2026-05-14T08:00:00.000Z",
+                          "ended_at": "2026-05-14T08:30:00.000Z"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SearchCallsResponse"
+                }
+              }
+            },
+            "description": "Call search results."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Search calls",
+        "tags": [
+          "Search"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_search_calls.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/search/calls",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_search_read",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/search/clipboard": {
+      "get": {
+        "description": "Searches clipboards accessible to the authenticated API key. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.",
+        "operationId": "searchClipboards",
+        "parameters": [
+          {
+            "description": "Search query text.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "Search query text.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchClipboardResponse"
+                }
+              }
+            },
+            "description": "Clipboard search results."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Search clipboards",
+        "tags": [
+          "Search"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "legacy_frozen_non_ga",
+        "x-ando-migration-target": "legacy_frozen",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_search_clipboard.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "legacy_frozen",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/search/clipboard",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/search/conversations": {
+      "get": {
+        "description": "Searches conversations accessible to the authenticated API key.",
+        "operationId": "searchConversations",
+        "parameters": [
+          {
+            "description": "Search query text.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "Search query text.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "conversations": {
+                    "summary": "Conversation search results.",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "name": "Launch planning",
+                            "type": "channel",
+                            "description": "Launch coordination.",
+                            "human_members_count": 8,
+                            "agent_members_count": 2
+                          }
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "name": "Launch planning",
+                          "type": "channel",
+                          "description": "Launch coordination.",
+                          "human_members_count": 8,
+                          "agent_members_count": 2
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SearchConversationsResponse"
+                }
+              }
+            },
+            "description": "Conversation search results."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Search conversations",
+        "tags": [
+          "Search"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_search_conversations.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/search/conversations",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_search_read",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/search/members": {
+      "get": {
+        "description": "Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling.",
+        "operationId": "searchMembers",
+        "parameters": [
+          {
+            "description": "Search query text.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "Search query text.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "members": {
+                    "summary": "Workspace member search results.",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "display_name": "Alex Kim",
+                            "email": "alex@example.com",
+                            "title": "Engineering",
+                            "profile_image_url": null
+                          }
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "display_name": "Alex Kim",
+                          "email": "alex@example.com",
+                          "title": "Engineering",
+                          "profile_image_url": null
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SearchMembersResponse"
+                }
+              }
+            },
+            "description": "Workspace member search results."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Search workspace members",
+        "tags": [
+          "Search"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_search_members.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/search/members",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_search_read",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/search/messages": {
+      "get": {
+        "description": "Searches messages in conversations accessible to the authenticated API key.",
+        "operationId": "searchMessages",
+        "parameters": [
+          {
+            "description": "Search query text.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "Search query text.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated author workspace member identifiers.",
+            "in": "query",
+            "name": "author",
+            "schema": {
+              "description": "Comma-separated author workspace member identifiers.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated conversation identifiers.",
+            "in": "query",
+            "name": "conversation",
+            "schema": {
+              "description": "Comma-separated conversation identifiers.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Thread root message identifier.",
+            "in": "query",
+            "name": "thread",
+            "schema": {
+              "description": "Thread root message identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Cursor or ISO timestamp after which results should be returned.",
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "description": "Cursor or ISO timestamp after which results should be returned.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Cursor or ISO timestamp before which results should be returned.",
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "description": "Cursor or ISO timestamp before which results should be returned.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Search mode.",
+            "in": "query",
+            "name": "mode",
+            "schema": {
+              "description": "Search mode.",
+              "enum": [
+                "full-text",
+                "semantic"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "messages": {
+                    "summary": "Message search results.",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "conversation_name": "Launch planning",
+                            "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "author_name": "Alex Kim",
+                            "content": "Validated the route migration.",
+                            "image_urls": [],
+                            "replies_count": 1,
+                            "created_at": "2026-05-14T08:00:00.000Z"
+                          }
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "conversation_name": "Launch planning",
+                          "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "author_name": "Alex Kim",
+                          "content": "Validated the route migration.",
+                          "image_urls": [],
+                          "replies_count": 1,
+                          "created_at": "2026-05-14T08:00:00.000Z"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SearchMessagesResponse"
+                }
+              }
+            },
+            "description": "Message search results."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Search messages",
+        "tags": [
+          "Search"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_search_messages.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/search/messages",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_search_read",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/search/tasks": {
+      "get": {
+        "description": "Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.",
+        "operationId": "searchTasks",
+        "parameters": [
+          {
+            "description": "Search query text. When omitted, returns the default task list ordering.",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "description": "Search query text. When omitted, returns the default task list ordering.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of records to return.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Maximum number of records to return.",
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchTasksResponse"
+                }
+              }
+            },
+            "description": "Task search results."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Search tasks",
+        "tags": [
+          "Tasks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "candidate",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_search_tasks.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "ga_candidate",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/search/tasks",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "public_api_search_read_shadow",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/tasks/{taskId}": {
+      "get": {
+        "description": "Returns task context, including task entries and resources.",
+        "operationId": "getTask",
+        "parameters": [
+          {
+            "description": "Task identifier.",
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "description": "Task identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskContextResponse"
+                }
+              }
+            },
+            "description": "Task context."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a task",
+        "tags": [
+          "Tasks"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_tasks_by_taskid.get",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/tasks/:taskId",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/tasks/{taskId}/updates": {
+      "post": {
+        "description": "Records a task update and optional task/resource changes.",
+        "operationId": "recordTaskUpdate",
+        "parameters": [
+          {
+            "description": "Task identifier.",
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "description": "Task identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Idempotency key for safely retrying this write.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "description": "Idempotency key.",
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "worklog": {
+                  "summary": "Record a worklog and move a task to review.",
+                  "value": {
+                    "entry": {
+                      "kind": "worklog",
+                      "author_kind": "local_agent",
+                      "author_label": "Ando CLI",
+                      "body_markdown": "Validated the route migration."
+                    },
+                    "task_patch": {
+                      "phase": "review",
+                      "summary": "Ready for validation."
+                    },
+                    "resource_ops": [
+                      {
+                        "op": "add",
+                        "label": "Pull request",
+                        "url": "https://github.com/Ando-Corporation/ando/pull/3628"
+                      }
+                    ]
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/RecordTaskUpdateBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordTaskUpdateResponse"
+                }
+              }
+            },
+            "description": "Recorded task update."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Record a task update",
+        "tags": [
+          "Tasks"
+        ],
+        "x-ando-compatibility-mode": "legacy_api_v1_compatibility",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "implicit_legacy",
+        "x-ando-route-id": "api.api_v1_tasks_by_taskid_updates.post",
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/tasks/:taskId/updates",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "convex_http"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Canonical public API host.",
+      "url": "https://api.ando.so/v1"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Call detail and transcript routes.",
+      "name": "Calls"
+    },
+    {
+      "description": "Clipboard detail routes.",
+      "name": "Clipboards"
+    },
+    {
+      "description": "Workspace member detail routes. Existing v1 paths keep member compatibility spellings.",
+      "name": "Members"
+    },
+    {
+      "description": "Message and conversation message routes.",
+      "name": "Messages"
+    },
+    {
+      "description": "Search routes.",
+      "name": "Search"
+    },
+    {
+      "description": "Task routes.",
+      "name": "Tasks"
+    }
+  ]
+}
