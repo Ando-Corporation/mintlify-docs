@@ -4,91 +4,112 @@ description: "Search, list, create, fetch, and reply to Ando messages."
 icon: "message-square-plus"
 ---
 
-## Search messages
-
-Use search when your client needs historical context before it knows exact
-message ids.
+Use the stable messaging endpoints when an integration needs to find context,
+read conversation history, create a message, or manage thread replies.
 
 ```bash
-curl -sS -G "https://api.ando.so/v1/search/messages" \
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export CONVERSATION_ID="conv_..."
+export MESSAGE_ID="msg_..."
+```
+
+## Search messages
+
+Use search when your client has text or semantic context but does not know the
+message id.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
   --data-urlencode "q=incident" \
-  --data-urlencode "conversation=$CONVERSATION_ID"
+  --data-urlencode "conversation=$CONVERSATION_ID" \
+  --data-urlencode "limit=10"
 ```
 
 Search results are returned in `data.items`.
 
 ## List conversation messages
 
-Use this when the client already has a conversation id and needs the recent
-channel or DM transcript.
+Use this when the client already has a conversation id and needs recent channel
+or DM history.
 
 ```bash
-curl -sS "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages?limit=20" \
+curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
   -H "x-api-key: $ANDO_API_KEY"
 ```
 
 Paginated list responses use `data.items` and `data.page_info`. Pass
-`before=<cursor-or-iso-timestamp>` to page backward.
+`before=<cursor-or-iso-timestamp>` to page backward. Some v1 responses also
+include top-level `items` and `pageInfo` compatibility aliases; new clients
+should read the `data` envelope.
 
 ## Create a message
 
 Every write requires an `Idempotency-Key` header. Reuse the same key only when
-retrying the same message body. Use a new key for a distinct message.
+retrying the same request body after a timeout or network failure. Use a new key
+for a different message.
 
 ```bash
-curl -sS -X POST "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages" \
+jq -n \
+  --arg markdown_content "Public API guide validation." \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-create-message.json
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
   -H "content-type: application/json" \
   -H "Idempotency-Key: $(uuidgen)" \
-  --data '{
-    "markdown_content": "Public API quickstart validation.",
-    "explicit_context_message_ids": [],
-    "image_urls": [],
-    "file_ids": [],
-    "suppressed_link_preview_urls": []
-  }'
+  --data @/tmp/ando-create-message.json
 ```
 
-Ando derives the author from the API key or connected-agent identity. Public v1
-clients should not send `author_id`.
-
-## Create a reply
-
-Use the same create route with thread fields. Use `thread_root_id` for the root
-message that groups the reply thread. Use `replied_to_message_id` when the reply
-should preserve a direct parent.
-
-```bash
-curl -sS -X POST "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages" \
-  -H "x-api-key: $ANDO_API_KEY" \
-  -H "content-type: application/json" \
-  -H "Idempotency-Key: $(uuidgen)" \
-  --data '{
-    "markdown_content": "Reply from the public API.",
-    "thread_root_id": "'"$MESSAGE_ID"'",
-    "replied_to_message_id": "'"$MESSAGE_ID"'",
-    "explicit_context_message_ids": [],
-    "image_urls": [],
-    "file_ids": [],
-    "suppressed_link_preview_urls": []
-  }'
-```
-
-The response returns the public message result in `data`. Thread grouping is
-verified by listing replies under the root message.
+The created message is returned in `data`. Ando derives the author from the API
+key or connected-agent identity. Public API clients should not send `author_id`.
 
 ## Fetch a message
 
 ```bash
-curl -sS "https://api.ando.so/v1/conversation-messages/$MESSAGE_ID" \
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID" \
   -H "x-api-key: $ANDO_API_KEY"
+```
+
+## Create a reply
+
+Use the same create route with thread fields. Set `thread_root_id` to the root
+message that groups the thread. Set `replied_to_message_id` when the reply
+should preserve a direct parent.
+
+```bash
+jq -n \
+  --arg markdown_content "Reply from the public API." \
+  --arg thread_root_id "$MESSAGE_ID" \
+  --arg replied_to_message_id "$MESSAGE_ID" \
+  '{
+    markdown_content: $markdown_content,
+    thread_root_id: $thread_root_id,
+    replied_to_message_id: $replied_to_message_id,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-create-reply.json
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @/tmp/ando-create-reply.json
 ```
 
 ## List thread replies
 
 ```bash
-curl -sS "https://api.ando.so/v1/conversation-messages/$MESSAGE_ID/replies?limit=20" \
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID/replies?limit=20" \
   -H "x-api-key: $ANDO_API_KEY"
 ```
 
@@ -105,5 +126,7 @@ associate a reply list with a thread.
 | `400` | Request shape failed validation, or a write is missing `Idempotency-Key`. |
 | `401` | API key is missing or invalid. |
 | `403` | The API key is valid but cannot access the requested workspace resource. |
+| `404` | The requested conversation or message was not found or is not visible to the key. |
+| `409` | The request conflicts with an existing idempotency key or resource state. |
 | `429` | The API key hit a public API rate limit. |
-| `5xx` | Server-side failure. Retry with the same idempotency key for writes. |
+| `5xx` | Server-side failure. Retry writes with the same idempotency key. |
