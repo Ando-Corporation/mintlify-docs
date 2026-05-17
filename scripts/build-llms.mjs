@@ -7,6 +7,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const siteUrl = "https://docs.ando.so";
 const latestOpenApiFile = "openapi-public-api-v1-latest.json";
+const openApiAliasFiles = ["openapi.json", "api-reference/openapi.json"];
 const datedOpenApiPattern = /^openapi-public-api-v1-\d{4}-\d{2}-\d{2}\.json$/;
 
 const readText = (relativePath) =>
@@ -320,3 +321,6 @@ const llmsFullTxt = [
 writeText("llms.txt", llmsTxt);
 writeText("llms-full.txt", llmsFullTxt);
 writeText(latestOpenApiFile, openApiSource);
+for (const aliasFile of openApiAliasFiles) {
+  writeText(aliasFile, openApiSource);
+}
