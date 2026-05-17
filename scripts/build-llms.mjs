@@ -7,6 +7,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const siteUrl = "https://docs.ando.so";
 const latestOpenApiFile = "openapi-public-api-v1-latest.json";
+const datedOpenApiPattern = /^openapi-public-api-v1-\d{4}-\d{2}-\d{2}\.json$/;
 
 const readText = (relativePath) =>
   fs.readFileSync(path.join(rootDir, relativePath), "utf8");
@@ -87,11 +88,19 @@ const flattenNavigation = (items, sectionTrail = []) => {
 };
 
 const docsConfig = JSON.parse(readText("docs.json"));
-const openApiFile = docsConfig.api?.openapi;
-if (typeof openApiFile !== "string") {
-  throw new Error("docs.json must define api.openapi.");
+if (docsConfig.api?.openapi !== latestOpenApiFile) {
+  throw new Error(`docs.json api.openapi must use ${latestOpenApiFile}.`);
 }
-const openApiSource = readText(openApiFile);
+const datedOpenApiFiles = fs.readdirSync(rootDir).filter((file) =>
+  datedOpenApiPattern.test(file)
+).sort();
+if (datedOpenApiFiles.length !== 1) {
+  throw new Error(
+    `Expected exactly one dated OpenAPI archive; found ${datedOpenApiFiles.length}.`
+  );
+}
+const datedOpenApiFile = datedOpenApiFiles[0];
+const openApiSource = readText(datedOpenApiFile);
 const openApi = JSON.parse(openApiSource);
 const tabs = docsConfig.navigation?.tabs ?? [];
 
@@ -204,7 +213,7 @@ const llmsTxt = [
   "## OpenAPI Specs",
   "",
   `- [${path.basename(latestOpenApiFile, ".json")}](${siteUrl}/${latestOpenApiFile})`,
-  `- [${path.basename(openApiFile, ".json")}](${siteUrl}/${openApiFile})`,
+  `- [${path.basename(datedOpenApiFile, ".json")}](${siteUrl}/${datedOpenApiFile})`,
 ].join("\n");
 
 const formatParameters = (parameters = []) => {
