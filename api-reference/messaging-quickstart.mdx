@@ -4,125 +4,175 @@ description: "Run the stable message workflow from search through replies."
 icon: "send"
 ---
 
-Use this quickstart for the stable message workflows on the public API v1 base
-URL.
+This quickstart uses a test conversation and synthetic message text. It carries
+ids between steps so you can verify the whole stable message workflow end to
+end.
+
+The examples use `jq` to read ids from responses.
+
+## 1. Set variables
 
 ```bash
 export ANDO_API_BASE="https://api.ando.so/v1"
 export ANDO_API_KEY="ando_sk_..."
-export CONVERSATION_ID="conv_..."
-export MESSAGE_ID="msg_..."
+export ANDO_CONVERSATION_QUERY="engineering"
+export ANDO_MESSAGE_SEARCH_QUERY="public api quickstart"
+export ANDO_QUICKSTART_DIR="${TMPDIR:-/tmp}/ando-public-api-quickstart"
+
+mkdir -p "$ANDO_QUICKSTART_DIR"
 ```
 
-## 1. Search for context
+## 2. Find a conversation
+
+Search for a test channel or DM and save the first visible conversation id:
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_CONVERSATION_QUERY" \
+  --data-urlencode "limit=5" \
+  | tee "$ANDO_QUICKSTART_DIR/conversations.json"
+
+export CONVERSATION_ID="$(
+  jq -r '.data.items[0].id // empty' "$ANDO_QUICKSTART_DIR/conversations.json"
+)"
+
+test -n "$CONVERSATION_ID" || {
+  echo "No visible conversation matched ANDO_CONVERSATION_QUERY."
+  exit 1
+}
+```
+
+## 3. Search for message context
+
+Search inside the conversation and save an optional context message id:
 
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=release" \
-  --data-urlencode "conversation=$CONVERSATION_ID"
+  --data-urlencode "q=$ANDO_MESSAGE_SEARCH_QUERY" \
+  --data-urlencode "conversation=$CONVERSATION_ID" \
+  --data-urlencode "limit=5" \
+  | tee "$ANDO_QUICKSTART_DIR/message-search.json"
+
+export CONTEXT_MESSAGE_ID="$(
+  jq -r '.data.items[0].id // empty' "$ANDO_QUICKSTART_DIR/message-search.json"
+)"
 ```
 
-Read results from `data.items`.
+## 4. List recent messages
 
-## 2. List recent messages
+List the recent conversation history. Use `data.items` for the messages and
+`data.page_info` for pagination.
 
 ```bash
 curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
-  -H "x-api-key: $ANDO_API_KEY"
+  -H "x-api-key: $ANDO_API_KEY" \
+  | tee "$ANDO_QUICKSTART_DIR/recent-messages.json"
 ```
 
-Save a message id from `data.items[].id` when you want to fetch it or list its
-thread replies.
+## 5. Create a message
+
+Every write needs an `Idempotency-Key`. Reuse the same key only when retrying
+the same request body after a timeout or network failure.
 
 ```bash
-export MESSAGE_ID="msg_..."
-```
+export MESSAGE_BODY="Public API quickstart validation $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+export CONTEXT_MESSAGE_IDS="[]"
 
-## 3. Create a message
+if [ -n "$CONTEXT_MESSAGE_ID" ]; then
+  export CONTEXT_MESSAGE_IDS="[\"$CONTEXT_MESSAGE_ID\"]"
+fi
 
-```bash
+jq -n \
+  --arg markdown_content "$MESSAGE_BODY" \
+  --argjson explicit_context_message_ids "$CONTEXT_MESSAGE_IDS" \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: $explicit_context_message_ids,
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > "$ANDO_QUICKSTART_DIR/create-message.json"
+
 curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
   -H "content-type: application/json" \
   -H "Idempotency-Key: $(uuidgen)" \
-  --data '{
-    "markdown_content": "Hello from the public API.",
-    "explicit_context_message_ids": [],
-    "image_urls": [],
-    "file_ids": [],
-    "suppressed_link_preview_urls": []
-  }'
-```
+  --data @"$ANDO_QUICKSTART_DIR/create-message.json" \
+  | tee "$ANDO_QUICKSTART_DIR/created-message.json"
 
-Save the returned message id from `data.id`.
+export MESSAGE_ID="$(
+  jq -r '.data.id // empty' "$ANDO_QUICKSTART_DIR/created-message.json"
+)"
 
-## 4. Fetch a message
-
-```bash
-curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID" \
-  -H "x-api-key: $ANDO_API_KEY"
-```
-
-## 5. Reply in a thread
-
-```bash
-curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
-  -H "x-api-key: $ANDO_API_KEY" \
-  -H "content-type: application/json" \
-  -H "Idempotency-Key: $(uuidgen)" \
-  --data '{
-    "markdown_content": "Thread reply from the public API.",
-    "thread_root_id": "'"$MESSAGE_ID"'",
-    "replied_to_message_id": "'"$MESSAGE_ID"'",
-    "explicit_context_message_ids": [],
-    "image_urls": [],
-    "file_ids": [],
-    "suppressed_link_preview_urls": []
-  }'
-```
-
-## 6. List replies
-
-```bash
-curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID/replies?limit=20" \
-  -H "x-api-key: $ANDO_API_KEY"
-```
-
-The reply appears in `data.items`.
-
-`MessageResult` objects intentionally do not expose internal reply lineage
-fields such as `thread_root_id` or `replied_to_message_id`. For thread
-workflows, validate grouping through the requested root id and the reply-list
-response's `data.thread_root_id`.
-
-```json
-{
-  "data": {
-    "thread_root_id": "msg_...",
-    "items": [
-      {
-        "id": "msg_reply_...",
-        "conversation_id": "conv_...",
-        "author_id": "mem_...",
-        "author_name": "Alex Kim",
-        "content": "Thread reply from the public API.",
-        "image_urls": [],
-        "replies_count": 0,
-        "created_at": "2026-05-14T08:05:00.000Z"
-      }
-    ],
-    "page_info": {
-      "has_next_page": false,
-      "has_previous_page": false
-    }
-  }
+test -n "$MESSAGE_ID" || {
+  echo "Create message did not return data.id."
+  exit 1
 }
 ```
 
-## Validation notes
+Ando derives the author from the API key or connected-agent identity. Do not
+send `author_id`.
 
-The live validation harness in the main Ando repository checks missing auth,
-missing idempotency, search, list, create, fetch, reply create, reply fetch, and
-reply-list readback against production. Use a disposable or synthetic workspace
-for live validation, not customer data.
+## 6. Fetch the message
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  | tee "$ANDO_QUICKSTART_DIR/fetched-message.json"
+```
+
+## 7. Reply in a thread
+
+Use the created message as the thread root. The same create route creates both
+top-level messages and replies.
+
+```bash
+jq -n \
+  --arg markdown_content "Thread reply from the public API." \
+  --arg thread_root_id "$MESSAGE_ID" \
+  --arg replied_to_message_id "$MESSAGE_ID" \
+  '{
+    markdown_content: $markdown_content,
+    thread_root_id: $thread_root_id,
+    replied_to_message_id: $replied_to_message_id,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > "$ANDO_QUICKSTART_DIR/create-reply.json"
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @"$ANDO_QUICKSTART_DIR/create-reply.json" \
+  | tee "$ANDO_QUICKSTART_DIR/created-reply.json"
+```
+
+## 8. List replies
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID/replies?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  | tee "$ANDO_QUICKSTART_DIR/replies.json"
+
+jq -r '.data.thread_root_id' "$ANDO_QUICKSTART_DIR/replies.json"
+```
+
+Thread replies appear in `data.items`. `MessageResult` objects intentionally do
+not expose internal reply lineage fields such as `thread_root_id` or
+`replied_to_message_id`; validate grouping through the requested root id and the
+reply-list response's `data.thread_root_id`.
+
+## Expected errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request shape failed validation, or a write is missing `Idempotency-Key`. |
+| `401` | The API key is missing or invalid. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | The requested conversation or message was not found or is not visible to the key. |
+| `429` | The key hit a public API rate limit. |
+| `5xx` | Server-side failure. Retry writes with the same idempotency key. |

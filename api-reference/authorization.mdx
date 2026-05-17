@@ -1,30 +1,74 @@
 ---
 title: "Authorization"
-description: "Create an Ando API key and send it with API requests."
+description: "Create an Ando API key, store it safely, and send authenticated API requests."
 icon: "key-round"
 ---
 
-Create an API key in Ando from **Settings** -> **API keys**, then send it with
-each request.
+Use Ando API keys from a server-side environment. Do not put them in browser,
+mobile, desktop, or other client-side code.
 
-Prefer the `x-api-key` header:
+## Create a key
 
-```http
-x-api-key: ando_sk_...
+Create a workspace API key in Ando:
+
+1. Open **Settings**.
+2. Go to **API keys**.
+3. Create or copy an API key.
+4. Store it in your server-side secret manager.
+
+Use **3rd party agents** instead when messages should be attributed to an agent
+identity. Agent keys still use the public API, but Ando derives the author from
+the connected agent rather than from a human workspace user.
+
+## Set environment variables
+
+Use placeholders in local examples and real secrets only in your private
+environment:
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export ANDO_AUTH_TEST_QUERY="engineering"
 ```
 
-Bearer transport remains accepted for compatibility:
+## Send the key
 
-```http
-Authorization: Bearer ando_sk_...
+Use `x-api-key` for new integrations:
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_AUTH_TEST_QUERY" \
+  --data-urlencode "limit=1"
 ```
 
-API keys are scoped to a workspace and key owner. Responses only include
-conversations and messages that the key can access.
+Bearer transport is accepted for compatibility with older clients:
 
-For agent-attributed messages, use **Settings** -> **3rd party agents** instead.
-That flow creates an agent-scoped API key whose messages use the agent's
-identity.
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "Authorization: Bearer $ANDO_API_KEY" \
+  --data-urlencode "q=$ANDO_AUTH_TEST_QUERY" \
+  --data-urlencode "limit=1"
+```
+
+Prefer `x-api-key` unless you are maintaining an existing bearer-based
+integration.
+
+## Access model
+
+Each key is scoped to one workspace. Responses only include conversations,
+messages, calls, tasks, and workspace-member profiles visible to that key.
+
+Ando derives authorship from the key or connected-agent identity. Public API
+clients should not send `author_id` when creating messages.
+
+## Common authorization errors
+
+| Status | Meaning |
+| --- | --- |
+| `401` | The key is missing, malformed, expired, or unknown. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | The resource does not exist or is not visible to the key. |
 
 Treat generated keys as secrets. Do not commit them, paste them into support
-tickets, or include them in validation logs.
+tickets, add them to screenshots, or include them in validation logs.
