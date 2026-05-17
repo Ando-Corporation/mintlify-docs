@@ -75,6 +75,14 @@ const assertExcludes = (label, text, needles) => {
   }
 };
 
+const parseJson = (label, text) => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`${label} did not return valid JSON.`);
+  }
+};
+
 const findDatedOpenApiFile = (label, text) => {
   const matches = [...text.matchAll(datedOpenApiPattern)].map((match) => match[0]);
   const uniqueMatches = [...new Set(matches)];
@@ -84,6 +92,37 @@ const findDatedOpenApiFile = (label, text) => {
     );
   }
   return uniqueMatches[0];
+};
+
+const collectOpenApiConfigValues = (value, results = []) => {
+  if (Array.isArray(value)) {
+    for (const item of value) collectOpenApiConfigValues(item, results);
+    return results;
+  }
+  if (value == null || typeof value !== "object") {
+    return results;
+  }
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (key === "openapi" && typeof nestedValue === "string") {
+      results.push(nestedValue);
+    }
+    collectOpenApiConfigValues(nestedValue, results);
+  }
+  return results;
+};
+
+const checkDocsConfigOpenApiSource = () => {
+  const docsConfig = JSON.parse(fileText("docs.json"));
+  const values = collectOpenApiConfigValues(docsConfig);
+  const staleValues = values.filter((value) => value !== latestOpenApiFile);
+  if (values.length === 0) {
+    throw new Error("docs.json must define OpenAPI sources.");
+  }
+  if (staleValues.length !== 0) {
+    throw new Error(
+      `docs.json OpenAPI sources must use ${latestOpenApiFile}; found ${staleValues.join(", ")}.`
+    );
+  }
 };
 
 const stalePublicApiPhrases = [
@@ -97,6 +136,7 @@ const stalePublicApiPhrases = [
 const staleLlmsPhrases = [...stalePublicApiPhrases, "Documentation Index"];
 
 const checkLocalArtifacts = () => {
+  checkDocsConfigOpenApiSource();
   const beforeIndex = fileText("llms.txt");
   const openApiFile = findDatedOpenApiFile("llms.txt", beforeIndex);
   const before = {
@@ -257,31 +297,40 @@ const checkProduction = async () => {
   assertExcludes("/llms-full.txt", llmsFull.text, staleLlmsPhrases);
 
   const latestOpenApi = await fetchText(`/${latestOpenApiFile}`);
-  assertIncludes(`/${latestOpenApiFile}`, latestOpenApi.text, [
+  const expectedOpenApiPhrases = [
     '"name": "x-api-key"',
     "legacy compatibility route kept for older clients",
     "nearly stable task-search route",
-  ]);
-  assertExcludes(`/${latestOpenApiFile}`, latestOpenApi.text, [
+  ];
+  const staleOpenApiPhrases = [
     "legacy frozen non-GA compatibility route",
     "GA-candidate search-extended route",
-  ]);
+  ];
+  assertIncludes(
+    `/${latestOpenApiFile}`,
+    latestOpenApi.text,
+    expectedOpenApiPhrases
+  );
+  assertExcludes(`/${latestOpenApiFile}`, latestOpenApi.text, staleOpenApiPhrases);
 
   const openApi = await fetchText(`/${openApiFile}`);
   if (openApi.text !== latestOpenApi.text) {
     throw new Error(`/${openApiFile} does not match /${latestOpenApiFile}.`);
   }
+  const latestOpenApiJson = parseJson(`/${latestOpenApiFile}`, latestOpenApi.text);
+  const latestOpenApiPaths = Object.keys(latestOpenApiJson.paths ?? {}).sort();
 
   const aliasPaths = ["/openapi.json", "/api-reference/openapi.json"];
   for (const aliasPath of aliasPaths) {
     const alias = await fetchText(aliasPath);
-    if (!alias.response.url.endsWith(`/${latestOpenApiFile}`)) {
+    assertIncludes(aliasPath, alias.text, expectedOpenApiPhrases);
+    assertExcludes(aliasPath, alias.text, staleOpenApiPhrases);
+    const aliasJson = parseJson(aliasPath, alias.text);
+    const aliasOpenApiPaths = Object.keys(aliasJson.paths ?? {}).sort();
+    if (JSON.stringify(aliasOpenApiPaths) !== JSON.stringify(latestOpenApiPaths)) {
       throw new Error(
-        `${aliasPath} redirected to ${alias.response.url}, expected /${latestOpenApiFile}`
+        `${aliasPath} does not expose the same path set as /${latestOpenApiFile}.`
       );
-    }
-    if (alias.text !== latestOpenApi.text) {
-      throw new Error(`${aliasPath} does not match /${latestOpenApiFile}.`);
     }
   }
 };
