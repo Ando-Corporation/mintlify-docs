@@ -15,6 +15,21 @@
   "icons": {
     "library": "lucide"
   },
+  "api": {
+    "openapi": "api-reference/openapi.json",
+    "url": "full",
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "defaults": "required",
+      "languages": [
+        "bash",
+        "javascript",
+        "python"
+      ]
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -68,14 +83,19 @@
             "group": "API overview",
             "pages": [
               "api-reference/overview",
-              "api-reference/authorization"
+              "api-reference/authorization",
+              "api-reference/messaging-quickstart"
             ]
           },
           {
-            "group": "Endpoints",
+            "group": "Guides",
             "pages": [
               "api-reference/http-api"
             ]
+          },
+          {
+            "group": "Endpoint reference",
+            "openapi": "api-reference/openapi.json"
           }
         ]
       }

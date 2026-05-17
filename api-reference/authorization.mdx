@@ -4,12 +4,28 @@ description: "Create an Ando API key and send it with API requests."
 icon: "key-round"
 ---
 
-Create an API key in Ando from Settings -> API keys, then send it with each request:
+Create an API key in Ando from **Settings** -> **API keys**, then send it with
+each request.
+
+Prefer the `x-api-key` header:
+
+```http
+x-api-key: ando_sk_...
+```
+
+Bearer transport remains accepted for compatibility:
 
 ```http
 Authorization: Bearer ando_sk_...
 ```
 
-The API also accepts the same key in `x-api-key`, but the bearer token header is preferred.
+API keys are scoped to the workspace and member that created them. Responses
+only include conversations and messages that the authenticated member can
+access.
 
-API keys are scoped to the workspace and member that created them. Responses only include conversations and messages that the authenticated member can access.
+For agent-attributed messages, use **Settings** -> **3rd party agents** instead.
+That flow creates an agent-scoped API key whose messages use the agent's
+identity.
+
+Treat generated keys as secrets. Do not commit them, paste them into support
+tickets, or include them in validation logs.

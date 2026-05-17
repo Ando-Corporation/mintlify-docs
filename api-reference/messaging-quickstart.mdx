@@ -1,0 +1,97 @@
+---
+title: "Messaging quickstart"
+description: "Run the GA messaging workflow from search through replies."
+icon: "send"
+---
+
+Use this quickstart for the GA messaging workflows on the public API v1 base
+URL.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export CONVERSATION_ID="conv_..."
+```
+
+## 1. Search for context
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=release" \
+  --data-urlencode "conversation=$CONVERSATION_ID"
+```
+
+Read results from `data.items`.
+
+## 2. List recent messages
+
+```bash
+curl -sS "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Save a message id from `data.items[].id`:
+
+```bash
+export MESSAGE_ID="msg_..."
+```
+
+## 3. Create a message
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Hello from the public API.",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+Save the returned message id from `data.id`.
+
+## 4. Fetch a message
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+## 5. Reply in a thread
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Thread reply from the public API.",
+    "thread_root_id": "'"$MESSAGE_ID"'",
+    "replied_to_message_id": "'"$MESSAGE_ID"'",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+## 6. List replies
+
+```bash
+curl -sS "$ANDO_API_BASE/conversation-messages/$MESSAGE_ID/replies?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+The reply appears in `data.items`.
+
+## Validation notes
+
+The live validation harness in the main Ando repository checks missing auth,
+missing idempotency, search, list, create, fetch, reply create, reply fetch, and
+reply-list readback against production. Use a disposable or synthetic workspace
+for live validation, not customer data.

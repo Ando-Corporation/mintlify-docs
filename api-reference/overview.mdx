@@ -4,21 +4,49 @@ description: "Start here for Ando's public HTTP API."
 icon: "braces"
 ---
 
-Ando's public HTTP API lets you create messages in conversations that the authenticated API-key member can access.
+Ando's public HTTP API lets API-key clients search workspace context and work
+with messages in conversations the authenticated member can access.
 
 ## Base URL
 
 ```text
-https://api.ando.so
+https://api.ando.so/v1
 ```
+
+Do not use `https://api.ando.so/api/v1` for public API v1 clients.
 
 ## Available endpoints
 
+### GA search routes
+
 | Endpoint | Description |
 | --- | --- |
-| `POST /conversations/:conversationId/messages` | Create a message in a conversation. |
+| `GET /search/messages` | Search messages by keyword or semantic query. |
+| `GET /search/conversations` | Search accessible channels and DMs. |
+| `GET /search/members` | Search workspace members. |
+| `GET /search/calls` | Search call and transcript context. |
+
+### GA messaging routes
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /conversations/{conversationId}/messages` | List recent messages in a conversation. |
+| `POST /conversations/{conversationId}/messages` | Create a top-level message or thread reply. |
+| `GET /conversation-messages/{messageId}` | Fetch a message by id. |
+| `GET /conversation-messages/{messageId}/replies` | List replies under a message thread. |
+
+### Beta and compatibility routes
+
+Task, member detail, call detail, transcript, and clipboard routes are included
+in the OpenAPI spec where available. They are not part of the GA messaging
+workflow.
+
+`GET /search/tasks` remains a GA candidate. Do not rely on it as a stable GA
+surface until it is promoted.
 
 ## Next steps
 
 - Read [Authorization](/api-reference/authorization) to create and send an API key.
-- Read [Create a message](/api-reference/http-api) to send a message with the API.
+- Read [Messaging quickstart](/api-reference/messaging-quickstart) to search,
+  list, create, fetch, and reply to messages.
+- Use the endpoint reference for request and response schema details.

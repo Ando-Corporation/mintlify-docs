@@ -1,64 +1,103 @@
 ---
-title: "Create a message"
-description: "Create a message in an Ando conversation."
+title: "Messaging API"
+description: "Search, list, create, fetch, and reply to Ando messages."
 icon: "message-square-plus"
 ---
 
-## Create a Message
+## Search messages
 
-Creates a message in a conversation the authenticated API-key member belongs to.
-
-```http
-POST /conversations/:conversationId/messages
-```
-
-Path parameters:
-
-| Parameter | Description |
-| --- | --- |
-| `conversationId` | The conversation to create the message in. |
-
-Request body:
-
-```json
-{
-  "markdown_content": "Message body"
-}
-```
-
-Body fields:
-
-| Field | Required | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| `markdown_content` | Yes | `string \| null` | None | Message body. Use `null` when the message only includes attachments. |
-| `explicit_context_message_ids` | No | `string[]` | `[]` | Message IDs to attach as explicit context. |
-| `image_urls` | No | `string[]` | `[]` | Image URLs to attach to the message. |
-| `file_ids` | No | `string[]` | `[]` | Uploaded file IDs to attach to the message. |
-| `suppressed_link_preview_urls` | No | `string[]` | `[]` | URLs that should not generate link previews. |
-| `initiator_id` | No | `string \| null` | `null` | Member ID that initiated the message. |
-| `thread_root_id` | No | `string \| null` | `null` | Thread root message ID when replying in a thread. |
-| `replied_to_message_id` | No | `string \| null` | `null` | Message ID this message directly replies to. |
-| `call_root_id` | No | `string \| null` | `null` | Call root ID when attaching the message to a call thread. |
-| `optimistic_id` | No | `string` | None | Client-generated ID used for optimistic message reconciliation. |
-
-The authenticated API-key member is used as the message author.
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "msg_123"
-  }
-}
-```
-
-Example:
+Use search when your client needs historical context before it knows exact
+message ids.
 
 ```bash
-curl "https://api.ando.so/conversations/conv_123/messages" \
-  -H "Authorization: Bearer ando_sk_..." \
-  -H "Content-Type: application/json" \
-  -d '{"markdown_content":"Message body"}'
+curl -sS -G "https://api.ando.so/v1/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=incident" \
+  --data-urlencode "conversation=$CONVERSATION_ID"
 ```
+
+Search results are returned in `data.items`.
+
+## List conversation messages
+
+Use this when the client already has a conversation id and needs the recent
+channel or DM transcript.
+
+```bash
+curl -sS "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Paginated list responses use `data.items` and `data.page_info`. Pass
+`before=<cursor-or-iso-timestamp>` to page backward.
+
+## Create a message
+
+Every write requires an `Idempotency-Key` header. Reuse the same key only when
+retrying the same message body. Use a new key for a distinct message.
+
+```bash
+curl -sS -X POST "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Public API quickstart validation.",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+The authenticated API-key membership or connected agent is the author. Public v1
+clients should not send `author_id`.
+
+## Create a reply
+
+Use the same create route with thread fields. Use `thread_root_id` for the root
+message that groups the reply thread. Use `replied_to_message_id` when the reply
+should preserve a direct parent.
+
+```bash
+curl -sS -X POST "https://api.ando.so/v1/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Reply from the public API.",
+    "thread_root_id": "'"$MESSAGE_ID"'",
+    "replied_to_message_id": "'"$MESSAGE_ID"'",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+The response returns the public message result in `data`. Thread grouping is
+verified by listing replies under the root message.
+
+## Fetch a message
+
+```bash
+curl -sS "https://api.ando.so/v1/conversation-messages/$MESSAGE_ID" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+## List thread replies
+
+```bash
+curl -sS "https://api.ando.so/v1/conversation-messages/$MESSAGE_ID/replies?limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+## Expected errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request shape failed validation, or a write is missing `Idempotency-Key`. |
+| `401` | API key is missing or invalid. |
+| `403` | The API key is valid but cannot access the requested workspace resource. |
+| `429` | The API key hit a public API rate limit. |
+| `5xx` | Server-side failure. Retry with the same idempotency key for writes. |
