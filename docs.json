@@ -80,22 +80,76 @@
         "icon": "braces",
         "groups": [
           {
-            "group": "API overview",
+            "group": "Start here",
             "pages": [
               "api-reference/overview",
-              "api-reference/authorization",
-              "api-reference/messaging-quickstart"
+              "api-reference/authorization"
             ]
           },
           {
-            "group": "Guides",
+            "group": "Stable workflows",
             "pages": [
+              "api-reference/messaging-quickstart",
+              "api-reference/search-quickstart",
               "api-reference/http-api"
             ]
           },
           {
             "group": "Endpoint reference",
-            "openapi": "openapi-public-api-v1-2026-05-17.json"
+            "pages": [
+              "api-reference/endpoint-reference",
+              {
+                "group": "Stable search",
+                "tag": "Stable",
+                "openapi": "openapi-public-api-v1-2026-05-17.json",
+                "pages": [
+                  "GET /search/messages",
+                  "GET /search/conversations",
+                  "GET /search/members",
+                  "GET /search/calls"
+                ]
+              },
+              {
+                "group": "Stable messaging",
+                "tag": "Stable",
+                "openapi": "openapi-public-api-v1-2026-05-17.json",
+                "pages": [
+                  "GET /conversations/{conversationId}/messages",
+                  "POST /conversations/{conversationId}/messages",
+                  "GET /conversation-messages/{messageId}",
+                  "GET /conversation-messages/{messageId}/replies"
+                ]
+              },
+              {
+                "group": "Nearly stable",
+                "tag": "Candidate",
+                "openapi": "openapi-public-api-v1-2026-05-17.json",
+                "pages": [
+                  "GET /search/tasks"
+                ]
+              },
+              {
+                "group": "Preview",
+                "tag": "Preview",
+                "openapi": "openapi-public-api-v1-2026-05-17.json",
+                "pages": [
+                  "GET /members/{memberId}",
+                  "GET /calls/{callId}",
+                  "GET /calls/{callId}/transcript",
+                  "GET /tasks/{taskId}",
+                  "POST /tasks/{taskId}/updates"
+                ]
+              },
+              {
+                "group": "Legacy compatibility",
+                "tag": "Legacy",
+                "openapi": "openapi-public-api-v1-2026-05-17.json",
+                "pages": [
+                  "GET /search/clipboard",
+                  "GET /clipboards/{clipboardId}"
+                ]
+              }
+            ]
           }
         ]
       }

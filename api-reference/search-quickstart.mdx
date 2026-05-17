@@ -1,0 +1,77 @@
+---
+title: "Search quickstart"
+description: "Use stable search endpoints to find messages, conversations, workspace members, and calls."
+icon: "search"
+---
+
+Use search endpoints when an integration needs to discover context before it
+reads or writes messages.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+## Search messages
+
+Start with message search when you have a keyword, phrase, or semantic query.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=release plan" \
+  --data-urlencode "limit=10"
+```
+
+Read matches from `data.items`. Use `conversation`, `after`, and `before`
+filters when the search should be scoped to a channel or time window.
+
+## Search conversations
+
+Use conversation search when you need a channel or DM id before listing or
+creating messages.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/conversations" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=engineering" \
+  --data-urlencode "limit=10"
+```
+
+Use the returned `conversation_id` with the stable messaging endpoints.
+
+## Search workspace members
+
+Use workspace member search to resolve a visible human or agent profile by
+name or email.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/members" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=alex" \
+  --data-urlencode "limit=10"
+```
+
+The route keeps the v1 `/search/members` spelling for compatibility. Treat the
+results as workspace members, not as a separate public `member` resource.
+
+## Search calls
+
+Use call search when you need meeting or transcript context.
+
+```bash
+curl -sS -G "$ANDO_API_BASE/search/calls" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=launch review" \
+  --data-urlencode "limit=10"
+```
+
+Call detail and transcript routes are preview endpoints. Search results are
+stable, but durable workflows should avoid depending on preview detail routes
+unless that risk is acceptable.
+
+## Next step
+
+After search returns the context you need, use the
+[messaging quickstart](/api-reference/messaging-quickstart) to list recent
+messages, create a message, fetch it, and inspect replies.
