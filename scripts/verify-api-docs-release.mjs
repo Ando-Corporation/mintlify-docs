@@ -115,13 +115,18 @@ const collectOpenApiConfigValues = (value, results = []) => {
 const checkDocsConfigOpenApiSource = () => {
   const docsConfig = JSON.parse(fileText("docs.json"));
   const values = collectOpenApiConfigValues(docsConfig);
-  const staleValues = values.filter((value) => value !== latestOpenApiFile);
+  const unexpectedValues = values.filter(
+    (value) => !openApiAliasFiles.includes(value)
+  );
+  const missingValues = openApiAliasFiles.filter(
+    (value) => !values.includes(value)
+  );
   if (values.length === 0) {
     throw new Error("docs.json must define OpenAPI sources.");
   }
-  if (staleValues.length !== 0) {
+  if (unexpectedValues.length !== 0 || missingValues.length !== 0) {
     throw new Error(
-      `docs.json OpenAPI sources must use ${latestOpenApiFile}; found ${staleValues.join(", ")}.`
+      `docs.json OpenAPI sources must use ${openApiAliasFiles.join(", ")}.`
     );
   }
 };
