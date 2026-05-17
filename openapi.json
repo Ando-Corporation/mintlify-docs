@@ -808,7 +808,7 @@
       },
       "MessageResult": {
         "additionalProperties": false,
-        "description": "Message result.",
+        "description": "Public message result. This intentionally omits reply lineage fields such as thread_root_id and replied_to_message_id; use the thread replies route and its thread_root_id payload field to validate thread grouping.",
         "properties": {
           "author_id": {
             "description": "Author member identifier.",
@@ -1685,7 +1685,7 @@
       },
       "ThreadRepliesResponse": {
         "additionalProperties": false,
-        "description": "Thread replies response with the standard public data envelope plus legacy top-level aliases.",
+        "description": "Thread replies response with the standard public data envelope plus legacy top-level aliases. The response-level thread_root_id identifies the requested root; individual MessageResult items do not expose reply lineage metadata.",
         "properties": {
           "conversation_id": {
             "description": "Conversation identifier.",
@@ -1728,7 +1728,7 @@
       },
       "ThreadRepliesData": {
         "additionalProperties": false,
-        "description": "Standard thread replies payload.",
+        "description": "Standard thread replies payload. Use thread_root_id here to validate thread grouping; individual MessageResult items intentionally omit thread_root_id and replied_to_message_id.",
         "properties": {
           "conversation_id": {
             "description": "Conversation identifier.",
