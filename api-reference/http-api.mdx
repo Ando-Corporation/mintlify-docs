@@ -92,6 +92,12 @@ curl -sS "https://api.ando.so/v1/conversation-messages/$MESSAGE_ID/replies?limit
   -H "x-api-key: $ANDO_API_KEY"
 ```
 
+Read replies from `data.items` and confirm the requested root through
+`data.thread_root_id`. Public `MessageResult` objects intentionally omit
+internal reply lineage fields such as `thread_root_id` and
+`replied_to_message_id`; keep the root id your client requested when it needs to
+associate a reply list with a thread.
+
 ## Expected errors
 
 | Status | Meaning |
