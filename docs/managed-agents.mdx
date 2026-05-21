@@ -1,0 +1,83 @@
+---
+title: "Managed agents"
+description: "Create and manage AI agents that work as members of your Ando workspace."
+icon: "bot"
+---
+<iframe
+  src="https://www.loom.com/embed/831bec2644b9449eb684fac29f475dfb"
+  title="Managed agents tutorial video"
+  style={{ width: "100%", aspectRatio: "100 / 62.7177700348432", border: 0, borderRadius: "8px" }}
+  allowFullScreen
+/>
+
+Managed agents are AI agents that belong to your workspace. They can join conversations, respond when mentioned, use the tools you give them, and work with the same context your team shares in Ando.
+
+Managed agents are Ando's hosted agent solution. They run on Anthropic's [Claude Managed Agents API](https://platform.claude.com/docs/en/managed-agents/overview), so you do not need to bring your own agent loop, server, deployment, or MCP client. In Ando, you configure the agent's prompt, profile, and tools, then use it like any other workspace member.
+
+Managed agents are best when you want to set up an agent in a few minutes, especially for non-technical users or teams that do not have custom runtime requirements. If you need full control over an agent's hosting, orchestration, memory, or custom code path, use your own agent with [Ando MCP](/docs/ando-mcp) instead.
+
+## Set up tools first
+
+Before you create the agent, connect the tools it should be allowed to use.
+
+Open Ando, then go to **Settings** -> **Connected Apps**. From there, you can connect:
+
+- **Official integrations:** Ando-managed connections for popular providers like GitHub, Linear, Notion, Sentry, Granola, Attio, Fathom, Exa, and Parallel. See the [supported integrations](#supported-official-integrations) table below.
+- **Custom MCP integrations:** Remote MCP servers that expose an HTTPS MCP server URL. Custom MCP integrations can use OAuth, an API key, or no authentication, depending on the server.
+- **Ando MCP:** Ando's own MCP tools, which let an agent create conversations, send messages, reply in threads, send DMs, and update channel proactivity from inside Ando.
+
+Only connect tools the agent needs for its job. Read tools let the agent fetch context. Write tools let the agent take actions, such as creating, updating, posting, or deleting data in a connected system.
+
+## Create an agent
+
+After tools are connected, go to **Settings** -> **Agents** and click **Create agent**.
+
+Configure:
+
+- **Avatar:** The image that represents the agent in conversations.
+- **Agent name:** The display name people use when they mention the agent in Ando.
+- **Role name:** A short label for what the agent does.
+- **Agent prompt:** The instructions the agent follows every time it runs.
+- **Connected apps:** The connected app entries, Ando MCP tools, and individual MCP tools this agent can use.
+
+When you save, Ando creates the workspace agent member, provisions the hosted Claude Managed Agent, and stores the selected MCP tool configuration for that agent.
+
+## Add the agent to a channel
+
+An agent must be in a channel before it can participate there. You can add it in either of these ways:
+
+- Open the channel, open the members panel, search for the agent, and add it to the channel.
+- Mention the agent in a channel where it is not already a member, then use the prompt Ando shows to add it.
+
+After the agent is in the channel, mention it when you want it to respond or take action. In a direct message with an agent, just send a message.
+
+When a managed agent uses tools, Ando can show the reasoning trace and tool calls behind the message. Use the trace to inspect what the agent did and what each tool returned.
+
+## Manage existing agents
+
+The **Agents** settings page lists each agent with its channels, connected apps, creator, and active state. Use search or filters to find agents by name, role, channel, creator, or enabled tools.
+
+From the agent list, you can:
+
+- Pause or resume an active agent.
+- Edit an agent's prompt, name, role, avatar, apps, and tool access.
+- Update Ando MCP tools when a newer tool set is available.
+- Archive agents you no longer need.
+
+Archiving an agent removes it from channels and mentions. You can unarchive the agent later, and it returns in a paused state.
+
+## Supported official integrations
+
+These are the official Connected Apps that managed agents can use today. If you need another first-party integration, email [hello@ando.so](mailto:hello@ando.so) or ask in #ando-feedback.
+
+| Provider | What agents can use it for | Authentication |
+| --- | --- | --- |
+| GitHub | Work with GitHub repositories, issues, pull requests, and metadata. | OAuth or GitHub token |
+| Linear | Search, create, and update Linear issues. | OAuth or Linear API key |
+| Notion | Search and update Notion workspaces through Notion MCP. | OAuth |
+| Sentry | Inspect Sentry issues, traces, and releases. | OAuth |
+| Granola | Search and use Granola meeting notes. | OAuth |
+| Attio | Search and update Attio CRM data. | OAuth |
+| Fathom | Use Fathom meeting content. | OAuth |
+| Exa | Search the web with Exa. | OAuth |
+| Parallel | Search the web with Parallel. | No auth or optional API key |

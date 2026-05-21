@@ -53,6 +53,12 @@
             ]
           },
           {
+            "group": "Agents",
+            "pages": [
+              "docs/managed-agents"
+            ]
+          },
+          {
             "group": "Integrations",
             "pages": [
               "docs/ando-mcp",
