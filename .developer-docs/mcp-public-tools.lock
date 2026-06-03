@@ -1,0 +1,1212 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": null,
+  "generatedBy": "scripts/generate-public-mcp-docs.mjs",
+  "source": {
+    "manifestPath": "packages/shared/src/mcp/tool-manifest.ts",
+    "manifestSchemaVersion": 1,
+    "manifestHash": "ae2b3f2471078216",
+    "openApiPath": "docs/api/public-api-v1.openapi.json"
+  },
+  "summary": {
+    "manifestToolCount": 47,
+    "publicToolCount": 30,
+    "publicApiOverlapToolCount": 17,
+    "publicApiOverlapOperationIds": [
+      "createConversationMessage",
+      "createConversationMessage",
+      "getCall",
+      "getCallTranscript",
+      "getConversationMessage",
+      "getMember",
+      "getMember",
+      "getTask",
+      "listConversationMessages",
+      "listThreadReplies",
+      "recordTaskUpdate",
+      "searchCalls",
+      "searchConversations",
+      "searchMembers",
+      "searchMembers",
+      "searchMessages",
+      "searchTasks"
+    ],
+    "byKind": {
+      "create": 8,
+      "delete": 2,
+      "list": 7,
+      "lookup": 6,
+      "search": 6,
+      "update": 1
+    },
+    "byAvailability": {
+      "always": 30
+    },
+    "excludedByReason": {
+      "dormant": 2,
+      "legacy_frozen": 2,
+      "managed_agent_only_auth": 5,
+      "non_ando_surface": 8
+    }
+  },
+  "tools": [
+    {
+      "name": "add_to_conversation",
+      "title": "Add To Conversation",
+      "summary": "MCP create tool for conversation.membership.add.",
+      "capabilityId": "conversation.membership.add",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "AddToConversationInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "AddToConversationResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "create_conversation",
+      "title": "Create Conversation",
+      "summary": "MCP create tool for conversation.create.",
+      "capabilityId": "conversation.create",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "managed_agent_runtime",
+        "web"
+      ],
+      "input": {
+        "name": "CreateConversationInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "CreateConversationResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "delete_message",
+      "title": "Delete Message",
+      "summary": "MCP delete tool for message.delete.",
+      "capabilityId": "message.delete",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "delete",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "DeleteMessageInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "DeleteMessageResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "get_call",
+      "title": "Get Call",
+      "summary": "MCP lookup tool for call.get.",
+      "capabilityId": "call.get",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "lookup",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetCallInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetCallResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/calls/{callId}",
+        "semantics": "same_operation",
+        "operationId": "getCall",
+        "operationSummary": "Get a call"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "get_call_transcript",
+      "title": "Get Call Transcript",
+      "summary": "MCP lookup tool for call.transcript.get.",
+      "capabilityId": "call.transcript.get",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "lookup",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetCallTranscriptInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetCallTranscriptResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/calls/{callId}/transcript",
+        "semantics": "same_operation",
+        "operationId": "getCallTranscript",
+        "operationSummary": "Get a call transcript"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "get_conversation_messages",
+      "title": "Get Conversation Messages",
+      "summary": "MCP list tool for message.list_conversation.",
+      "capabilityId": "message.list_conversation",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "cli",
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetConversationMessagesInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetConversationMessagesResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/conversations/{conversationId}/messages",
+        "semantics": "same_operation",
+        "operationId": "listConversationMessages",
+        "operationSummary": "List conversation messages"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "get_member",
+      "title": "Get Member",
+      "summary": "MCP lookup tool for workspace_member.get.",
+      "capabilityId": "workspace_member.get",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "lookup",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetMemberInput",
+        "shape": "mcp_specific",
+        "notes": "Legacy member_id spelling; workspace-member alias planned."
+      },
+      "output": {
+        "name": "GetMemberResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/members/{memberId}",
+        "semantics": "same_operation",
+        "operationId": "getMember",
+        "operationSummary": "Get a workspace member"
+      },
+      "deprecation": {
+        "replacementToolName": "get_workspace_member",
+        "notes": "Legacy MCP name and member_id input preserved while callers migrate to workspace_membership_id."
+      }
+    },
+    {
+      "name": "get_message",
+      "title": "Get Message",
+      "summary": "MCP lookup tool for message.get.",
+      "capabilityId": "message.get",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "lookup",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "cli",
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetMessageInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetMessageResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/conversation-messages/{messageId}",
+        "semantics": "same_operation",
+        "operationId": "getConversationMessage",
+        "operationSummary": "Get a message"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "get_task",
+      "title": "Get Task",
+      "summary": "MCP lookup tool for task.get.",
+      "capabilityId": "task.get",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "lookup",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetTaskInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetTaskResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/tasks/{taskId}",
+        "semantics": "same_operation",
+        "operationId": "getTask",
+        "operationSummary": "Get a task"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "get_thread_replies",
+      "title": "Get Thread Replies",
+      "summary": "MCP list tool for message.list_thread_replies.",
+      "capabilityId": "message.list_thread_replies",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "cli",
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetThreadRepliesInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetThreadRepliesResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/conversation-messages/{messageId}/replies",
+        "semantics": "same_operation",
+        "operationId": "listThreadReplies",
+        "operationSummary": "List thread replies"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "get_workspace_member",
+      "title": "Get Workspace Member",
+      "summary": "MCP lookup tool for workspace_member.get.",
+      "capabilityId": "workspace_member.get",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "lookup",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "GetWorkspaceMemberInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetWorkspaceMemberResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/members/{memberId}",
+        "semantics": "same_operation",
+        "operationId": "getMember",
+        "operationSummary": "Get a workspace member"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "invite_to_workspace",
+      "title": "Invite To Workspace",
+      "summary": "MCP create tool for workspace.invite.",
+      "capabilityId": "workspace.invite",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "InviteToWorkspaceInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "InviteToWorkspaceResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "join_conversation",
+      "title": "Join Conversation",
+      "summary": "MCP create tool for conversation.membership.join_self.",
+      "capabilityId": "conversation.membership.join_self",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "JoinConversationInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "JoinConversationResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "list_calls",
+      "title": "List Calls",
+      "summary": "MCP list tool for call.list.",
+      "capabilityId": "call.list",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "ListCallsInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ListCallsResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "list_conversation_members",
+      "title": "List Conversation Members",
+      "summary": "MCP list tool for conversation.members.list.",
+      "capabilityId": "conversation.members.list",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "ListConversationMembersInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ListConversationMembersResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "list_conversations",
+      "title": "List Conversations",
+      "summary": "MCP list tool for conversation.list.",
+      "capabilityId": "conversation.list",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "ListConversationsInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ListConversationsResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "list_members",
+      "title": "List Members",
+      "summary": "MCP list tool for workspace_member.list.",
+      "capabilityId": "workspace_member.list",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "ListMembersInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ListMembersResponse",
+        "shape": "public_api_compatible",
+        "notes": "Legacy member naming; workspace-member alias planned."
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": {
+        "replacementToolName": "list_workspace_members",
+        "notes": "Legacy MCP name preserved while callers migrate to workspace-member vocabulary."
+      }
+    },
+    {
+      "name": "list_workspace_members",
+      "title": "List Workspace Members",
+      "summary": "MCP list tool for workspace_member.list.",
+      "capabilityId": "workspace_member.list",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "ListWorkspaceMembersInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ListWorkspaceMembersResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "react_to_message",
+      "title": "React To Message",
+      "summary": "MCP create tool for message.reaction.create.",
+      "capabilityId": "message.reaction.create",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "ReactToMessageInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ReactToMessageResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "record_task_update",
+      "title": "Record Task Update",
+      "summary": "MCP update tool for task.update.record.",
+      "capabilityId": "task.update.record",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "update",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "RecordTaskUpdateInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "RecordTaskUpdateResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "POST",
+        "path": "/tasks/{taskId}/updates",
+        "semantics": "same_operation",
+        "operationId": "recordTaskUpdate",
+        "operationSummary": "Record a task update"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "remove_from_conversation",
+      "title": "Remove From Conversation",
+      "summary": "MCP delete tool for conversation.membership.remove.",
+      "capabilityId": "conversation.membership.remove",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "delete",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "web"
+      ],
+      "input": {
+        "name": "RemoveFromConversationInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "RemoveFromConversationResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "reply_to_message",
+      "title": "Reply To Message",
+      "summary": "MCP create tool for message.reply.",
+      "capabilityId": "message.reply",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "cli",
+        "managed_agent_runtime",
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "ReplyToMessageInput",
+        "shape": "mcp_specific",
+        "notes": "MCP resolves the parent/thread directly; REST uses the message create contract."
+      },
+      "output": {
+        "name": "ReplyToMessageResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "POST",
+        "path": "/conversations/{conversationId}/messages",
+        "semantics": "policy_only",
+        "operationId": "createConversationMessage",
+        "operationSummary": "Create a conversation message"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "search_calls",
+      "title": "Search Calls",
+      "summary": "MCP search tool for call.search.",
+      "capabilityId": "call.search",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "search",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SearchCallsInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "SearchCallsResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/search/calls",
+        "semantics": "same_operation",
+        "operationId": "searchCalls",
+        "operationSummary": "Search calls"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "search_conversations",
+      "title": "Search Conversations",
+      "summary": "MCP search tool for conversation.search.",
+      "capabilityId": "conversation.search",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "search",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SearchConversationsInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "SearchConversationsResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/search/conversations",
+        "semantics": "same_operation",
+        "operationId": "searchConversations",
+        "operationSummary": "Search conversations"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "search_members",
+      "title": "Search Members",
+      "summary": "MCP search tool for workspace_member.search.",
+      "capabilityId": "workspace_member.search",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "search",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SearchMembersInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "SearchMembersResponse",
+        "shape": "public_api_compatible",
+        "notes": "Deprecated MCP name; use search_workspace_members."
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/search/members",
+        "semantics": "same_operation",
+        "operationId": "searchMembers",
+        "operationSummary": "Search workspace members"
+      },
+      "deprecation": {
+        "replacementToolName": "search_workspace_members",
+        "notes": "Legacy MCP name preserved while callers migrate to workspace-member vocabulary."
+      }
+    },
+    {
+      "name": "search_messages",
+      "title": "Search Messages",
+      "summary": "MCP search tool for message.search.",
+      "capabilityId": "message.search",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "search",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "cli",
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SearchMessagesInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "SearchMessagesResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/search/messages",
+        "semantics": "same_operation",
+        "operationId": "searchMessages",
+        "operationSummary": "Search messages"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "search_tasks",
+      "title": "Search Tasks",
+      "summary": "MCP search tool for task.search.",
+      "capabilityId": "task.search",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "search",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SearchTasksInput",
+        "shape": "mcp_specific",
+        "notes": "MCP uses query while public API uses q."
+      },
+      "output": {
+        "name": "SearchTasksResponse",
+        "shape": "public_api_compatible",
+        "notes": "MCP keeps legacy results/message aliases in addition to data.items."
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/search/tasks",
+        "semantics": "same_operation",
+        "operationId": "searchTasks",
+        "operationSummary": "Search tasks"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "search_workspace_members",
+      "title": "Search Workspace Members",
+      "summary": "MCP search tool for workspace_member.search.",
+      "capabilityId": "workspace_member.search",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "search",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SearchWorkspaceMembersInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "SearchMembersResponse",
+        "shape": "public_api_compatible"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "GET",
+        "path": "/search/members",
+        "semantics": "same_operation",
+        "operationId": "searchMembers",
+        "operationSummary": "Search workspace members"
+      },
+      "deprecation": null
+    },
+    {
+      "name": "send_direct_message",
+      "title": "Send Direct Message",
+      "summary": "MCP create tool for message.send_direct.",
+      "capabilityId": "message.send_direct",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "managed_agent_runtime",
+        "web"
+      ],
+      "input": {
+        "name": "SendDirectMessageInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "SendDirectMessageResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
+    },
+    {
+      "name": "send_message",
+      "title": "Send Message",
+      "summary": "MCP create tool for message.send.",
+      "capabilityId": "message.send",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "create",
+      "owner": "backend.public_api",
+      "sharedWith": [
+        "cli",
+        "managed_agent_runtime",
+        "public_api_v1"
+      ],
+      "input": {
+        "name": "SendMessageInput",
+        "shape": "mcp_specific",
+        "notes": "MCP intentionally omits REST idempotency and sends as the caller."
+      },
+      "output": {
+        "name": "SendMessageResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "publicApi": {
+        "method": "POST",
+        "path": "/conversations/{conversationId}/messages",
+        "semantics": "policy_only",
+        "operationId": "createConversationMessage",
+        "operationSummary": "Create a conversation message"
+      },
+      "deprecation": null
+    }
+  ],
+  "excluded": [
+    {
+      "name": "search_clipboard",
+      "reason": "legacy_frozen"
+    },
+    {
+      "name": "get_clipboard",
+      "reason": "legacy_frozen"
+    },
+    {
+      "name": "set_agent_subscription",
+      "reason": "managed_agent_only_auth"
+    },
+    {
+      "name": "list_agent_subscriptions",
+      "reason": "managed_agent_only_auth"
+    },
+    {
+      "name": "update_channel_proactivity",
+      "reason": "managed_agent_only_auth"
+    },
+    {
+      "name": "manage_agent_automations",
+      "reason": "managed_agent_only_auth"
+    },
+    {
+      "name": "manage_agent_schedules",
+      "reason": "managed_agent_only_auth"
+    },
+    {
+      "name": "list_conversation_folders",
+      "reason": "dormant"
+    },
+    {
+      "name": "set_conversation_folder",
+      "reason": "dormant"
+    },
+    {
+      "name": "plan_tools",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "search_tools",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "get_tool_schema",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "get_tool_schemas",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "execute_plan",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "execute_tool",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "execute_tools",
+      "reason": "non_ando_surface"
+    },
+    {
+      "name": "manage_connections",
+      "reason": "non_ando_surface"
+    }
+  ]
+}

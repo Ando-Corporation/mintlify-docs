@@ -43,7 +43,7 @@ The server uses streamable HTTP MCP and API-key authentication.
 
 ## Available Tools
 
-Ando MCP includes public tools for conversations, messages, members, calls/Jams, clipboard items, and workspace actions. It supports both read actions like search, list, and fetch and explicit write actions like creating conversations, managing conversation members, sending messages, replying in threads, sending DMs, reacting to messages, deleting messages, and inviting workspace members.
+Ando MCP includes public tools for conversations, messages, members, calls/Jams, clipboard items, and workspace actions. Read the generated [MCP public tool reference](/docs/ando-mcp-tools) for the current tool list, maturity level, safety label, and public API overlap for each tool.
 
 ## Supported Clients
 
@@ -182,56 +182,3 @@ For write actions, prompt agents to verify the target before calling side-effect
 **Session errors**: Ando MCP uses session-based streamable HTTP transport. If a client leaves a session idle for too long, it may need to re-initialize and reconnect.
 
 **Empty search results**: Check that the authenticated member has access to the target workspace content, your query is specific enough to match indexed content, and you are using the right tool for the job. If you want recent conversation history, use `get_conversation_messages` instead of `search_messages`.
-
-## Tool Reference
-
-### Workspace actions
-
-| Tool | Use it to | Inputs |
-| --- | --- | --- |
-| `search_conversations` | Search channels and DMs by name or description. | `q` required. |
-| `list_conversations` | List accessible channels and DMs, optionally filtered by name or description. | Optional: `q`, `limit` (default 50, max 100). |
-| `list_conversation_members` | List active members in an accessible conversation, including humans, agents, and workspace roles. | `conversation_id` required. |
-| `join_conversation` | Join an accessible conversation as the current member. | `conversation_id` required. |
-| `add_to_conversation` | Add members to an accessible conversation. | `conversation_id`, `member_ids`. |
-| `remove_from_conversation` | Remove members from an accessible conversation. | `conversation_id`, `member_ids`. |
-| `create_conversation` | Create a new conversation. | `name`, `member_ids`. Optional: `description`, `is_private`. |
-| `invite_to_workspace` | Invite a new member to the current workspace by email address. | `email` required. |
-
-### Messages
-
-| Tool | Use it to | Inputs |
-| --- | --- | --- |
-| `search_messages` | Search accessible messages by keyword or semantic similarity. Rejects empty and wildcard-only queries. | `q` required. Optional: `author`, `conversation`, `thread`, `after`, `before`, `mode` (`full-text` or `semantic`). |
-| `get_message` | Fetch a single message with author, conversation, and content. | `message_id` required. |
-| `get_conversation_messages` | Browse recent messages from a conversation in reverse chronological order. | `conversation_id` required. Optional: `author`, `limit`, `before`. |
-| `get_thread_replies` | Fetch replies for a thread root message in chronological order. | `message_id` required. Optional: `limit`, `after`. |
-| `send_message` | Send a message to an accessible existing conversation. | `conversation_id`, `markdown_content`. |
-| `reply_to_message` | Reply in a message's thread. If the target is already a reply, posts to the same thread. | `message_id`, `markdown_content`. |
-| `react_to_message` | React to a message with a supported standard emoji or active workspace custom emoji. | `message_id`, `emoji`. |
-| `delete_message` | Delete a message the current member can delete. | `message_id` required. |
-
-### Members
-
-| Tool | Use it to | Inputs |
-| --- | --- | --- |
-| `search_members` | Search workspace members by name, email, or title. | `q` required. |
-| `list_members` | List active workspace members, optionally filtered by exact display name. | Optional: `names`. |
-| `get_member` | Fetch a single workspace member profile. | `member_id` required. |
-| `send_direct_message` | Reuse or create a DM and send a message. | `member_ids`, `markdown_content`. |
-
-### Calls / Jams
-
-| Tool | Use it to | Inputs |
-| --- | --- | --- |
-| `search_calls` | Search call/Jam transcript content. | `q` required. Optional: `conversation`, `after`, `before`. |
-| `list_calls` | List accessible calls/Jams without a search query. | Optional: `conversation`, `status` (`active` or `ended`), `recorded`, `after`, `before`, `limit` (default/max 20). |
-| `get_call` | Fetch call/Jam metadata. | `call_id` required. |
-| `get_call_transcript` | Fetch a paginated transcript for a call. | `call_id` required. Optional: `limit`, `cursor`. |
-
-### Clipboard
-
-| Tool | Use it to | Inputs |
-| --- | --- | --- |
-| `search_clipboard` | Search clipboard/context bundles saved from Ando. | `q` required. |
-| `get_clipboard` | Fetch a clipboard bundle and all saved items. | `clipboard_id` required. |

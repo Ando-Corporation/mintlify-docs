@@ -82,6 +82,7 @@
 - [Managed agents](https://docs.ando.so/docs/managed-agents.md): Add an AI teammate that uses your team's tools and context to move work forward.
 - [Third-party agents](https://docs.ando.so/docs/third-party-agents.md): Create an agent identity for your own application and use its API key with the Ando API.
 - [Ando MCP](https://docs.ando.so/docs/ando-mcp.md): Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
+- [MCP Public Tools](https://docs.ando.so/docs/ando-mcp-tools.md): Generated public MCP tool reference from the Ando monorepo manifest.
 - [Import data from other apps](https://docs.ando.so/docs/import-data-from-other-apps.md): Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
 - [Slack import and sync](https://docs.ando.so/docs/importing-from-slack.md): Import Slack history from a ZIP export or sync Slack channels into Ando.
 

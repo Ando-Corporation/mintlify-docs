@@ -63,6 +63,7 @@
             "group": "Integrations",
             "pages": [
               "docs/ando-mcp",
+              "docs/ando-mcp-tools",
               "docs/import-data-from-other-apps",
               "docs/importing-from-slack"
             ]
