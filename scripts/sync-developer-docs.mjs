@@ -369,6 +369,88 @@ const findOptionalArtifactText = (artifactBundle, artifactPath) => {
   return readArtifactText(artifactBundle, artifactPath);
 };
 
+const withoutDuplicateFrontmatterTitleHeading = (text) =>
+  text?.replace(
+    /^(---\ntitle: ([^\n]+)\n[\s\S]*?\n---\n)\n# \2\n\n/u,
+    "$1\n"
+  );
+
+const mcpToolInputSummaries = {
+  add_to_conversation: "`conversation_id`. Optional: `membership_ids`.",
+  create_conversation: "`name`. Optional: `access_control_type`, `member_ids`.",
+  delete_message: "`message_id`.",
+  get_call: "`call_id`.",
+  get_call_transcript: "`call_id`. Optional: `limit`, `cursor`.",
+  get_conversation_messages: "`conversation_id`. Optional: `author`, `limit`, `before`.",
+  get_member: "Deprecated; use `get_workspace_member`. Required: `member_id`.",
+  get_message: "`message_id`.",
+  get_task: "`task_id`.",
+  get_thread_replies: "`message_id`. Optional: `limit`, `after`.",
+  get_workspace_member: "`workspace_membership_id`.",
+  invite_to_workspace: "`email`.",
+  join_conversation: "`conversation_id`.",
+  list_calls: "Optional: `conversation`, `status`, `recorded`, `after`, `before`, `limit`.",
+  list_conversation_members: "`conversation_id`.",
+  list_conversations: "Optional: `q`, `limit`.",
+  list_members: "Deprecated; use `list_workspace_members`. Optional: `names`.",
+  list_workspace_members: "Optional: `names`, `displayNames`.",
+  react_to_message: "`message_id`, `emoji`.",
+  record_task_update: "`task_id`, `entry`. Optional: `expected_state_version`, `task_patch`, `resource_ops`.",
+  remove_from_conversation: "`conversation_id`. Optional: `membership_ids`.",
+  reply_to_message: "`message_id`, `markdown_content`.",
+  search_calls: "`q`.",
+  search_conversations: "`q`.",
+  search_members: "Deprecated; use `search_workspace_members`. Required: `q`.",
+  search_messages: "`q`. Optional: `author`, `conversation`, `thread`, `after`, `before`, `mode`, `limit`.",
+  search_tasks: "Optional: `query`, `limit`.",
+  search_workspace_members: "`q`. Optional: `query`, `limit`.",
+  send_direct_message: "`member_ids`, `markdown_content`.",
+  send_message: "`conversation_id`, `markdown_content`.",
+};
+
+const withMcpToolInputsColumn = ({ mcpPublicToolsMdxText, mcpPublicToolsText }) => {
+  if (mcpPublicToolsMdxText == null || mcpPublicToolsText == null) {
+    return mcpPublicToolsMdxText;
+  }
+  if (mcpPublicToolsMdxText.includes("| Tool | Capability | Inputs |")) {
+    return mcpPublicToolsMdxText;
+  }
+  const mcpPublicTools = JSON.parse(mcpPublicToolsText);
+  const publicToolNames = (mcpPublicTools.tools ?? []).map((tool) => tool.name);
+  const missingInputSummaries = publicToolNames.filter(
+    (toolName) => mcpToolInputSummaries[toolName] == null
+  );
+  if (missingInputSummaries.length !== 0) {
+    throw new Error(
+      `Missing MCP tool input summaries: ${missingInputSummaries.join(", ")}`
+    );
+  }
+
+  const lines = mcpPublicToolsMdxText.split("\n");
+  return lines
+    .map((line) => {
+      if (
+        line ===
+        "| Tool | Capability | Kind | Safety | Deprecation | Public API overlap |"
+      ) {
+        return "| Tool | Capability | Inputs | Kind | Safety | Deprecation | Public API overlap |";
+      }
+      if (line === "| --- | --- | --- | --- | --- | --- |") {
+        return "| --- | --- | --- | --- | --- | --- | --- |";
+      }
+
+      const toolName = line.match(/^\| `([^`]+)` \| /u)?.[1];
+      if (toolName == null || mcpToolInputSummaries[toolName] == null) {
+        return line;
+      }
+      const cells = line.slice(2, -2).split(" | ");
+      if (cells.length !== 6) return line;
+      cells.splice(2, 0, mcpToolInputSummaries[toolName]);
+      return `| ${cells.join(" | ")} |`;
+    })
+    .join("\n");
+};
+
 const readToolkitCodeSamples = (toolkitDir) => {
   if (toolkitDir == null) return null;
   const codeSamplesPath = path.resolve(
@@ -649,10 +731,12 @@ const syncDeveloperDocs = ({
     artifactBundle,
     "mcp-public-tools.json"
   );
-  const mcpPublicToolsMdxText = findOptionalArtifactText(
-    artifactBundle,
-    "mcp-public-tools.mdx"
-  );
+  const mcpPublicToolsMdxText = withMcpToolInputsColumn({
+    mcpPublicToolsMdxText: withoutDuplicateFrontmatterTitleHeading(
+      findOptionalArtifactText(artifactBundle, "mcp-public-tools.mdx")
+    ),
+    mcpPublicToolsText,
+  });
   const webhookEventsText = findOptionalArtifactText(
     artifactBundle,
     "webhook-events.json"

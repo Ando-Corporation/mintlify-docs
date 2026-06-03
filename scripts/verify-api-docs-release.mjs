@@ -162,8 +162,11 @@ const stalePublicApiPhrases = [
   "API keys are scoped to the workspace and member that created them",
   "legacy frozen non-GA compatibility route",
   "GA-candidate search-extended route",
+  "This is a nearly stable task-search route",
 ];
 const staleLlmsPhrases = [...stalePublicApiPhrases, "Documentation Index"];
+const expectedSearchTasksDescription =
+  "Searches tasks visible to the authenticated API key.";
 const publicApiIdentityTerms = [
   "Identity terms are narrower than storage table names",
   "Human user",
@@ -387,7 +390,7 @@ const checkProduction = async () => {
     "New integrations should send `x-api-key`",
     "Use Ando API keys from a server-side environment",
     "Use the stable messaging endpoints",
-    "Searches tasks visible to the authenticated API key.",
+    expectedSearchTasksDescription,
     "Stability: Candidate",
     ...publicApiIdentityTerms,
   ]);
@@ -397,7 +400,7 @@ const checkProduction = async () => {
   const expectedOpenApiPhrases = [
     '"name": "x-api-key"',
     "legacy compatibility route kept for older clients",
-    "Searches tasks visible to the authenticated API key.",
+    expectedSearchTasksDescription,
   ];
   const staleOpenApiPhrases = [
     "legacy frozen non-GA compatibility route",
@@ -420,6 +423,11 @@ const checkProduction = async () => {
   if (searchTasks?.operationId !== "searchTasks") {
     throw new Error(`/${latestOpenApiFile} is missing searchTasks.`);
   }
+  if (searchTasks.description !== expectedSearchTasksDescription) {
+    throw new Error(
+      `/${latestOpenApiFile} searchTasks description must exactly match current docs wording.`
+    );
+  }
   if (searchTasks?.["x-ando-status-probe-owner"] !== "public_api_search_read_shadow") {
     throw new Error(
       `/${latestOpenApiFile} searchTasks must keep shadow status evidence.`
@@ -436,6 +444,12 @@ const checkProduction = async () => {
     if (JSON.stringify(aliasOpenApiPaths) !== JSON.stringify(latestOpenApiPaths)) {
       throw new Error(
         `${aliasPath} does not expose the same path set as /${latestOpenApiFile}.`
+      );
+    }
+    const aliasSearchTasks = aliasJson.paths?.["/search/tasks"]?.get;
+    if (aliasSearchTasks?.description !== expectedSearchTasksDescription) {
+      throw new Error(
+        `${aliasPath} searchTasks description must exactly match current docs wording.`
       );
     }
   }
