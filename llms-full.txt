@@ -2934,7 +2934,7 @@ Weekly updates on features, improvements, and fixes.
 
 <span data-ando-changelog-latest data-date="2026-05-10" data-title="Custom MCP Apps" data-description="Connect any third-party MCP server to your workspace." />
 
-<a id="2026-05-10" />
+<span id="2026-05-10" aria-hidden="true" />
 
 <Update label="May 10, 2026" description="2026-05-10" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "May 10, 2026 - Custom MCP Apps", description: "Ando updates from May 10, 2026." }}>
 
@@ -2984,7 +2984,7 @@ Pin any thread to a dedicated section at the top of the sidebar, alongside favor
 
 </Update>
 
-<a id="2026-05-03" />
+<span id="2026-05-03" aria-hidden="true" />
 
 <Update label="May 3, 2026" description="2026-05-03" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Threads"]} rss={{ title: "May 3, 2026 - Workspace Agent", description: "Ando updates from May 3, 2026." }}>
 
@@ -3036,7 +3036,7 @@ Stay caught up via email when you're away from Ando. A daily digest summarises u
 
 </Update>
 
-<a id="2026-04-27" />
+<span id="2026-04-27" aria-hidden="true" />
 
 <Update label="April 27, 2026" description="2026-04-27" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "April 27, 2026 - Live Search Across Transcripts", description: "Ando updates from April 27, 2026." }}>
 
@@ -3085,7 +3085,7 @@ Workspace agents are faster to invoke and can take more actions in a conversatio
 
 </Update>
 
-<a id="2026-04-20" />
+<span id="2026-04-20" aria-hidden="true" />
 
 <Update label="April 20, 2026" description="2026-04-20" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "April 20, 2026 - Custom Emoji", description: "Ando updates from April 20, 2026." }}>
 
@@ -3143,7 +3143,7 @@ When a managed agent sends a message, click on the reasoning trace shows the too
 
 </Update>
 
-<a id="2026-04-13" />
+<span id="2026-04-13" aria-hidden="true" />
 
 <Update label="April 13, 2026" description="2026-04-13" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "April 13, 2026 - Continuous Slack Sync", description: "Ando updates from April 13, 2026." }}>
 
@@ -3197,7 +3197,7 @@ Group conversations into custom folders with drag-to-reorder, plus a dedicated f
 
 </Update>
 
-<a id="2026-04-06" />
+<span id="2026-04-06" aria-hidden="true" />
 
 <Update label="April 6, 2026" description="2026-04-06" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding"]} rss={{ title: "April 6, 2026 - Proactive Agent", description: "Ando updates from April 6, 2026." }}>
 
@@ -3239,7 +3239,7 @@ Claude can now join conversations as a persistent member, listening to every mes
 
 </Update>
 
-<a id="2026-03-27" />
+<span id="2026-03-27" aria-hidden="true" />
 
 <Update label="March 27, 2026" description="2026-03-27" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Jams","Onboarding","Threads"]} rss={{ title: "March 27, 2026 - Jams Picture-in-Picture", description: "Ando updates from March 27, 2026." }}>
 
@@ -3285,7 +3285,7 @@ Ando is now available as a native iOS app. Browse conversations, send messages, 
 
 </Update>
 
-<a id="2026-03-20" />
+<span id="2026-03-20" aria-hidden="true" />
 
 <Update label="March 20, 2026" description="2026-03-20" tags={["Agent","Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "March 20, 2026 - Smart Onboarding", description: "Ando updates from March 20, 2026." }}>
 
@@ -3329,7 +3329,7 @@ Invoke Claude during a live Jam by saying "hey Claude" or other keyword triggers
 
 </Update>
 
-<a id="2026-03-13" />
+<span id="2026-03-13" aria-hidden="true" />
 
 <Update label="March 13, 2026" description="2026-03-13" tags={["Channels","Cmd+K","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "March 13, 2026 - Dark Mode", description: "Ando updates from March 13, 2026." }}>
 
@@ -3381,7 +3381,7 @@ Threads can now open in a dedicated full-screen view for focused conversation. D
 
 </Update>
 
-<a id="2026-03-06" />
+<span id="2026-03-06" aria-hidden="true" />
 
 <Update label="March 6, 2026" description="2026-03-06" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "March 6, 2026 - Claude Agent Improvements", description: "Ando updates from March 6, 2026." }}>
 
@@ -3432,7 +3432,7 @@ Drafts now save automatically and persist as you navigate between channels. The 
 
 </Update>
 
-<a id="2026-02-27" />
+<span id="2026-02-27" aria-hidden="true" />
 
 <Update label="February 27, 2026" description="2026-02-27" tags={["Agent","Channels","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 27, 2026 - Inbox Overhaul", description: "Ando updates from February 27, 2026." }}>
 
@@ -3497,7 +3497,7 @@ The chat composer now features a formatting toolbar, an emoji picker, and a GIF 
 
 </Update>
 
-<a id="2026-02-20" />
+<span id="2026-02-20" aria-hidden="true" />
 
 <Update label="February 20, 2026" description="2026-02-20" tags={["Agent","Channels","Cmd+K","Composer","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 20, 2026 - Jam Threads & Post-Call Playback", description: "Ando updates from February 20, 2026." }}>
 
@@ -3550,7 +3550,7 @@ Messages now render with full markdown support: code blocks, inline code, bullet
 
 </Update>
 
-<a id="2026-02-13" />
+<span id="2026-02-13" aria-hidden="true" />
 
 <Update label="February 13, 2026" description="2026-02-13" tags={["Agent","Channels","Clipboard","Cmd+K","Composer","Desktop","Inbox","Jams","Search","Threads"]} rss={{ title: "February 13, 2026 - Thread Subscriptions", description: "Ando updates from February 13, 2026." }}>
 
@@ -3604,7 +3604,7 @@ Threads now have a copy button with two formats: a default plain-text copy for p
 
 </Update>
 
-<a id="2026-02-06" />
+<span id="2026-02-06" aria-hidden="true" />
 
 <Update label="February 6, 2026" description="2026-02-06" tags={["Agent","Channels","Clipboard","Cmd+K","Composer","Desktop","Inbox","Jams","Onboarding","Search","Threads"]} rss={{ title: "February 6, 2026 - Jams: Screen Sharing & Transcript Pipeline", description: "Ando updates from February 6, 2026." }}>
 
@@ -3661,7 +3661,7 @@ Inbox rebuilt with deterministic grouping and display rules. Sidebar unread coun
 
 </Update>
 
-<a id="2026-01-30" />
+<span id="2026-01-30" aria-hidden="true" />
 
 <Update label="January 30, 2026" description="2026-01-30" tags={["Agent","Channels","Clipboard","Composer","Desktop","Inbox","Jams","Onboarding"]} rss={{ title: "January 30, 2026 - Claude Code Agent Launch", description: "Ando updates from January 30, 2026." }}>
 
@@ -3717,7 +3717,7 @@ Download any file shared in chat directly to your device. Downloads show progres
 
 </Update>
 
-<a id="2026-01-25" />
+<span id="2026-01-25" aria-hidden="true" />
 
 <Update label="January 25, 2026" description="2026-01-25" tags={["Channels","Clipboard","Composer","Desktop","Inbox","Jams","Onboarding","Search"]} rss={{ title: "January 25, 2026 - Jams!", description: "Ando updates from January 25, 2026." }}>
 
@@ -3765,7 +3765,7 @@ New backend APIs give users more control over curated collections. Add messages 
 
 </Update>
 
-<a id="2026-01-11" />
+<span id="2026-01-11" aria-hidden="true" />
 
 <Update label="January 11, 2026" description="2026-01-11" tags={["Agent","Channels","Composer","Desktop","Inbox","Onboarding","Search"]} rss={{ title: "January 11, 2026 - Full-Screen Search", description: "Ando updates from January 11, 2026." }}>
 
@@ -3822,7 +3822,7 @@ Added heartbeats and retries to websocket infrastructure for more reliable real-
 
 </Update>
 
-<a id="2026-01-04" />
+<span id="2026-01-04" aria-hidden="true" />
 
 <Update label="January 4, 2026" description="2026-01-04" tags={["Agent","Channels","Desktop","Inbox","Search"]} rss={{ title: "January 4, 2026 - View Channel Before Joining", description: "Ando updates from January 4, 2026." }}>
 
@@ -3879,7 +3879,7 @@ Search is now a dedicated full-screen experience with its own surface. Find mess
 
 </Update>
 
-<a id="2025-12-28" />
+<span id="2025-12-28" aria-hidden="true" />
 
 <Update label="December 28, 2025" description="2025-12-28" tags={["Channels","Cmd+K","Desktop","Inbox","Search"]} rss={{ title: "December 28, 2025 - Inbox & Stack Improvements", description: "Ando updates from December 28, 2025." }}>
 
@@ -3927,7 +3927,7 @@ Backend infrastructure for the new search experience is complete. The Search API
 
 </Update>
 
-<a id="2025-12-21" />
+<span id="2025-12-21" aria-hidden="true" />
 
 <Update label="December 21, 2025" description="2025-12-21" tags={["Channels","Cmd+K","Inbox","Search"]} rss={{ title: "December 21, 2025 - Inbox Rules", description: "Ando updates from December 21, 2025." }}>
 
@@ -3971,7 +3971,7 @@ Press Cmd+K and type to create a new channel instantly. Name your channel, set v
 
 </Update>
 
-<a id="2025-12-14" />
+<span id="2025-12-14" aria-hidden="true" />
 
 <Update label="December 14, 2025" description="2025-12-14" tags={["Channels","Cmd+K","Inbox","Onboarding","Search"]} rss={{ title: "December 14, 2025 - Browse and Join Channels", description: "Ando updates from December 14, 2025." }}>
 
@@ -4016,7 +4016,7 @@ Start new conversations directly from Cmd+K. Search for workspace members, selec
 
 </Update>
 
-<a id="2025-12-07" />
+<span id="2025-12-07" aria-hidden="true" />
 
 <Update label="December 7, 2025" description="2025-12-07" tags={["Cmd+K","Composer","Inbox","Search"]} rss={{ title: "December 7, 2025 - Stack Generation", description: "Ando updates from December 7, 2025." }}>
 

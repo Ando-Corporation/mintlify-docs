@@ -1,0 +1,161 @@
+name: Sync generated developer docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_repository:
+        description: Repository that uploaded the developer docs artifact.
+        required: true
+        default: Ando-Corporation/ando
+      source_run_id:
+        description: GitHub Actions run id that uploaded the artifact.
+        required: false
+      source_commit:
+        description: Source repository commit SHA included in the artifact.
+        required: true
+      artifact_name:
+        description: Uploaded artifact identifier/name.
+        required: true
+        default: developer-docs-artifacts
+      artifact_url:
+        description: Optional URL to a zipped developer docs artifact. When set, source_run_id is not used.
+        required: false
+      archive_date:
+        description: Optional dated OpenAPI archive date in YYYY-MM-DD.
+        required: false
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Sync generated docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out docs
+        uses: actions/checkout@v4
+
+      - name: Validate artifact inputs
+        run: |
+          if [ -z "$ARTIFACT_URL" ] && [ -z "$SOURCE_RUN_ID" ]; then
+            echo "source_run_id is required when artifact_url is not provided." >&2
+            exit 1
+          fi
+        env:
+          ARTIFACT_URL: ${{ inputs.artifact_url }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+
+      - name: Download developer docs artifact from workflow run
+        if: ${{ inputs.artifact_url == '' }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.DEVELOPER_DOCS_ARTIFACT_TOKEN || github.token }}
+          repository: ${{ inputs.source_repository }}
+          run-id: ${{ inputs.source_run_id }}
+          name: ${{ inputs.artifact_name }}
+          path: artifacts/developer-docs
+
+      - name: Download developer docs artifact from URL
+        if: ${{ inputs.artifact_url != '' }}
+        run: |
+          mkdir -p artifacts/developer-docs
+          curl --fail --location --show-error --silent "$ARTIFACT_URL" --output /tmp/developer-docs-artifact.zip
+          python3 <<'PY'
+          import stat
+          import zipfile
+          from pathlib import Path
+
+          zip_path = Path("/tmp/developer-docs-artifact.zip")
+          destination = Path("artifacts/developer-docs").resolve()
+
+          with zipfile.ZipFile(zip_path) as archive:
+              for entry in archive.infolist():
+                  entry_path = Path(entry.filename)
+                  if entry_path.is_absolute():
+                      raise SystemExit(f"artifact zip entry uses an absolute path: {entry.filename}")
+
+                  target = (destination / entry.filename).resolve()
+                  try:
+                      target.relative_to(destination)
+                  except ValueError:
+                      raise SystemExit(f"artifact zip entry escapes the artifact directory: {entry.filename}")
+
+                  file_type = (entry.external_attr >> 16) & 0o170000
+                  if file_type and file_type not in (stat.S_IFREG, stat.S_IFDIR):
+                      raise SystemExit(f"artifact zip entry is not a regular file or directory: {entry.filename}")
+
+              archive.extractall(destination)
+          PY
+        env:
+          ARTIFACT_URL: ${{ inputs.artifact_url }}
+
+      - name: Sync generated artifacts
+        run: |
+          archive_args=()
+          if [ -n "$ARCHIVE_DATE" ]; then
+            archive_args=(--archive-date "$ARCHIVE_DATE")
+          fi
+          node scripts/sync-developer-docs.mjs --artifact-dir artifacts/developer-docs "${archive_args[@]}"
+          node scripts/build-llms.mjs
+          node scripts/sync-developer-docs.mjs --artifact-dir artifacts/developer-docs "${archive_args[@]}" --check
+        env:
+          ARCHIVE_DATE: ${{ inputs.archive_date }}
+
+      - name: Verify artifact source commit
+        run: |
+          node -e '
+            const fs = require("fs");
+            const manifest = JSON.parse(fs.readFileSync(".developer-docs/developer-docs-manifest.lock", "utf8"));
+            const expected = process.env.SOURCE_COMMIT;
+            if (manifest.source?.commit !== expected) {
+              throw new Error(`artifact source commit ${manifest.source?.commit ?? "unknown"} does not match workflow input ${expected}`);
+            }
+          '
+        env:
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+
+      - name: Validate docs
+        run: |
+          archive_args=()
+          if [ -n "$ARCHIVE_DATE" ]; then
+            archive_args=(--archive-date "$ARCHIVE_DATE")
+          fi
+          node scripts/verify-api-docs-release.mjs --local --artifact-dir artifacts/developer-docs "${archive_args[@]}"
+        env:
+          ARCHIVE_DATE: ${{ inputs.archive_date }}
+
+      - name: Build pull request body
+        run: node scripts/format-developer-docs-pr-body.mjs --output /tmp/generated-developer-docs-pr.md
+
+      - name: Open sync pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+        run: |
+          branch="codex/sync-generated-developer-docs-${SOURCE_COMMIT:0:12}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add .developer-docs api-reference docs llms-full.txt llms.txt scripts docs.json
+          git add -A -- 'openapi*.json'
+          if git diff --cached --quiet; then
+            echo "Generated developer docs are already up to date."
+            exit 0
+          fi
+          git commit -m "Sync generated developer docs artifacts"
+          git fetch origin "$branch:refs/remotes/origin/$branch" || true
+          git push --force-with-lease origin "$branch"
+          existing_pr="$(gh pr list --head "$branch" --json number --jq '.[0].number // empty')"
+          if [ -n "$existing_pr" ]; then
+            gh pr edit "$existing_pr" \
+              --title "Sync generated developer docs artifacts" \
+              --body-file /tmp/generated-developer-docs-pr.md
+          else
+            gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "Sync generated developer docs artifacts" \
+              --body-file /tmp/generated-developer-docs-pr.md
+          fi

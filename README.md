@@ -21,6 +21,22 @@ mint a11y
 
 ## API docs release verification
 
+Generated developer docs artifacts come from the Ando monorepo. To sync a local
+artifact bundle, run:
+
+```bash
+node scripts/sync-developer-docs.mjs --artifact-dir /path/to/developer-docs
+node scripts/build-llms.mjs
+node scripts/sync-developer-docs.mjs --artifact-dir /path/to/developer-docs --check
+```
+
+The sync copies the OpenAPI aliases, generated MCP public tool reference,
+generated webhook event reference, and lock files used for stale checks.
+
+The GitHub workflow `.github/workflows/sync-generated-developer-docs.yml`
+downloads the monorepo artifact, runs the same sync and validation commands, and
+opens a PR with artifact counts, hashes, source commit, and commands.
+
 Before publishing public API docs, run the repeatable release checks from this
 repo:
 
@@ -31,7 +47,8 @@ node scripts/verify-api-docs-release.mjs --local
 
 `--local` rebuilds `llms.txt`, `llms-full.txt`, and
 `openapi-public-api-v1-latest.json`; verifies they were already fresh; runs
-Mintlify validation; checks broken links; and runs `git diff --check`.
+Mintlify validation, broken-link checks, accessibility checks; and runs
+`git diff --check`.
 
 If the versioned OpenAPI file changed, validate the source contract in the Ando
 monorepo and confirm this repo's copied spec matches it:
