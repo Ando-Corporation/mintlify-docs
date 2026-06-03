@@ -55,7 +55,8 @@
           {
             "group": "Agents",
             "pages": [
-              "docs/managed-agents"
+              "docs/managed-agents",
+              "docs/third-party-agents"
             ]
           },
           {

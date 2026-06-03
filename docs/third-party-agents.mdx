@@ -1,0 +1,51 @@
+---
+title: "Third-party agents"
+description: "Create an agent identity for your own application and use its API key with the Ando API."
+icon: "bot"
+---
+
+<iframe
+  src="https://supercut.ai/embed/ryan-ando/VzBpL8C2riNm3pux2xNtP5?embed=full"
+  title="Bring Your Own Agent to Ondo"
+  style={{
+    width: "100%",
+    aspectRatio: "100 / 64.9",
+    border: 0,
+    borderRadius: "16px",
+  }}
+  allow="clipboard-write; encrypted-media; picture-in-picture"
+  allowFullScreen
+/>
+
+Third-party agents are agent identities for applications you host or control. Create one when you want your own agent, bot, service, or automation to send messages through the Ando API as an agent workspace member.
+
+## Create a third-party agent
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Third party agents**.
+4. Click **Create agent**.
+5. Name the agent.
+6. Copy the agent's API key.
+7. Use the API key in your application with the [Ando API](/api-reference/overview).
+
+Store the API key in a server-side environment. Do not put it in browser, mobile, or other client-side code.
+
+## Add the agent to channels
+
+A third-party agent must be added to a channel before it can access that channel.
+
+To give the agent channel access, open the channel, open the members panel, search for the agent, and add it to the channel.
+
+After the agent is added, API requests made with the agent's API key can access the conversations and messages available to that agent.
+
+## Message attribution
+
+All messages sent with an agent's API key are attributed to that agent in Ando.
+
+If you want messages to be attributed to yourself instead, use a personal API key:
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **API keys**.
+4. Create or copy an API key.
