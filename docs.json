@@ -128,6 +128,36 @@
                 ]
               },
               {
+                "group": "Realtime",
+                "tag": "Beta",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /realtime/connections"
+                ]
+              },
+              {
+                "group": "Webhook endpoints",
+                "tag": "Beta",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /webhook-endpoints",
+                  "GET /webhook-endpoints",
+                  "GET /webhook-endpoints/{endpointId}",
+                  "PATCH /webhook-endpoints/{endpointId}",
+                  "POST /webhook-endpoints/{endpointId}/rotate-secret",
+                  "POST /webhook-endpoints/{endpointId}/test"
+                ]
+              },
+              {
+                "group": "Webhook deliveries",
+                "tag": "Beta",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /webhook-deliveries",
+                  "POST /webhook-deliveries/{deliveryId}/replay"
+                ]
+              },
+              {
                 "group": "Nearly stable",
                 "tag": "Candidate",
                 "openapi": "api-reference/openapi.json",

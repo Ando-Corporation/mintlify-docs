@@ -15,13 +15,16 @@ const args = process.argv.slice(2);
 
 const usage = () => {
   console.log(`Usage:
-  node scripts/verify-api-docs-release.mjs [--local] [--production] [--all] [--monorepo <path>]
+  node scripts/verify-api-docs-release.mjs [--local] [--production] [--all] [--monorepo <path>] [--toolkit <path>] [--artifact-dir <path>] [--openapi <path>] [--archive-date YYYY-MM-DD]
 
 Modes:
-  --local       Rebuild llms artifacts, validate Mintlify, check links, and run diff hygiene.
+  --local       Check generated docs sync when a source is provided, rebuild llms artifacts, validate Mintlify, check links, and run diff hygiene.
   --production  Probe live docs. Uses ANDO_DOCS_URL when set, otherwise https://docs.ando.so.
   --all         Run local and production checks.
   --monorepo    Also run public OpenAPI contract checks in the Ando monorepo and compare specs.
+  --toolkit     Include Toolkit docs samples when checking generated docs sync.
+  --artifact-dir, --openapi, --archive-date
+                Forwarded to scripts/sync-developer-docs.mjs --check.
 
 Default: --local`);
 };
@@ -43,6 +46,10 @@ const runLocal = flag("--all") || flag("--local") || (
 );
 const runProduction = flag("--all") || flag("--production");
 const monorepoDir = valueAfter("--monorepo");
+const toolkitDir = valueAfter("--toolkit");
+const artifactDir = valueAfter("--artifact-dir");
+const openApiPath = valueAfter("--openapi");
+const archiveDate = valueAfter("--archive-date");
 
 const fileText = (relativePath) =>
   fs.readFileSync(path.join(rootDir, relativePath), "utf8");
@@ -58,6 +65,23 @@ const run = (command, commandArgs, options = {}) => {
       `${command} ${commandArgs.join(" ")} failed with exit ${result.status}`
     );
   }
+};
+
+const runPnpm = (commandArgs, options = {}) => {
+  const result = spawnSync("pnpm", commandArgs, {
+    cwd: options.cwd ?? rootDir,
+    env: process.env,
+    stdio: "inherit",
+  });
+  if (result.status === 0) return;
+  if (result.error?.code === "ENOENT") {
+    run("corepack", ["pnpm", ...commandArgs], options);
+    return;
+  }
+  if (result.error != null) {
+    throw result.error;
+  }
+  throw new Error(`pnpm ${commandArgs.join(" ")} failed with exit ${result.status}`);
 };
 
 const assertIncludes = (label, text, needles) => {
@@ -217,7 +241,28 @@ const checkLocalArtifacts = () => {
   assertExcludes("llms-full.txt", after.full, staleLlmsPhrases);
 };
 
+const checkGeneratedDocsSync = () => {
+  const syncArgs = ["scripts/sync-developer-docs.mjs", "--check"];
+  if (artifactDir != null) {
+    syncArgs.push("--artifact-dir", artifactDir);
+  } else if (monorepoDir != null) {
+    syncArgs.push("--monorepo", monorepoDir);
+  } else if (openApiPath != null) {
+    syncArgs.push("--openapi", openApiPath);
+  } else {
+    return;
+  }
+  if (toolkitDir != null) {
+    syncArgs.push("--toolkit", toolkitDir);
+  }
+  if (archiveDate != null) {
+    syncArgs.push("--archive-date", archiveDate);
+  }
+  run("node", syncArgs);
+};
+
 const checkLocalDocs = () => {
+  checkGeneratedDocsSync();
   checkLocalArtifacts();
   run("npx", ["--yes", "mint@4.2.566", "validate"]);
   run("npx", ["--yes", "mint@4.2.566", "broken-links"]);
@@ -235,36 +280,44 @@ const checkMonorepoContracts = (monorepoPath) => {
     throw new Error(`Missing monorepo OpenAPI file: ${monorepoOpenApi}`);
   }
 
-  run("corepack", ["pnpm", "run", "sync:public-api-openapi"], {
+  runPnpm(["run", "sync:public-api-openapi"], {
     cwd: resolved,
   });
-  run("corepack", ["pnpm", "run", "check:public-api-openapi"], {
+  runPnpm(["run", "check:public-api-openapi"], {
     cwd: resolved,
   });
-  run(
-    "corepack",
-    ["pnpm", "--filter", "@ando/shared", "test", "--", "public-api-contracts.test.ts"],
+  runPnpm(
+    ["--filter", "@ando/shared", "test", "--", "public-api-contracts.test.ts"],
     { cwd: resolved }
   );
   run("git", ["diff", "--check"], { cwd: resolved });
 
+  const syncArgs = ["scripts/sync-developer-docs.mjs", "--check", "--monorepo", resolved];
+  if (toolkitDir != null) {
+    syncArgs.push("--toolkit", toolkitDir);
+  }
+  if (archiveDate != null) {
+    syncArgs.push("--archive-date", archiveDate);
+  }
+  run("node", syncArgs);
+
   const docsOpenApi = fileText(openApiFile);
   const latestOpenApi = fileText(latestOpenApiFile);
   const sourceOpenApi = fs.readFileSync(monorepoOpenApi, "utf8");
-  if (docsOpenApi !== sourceOpenApi) {
-    throw new Error(
-      `${openApiFile} does not match ${monorepoOpenApi}. Copy the regenerated spec into this repo.`
-    );
+  const docsOpenApiJson = parseJson(openApiFile, docsOpenApi);
+  const sourceOpenApiJson = parseJson(monorepoOpenApi, sourceOpenApi);
+  const docsPaths = Object.keys(docsOpenApiJson.paths ?? {}).sort();
+  const sourcePaths = Object.keys(sourceOpenApiJson.paths ?? {}).sort();
+  if (JSON.stringify(docsPaths) !== JSON.stringify(sourcePaths)) {
+    throw new Error(`${openApiFile} does not expose the monorepo path set.`);
   }
-  if (latestOpenApi !== sourceOpenApi) {
-    throw new Error(
-      `${latestOpenApiFile} does not match ${monorepoOpenApi}. Re-run node scripts/build-llms.mjs.`
-    );
+  if (latestOpenApi !== docsOpenApi) {
+    throw new Error(`${latestOpenApiFile} does not match ${openApiFile}.`);
   }
   for (const aliasFile of openApiAliasFiles) {
-    if (fileText(aliasFile) !== sourceOpenApi) {
+    if (fileText(aliasFile) !== latestOpenApi) {
       throw new Error(
-        `${aliasFile} does not match ${monorepoOpenApi}. Re-run node scripts/build-llms.mjs.`
+        `${aliasFile} does not match ${latestOpenApiFile}. Re-run node scripts/build-llms.mjs.`
       );
     }
   }

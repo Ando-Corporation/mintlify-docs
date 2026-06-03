@@ -680,13 +680,17 @@ Source: https://docs.ando.so/api-reference/endpoint-reference
 > Scan public API v1 endpoints by stability level before opening generated schemas.
 
 Use the endpoint groups below by stability level, not by internal implementation
-area. Stable endpoints are ready for production integrations; nearly stable,
-preview, and legacy compatibility endpoints need narrower rollout judgment.
+area. Stable endpoints are ready for production integrations. Beta, nearly
+stable, preview, and legacy compatibility endpoints need narrower rollout
+judgment.
 
 | Group | Stability | Use it for |
 | --- | --- | --- |
 | Stable search | Production discovery workflows for messages, conversations, workspace members, and calls. | Start here when an integration needs context ids before reading or writing. |
 | Stable messaging | Production message workflows. | List, create, fetch, and reply to conversation messages. |
+| Realtime | Beta realtime session setup. | Open a short-lived connection token from a trusted server before a realtime client connects. |
+| Webhook endpoints | Beta webhook endpoint management. | Create, list, update, rotate, and test webhook destinations. |
+| Webhook deliveries | Beta webhook delivery operations. | Inspect recent deliveries and replay a delivery when it is safe to retry. |
 | Nearly stable | Endpoint shape that is close to public v1 but not fully promoted. | Test behind a feature flag or limited internal integration. |
 | Preview | Exploratory integrations. | Build only when the risk of shape changes is acceptable. |
 | Legacy compatibility | Existing compatibility behavior. | Avoid for new integrations unless no stable route covers the use case. |
@@ -951,6 +955,285 @@ None.
 Responses:
 
 - 200: Thread replies.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Realtime
+
+### POST /realtime/connections
+
+Source: https://docs.ando.so/api-reference/realtime/open-a-realtime-connection
+
+Stability: Beta
+
+Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.
+
+Canonical request: `POST https://api.ando.so/v1/realtime/connections`
+
+Parameters:
+
+None.
+
+Request body:
+
+JSON body: `OpenRealtimeConnectionRequest`.
+
+Responses:
+
+- 200: Opened temporary realtime connection.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+- 503: Public realtime connection opening is not available in this deployment.
+
+## Webhook endpoints
+
+### POST /webhook-endpoints
+
+Source: https://docs.ando.so/api-reference/webhooks/create-a-webhook-endpoint
+
+Stability: Beta
+
+Creates a workspace webhook endpoint and returns its signing secret exactly once.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-endpoints`
+
+Parameters:
+
+None.
+
+Request body:
+
+JSON body: `CreateWebhookEndpointBody`.
+
+Responses:
+
+- 201: Created webhook endpoint.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /webhook-endpoints
+
+Source: https://docs.ando.so/api-reference/webhooks/list-webhook-endpoints
+
+Stability: Beta
+
+Lists workspace webhook endpoint metadata.
+
+Canonical request: `GET https://api.ando.so/v1/webhook-endpoints`
+
+Parameters:
+
+None.
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Webhook endpoints.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /webhook-endpoints/{endpointId}
+
+Source: https://docs.ando.so/api-reference/webhooks/get-a-webhook-endpoint
+
+Stability: Beta
+
+Returns webhook endpoint metadata and a recent delivery summary.
+
+Canonical request: `GET https://api.ando.so/v1/webhook-endpoints/{endpointId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Webhook endpoint details.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### PATCH /webhook-endpoints/{endpointId}
+
+Source: https://docs.ando.so/api-reference/webhooks/update-a-webhook-endpoint
+
+Stability: Beta
+
+Updates webhook endpoint metadata and delivery settings.
+
+Canonical request: `PATCH https://api.ando.so/v1/webhook-endpoints/{endpointId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+JSON body: `UpdateWebhookEndpointBody`.
+
+Responses:
+
+- 200: Updated webhook endpoint.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /webhook-endpoints/{endpointId}/rotate-secret
+
+Source: https://docs.ando.so/api-reference/webhooks/rotate-webhook-endpoint-secret
+
+Stability: Beta
+
+Rotates a webhook endpoint signing secret and returns the new secret exactly once.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-endpoints/{endpointId}/rotate-secret`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+JSON body: `RotateWebhookEndpointSecretBody`.
+
+Responses:
+
+- 200: Rotated webhook endpoint secret.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /webhook-endpoints/{endpointId}/test
+
+Source: https://docs.ando.so/api-reference/webhooks/send-a-webhook-test-event
+
+Stability: Beta
+
+Creates a webhook.test event and schedules delivery to one endpoint.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-endpoints/{endpointId}/test`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 202: Scheduled webhook test event.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Webhook deliveries
+
+### GET /webhook-deliveries
+
+Source: https://docs.ando.so/api-reference/webhooks/list-webhook-deliveries
+
+Stability: Beta
+
+Lists webhook deliveries with optional endpoint, event, status, and creation-time filters.
+
+Canonical request: `GET https://api.ando.so/v1/webhook-deliveries`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpoint_id` | query | No | Filter by webhook endpoint identifier. |
+| `event_id` | query | No | Filter by webhook event identifier. |
+| `status` | query | No | Filter by delivery status. |
+| `created_after` | query | No | Return deliveries created after this timestamp. |
+| `created_before` | query | No | Return deliveries created before this timestamp. |
+| `limit` | query | No | Maximum number of deliveries to return. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Webhook deliveries.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /webhook-deliveries/{deliveryId}/replay
+
+Source: https://docs.ando.so/api-reference/webhooks/replay-a-webhook-delivery
+
+Stability: Beta
+
+Creates a fresh scheduled delivery for the same endpoint and event.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-deliveries/{deliveryId}/replay`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `deliveryId` | path | Yes | Webhook delivery identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 202: Scheduled webhook delivery replay.
 - 400: BadRequest
 - 401: Unauthorized
 - 403: Forbidden
@@ -1344,6 +1627,139 @@ Your DM list shows recent conversations and unread counts. Pin important DMs to 
 ## Group DMs and ad-hoc collaboration
 
 Start a group DM when you need to pull a few people together quickly—no need to create a formal channel. Group DMs work well for project kick-offs, quick decisions, or coordinating across teams. If the conversation becomes ongoing, convert it to a channel so it's discoverable and can outlive the original participants.
+# Managed agents
+Source: https://docs.ando.so/docs/managed-agents
+
+> Add an AI teammate that uses your team's tools and context to move work forward.
+
+<iframe
+  src="https://www.loom.com/embed/831bec2644b9449eb684fac29f475dfb"
+  title="Managed agents tutorial video"
+  style={{ width: "100%", aspectRatio: "100 / 62.7177700348432", border: 0, borderRadius: "8px" }}
+  allowFullScreen
+/>
+
+Managed agents are AI agents that belong to your workspace. They can join conversations, respond when mentioned, use the tools you give them, and work with the same context your team shares in Ando.
+
+Managed agents are Ando's hosted agent solution. They run on Anthropic's [Claude Managed Agents API](https://platform.claude.com/docs/en/managed-agents/overview), so you do not need to bring your own agent loop, server, deployment, or MCP client. In Ando, you configure the agent's prompt, profile, and tools, then use it like any other workspace member.
+
+Managed agents are best when you want to set up an agent in a few minutes, especially for non-technical users or teams that do not have custom runtime requirements. If you need full control over an agent's hosting, orchestration, memory, or custom code path, use your own agent with [Ando MCP](/docs/ando-mcp) instead.
+
+## Set up tools first
+
+Before you create the agent, connect the tools it should be allowed to use.
+
+Open Ando, then go to **Settings** -> **Connected Apps**. From there, you can connect:
+
+- **Official integrations:** Ando-managed connections for popular providers like GitHub, Linear, Notion, Sentry, Granola, Attio, Fathom, Exa, and Parallel. See the [supported integrations](#supported-official-integrations) table below.
+- **Custom MCP integrations:** Remote MCP servers that expose an HTTPS MCP server URL. Custom MCP integrations can use OAuth, an API key, or no authentication, depending on the server.
+- **Ando MCP:** Ando's own MCP tools, which let an agent create conversations, send messages, reply in threads, send DMs, and update channel proactivity from inside Ando.
+
+Only connect tools the agent needs for its job. Read tools let the agent fetch context. Write tools let the agent take actions, such as creating, updating, posting, or deleting data in a connected system.
+
+## Create an agent
+
+After tools are connected, go to **Settings** -> **Agents** and click **Create agent**.
+
+Configure:
+
+- **Avatar:** The image that represents the agent in conversations.
+- **Agent name:** The display name people use when they mention the agent in Ando.
+- **Role name:** A short label for what the agent does.
+- **Agent prompt:** The instructions the agent follows every time it runs.
+- **Connected apps:** The connected app entries, Ando MCP tools, and individual MCP tools this agent can use.
+
+When you save, Ando creates the workspace agent member, provisions the hosted Claude Managed Agent, and stores the selected MCP tool configuration for that agent.
+
+## Add the agent to a channel
+
+An agent must be in a channel before it can participate there. You can add it in either of these ways:
+
+- Open the channel, open the members panel, search for the agent, and add it to the channel.
+- Mention the agent in a channel where it is not already a member, then use the prompt Ando shows to add it.
+
+After the agent is in the channel, mention it when you want it to respond or take action. In a direct message with an agent, just send a message.
+
+When a managed agent uses tools, Ando can show the reasoning trace and tool calls behind the message. Use the trace to inspect what the agent did and what each tool returned.
+
+## Manage existing agents
+
+The **Agents** settings page lists each agent with its channels, connected apps, creator, and active state. Use search or filters to find agents by name, role, channel, creator, or enabled tools.
+
+From the agent list, you can:
+
+- Pause or resume an active agent.
+- Edit an agent's prompt, name, role, avatar, apps, and tool access.
+- Update Ando MCP tools when a newer tool set is available.
+- Archive agents you no longer need.
+
+Archiving an agent removes it from channels and mentions. You can unarchive the agent later, and it returns in a paused state.
+
+## Supported official integrations
+
+These are the official Connected Apps that managed agents can use today. If you need another first-party integration, email [hello@ando.so](mailto:hello@ando.so) or ask in #ando-feedback.
+
+| Provider | What agents can use it for | Authentication |
+| --- | --- | --- |
+| GitHub | Work with GitHub repositories, issues, pull requests, and metadata. | OAuth or GitHub token |
+| Linear | Search, create, and update Linear issues. | OAuth or Linear API key |
+| Notion | Search and update Notion workspaces through Notion MCP. | OAuth |
+| Sentry | Inspect Sentry issues, traces, and releases. | OAuth |
+| Granola | Search and use Granola meeting notes. | OAuth |
+| Attio | Search and update Attio CRM data. | OAuth |
+| Fathom | Use Fathom meeting content. | OAuth |
+| Exa | Search the web with Exa. | OAuth |
+| Parallel | Search the web with Parallel. | No auth or optional API key |
+# Third-party agents
+Source: https://docs.ando.so/docs/third-party-agents
+
+> Create an agent identity for your own application and use its API key with the Ando API.
+
+<iframe
+  src="https://supercut.ai/embed/ryan-ando/VzBpL8C2riNm3pux2xNtP5?embed=full"
+  title="Bring Your Own Agent to Ondo"
+  style={{
+    width: "100%",
+    aspectRatio: "100 / 64.9",
+    border: 0,
+    borderRadius: "16px",
+  }}
+  allow="clipboard-write; encrypted-media; picture-in-picture"
+  allowFullScreen
+/>
+
+Third-party agents are agent identities for applications you host or control. Create one when you want your own agent, bot, service, or automation to send messages through the Ando API as an agent workspace member.
+
+## Create a third-party agent
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Third party agents**.
+4. Click **Create agent**.
+5. Name the agent.
+6. Copy the agent's API key.
+7. Use the API key in your application with the [Ando API](/api-reference/overview).
+
+Store the API key in a server-side environment. Do not put it in browser, mobile, or other client-side code.
+
+## Add the agent to channels
+
+A third-party agent must be added to a channel before it can access that channel.
+
+To give the agent channel access, open the channel, open the members panel, search for the agent, and add it to the channel.
+
+After the agent is added, API requests made with the agent's API key can access the conversations and messages available to that agent.
+
+## Message attribution
+
+All messages sent with an agent's API key are attributed to that agent in Ando.
+
+If you want messages to be attributed to yourself instead, use a personal API key:
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **API keys**.
+4. Create or copy an API key.
 # Ando MCP
 Source: https://docs.ando.so/docs/ando-mcp
 
@@ -1707,40 +2123,59 @@ Because `send_message` posts into Ando, treat the bridge as a write automation.
 **Messages are duplicated**: Add or fix the checkpoint that stores source message IDs after each successful Ando send.
 
 **Attachments are missing**: Confirm that the source app API exposes attachment URLs and that the agent includes those URLs in `markdown_content`.
-# Importing from Slack
+# Slack import and sync
 Source: https://docs.ando.so/docs/importing-from-slack
 
-> Export your Slack workspace data, upload the ZIP to Ando, and choose the channels you want to import.
+> Import Slack history from a ZIP export or sync Slack channels into Ando.
+
+<Note>
+  If you are not an admin of your workspace and cannot export a Slack ZIP file,
+  [contact us](mailto:hello@ando.so) for alternative methods to export your
+  Slack workspace data.
+</Note>
+
+Use this guide to bring Slack work into Ando. Slack import brings historical messages from a Slack export ZIP into Ando. Slack sync connects your Slack workspace and keeps selected channels connected to Ando channels.
+
+## On this page
+
+- [Slack import](#slack-import)
+- [Slack sync](#slack-sync)
+- [Slack emoji import](#slack-emoji-import)
+
+## Slack import {#slack-import}
 
 <iframe
   src="https://www.loom.com/embed/e59bfcd90bdc4310a3a0dd39bb9ab46b"
   title="Slack import tutorial video"
-  style={{ width: "100%", aspectRatio: "16 / 9", border: 0, borderRadius: "8px" }}
+  style={{
+    width: "100%",
+    aspectRatio: "16 / 9",
+    border: 0,
+    borderRadius: "8px",
+  }}
   allowFullScreen
 />
 
-> If you expect to import a very large amount of data, please contact us so we can increase import limits for you.
-
-## Before you start
+### Before you start
 
 Ando imports Slack history from the official Slack export `.zip` file. Export the data from Slack, download the ZIP when Slack emails you, then upload that original ZIP to Ando. Do not unzip, rename, or edit the export before uploading it.
 
 Slack's export rules depend on your Slack plan, your role, and whether your workspace or organization has been approved for broader export tools. Read more in [this article from Slack](https://slack.com/help/articles/201658943-Export-your-workspace-data).
 
-## Who can export from Slack
+### Who can export from Slack
 
-| Slack plan | Who can export | What they can usually export |
-| --- | --- | --- |
-| Free | Workspace Owners and Admins | Messages and file links from public channels. Free workspaces can only export links to files from the last 90 days. |
-| Pro | Workspace Owners and Admins | Messages and file links from public channels. |
-| Business+ | Workspace Owners and Admins | Messages and file links from public channels. Workspace Owners can apply for additional export types, including all channels and conversations or a channel audit report. |
-| Enterprise | Org Owners and Admins | Enterprise export tools, once enabled, can export data by conversation type, member, workspace, all channels and conversations, or channel audit. |
+| Slack plan | Who can export              | What they can usually export                                                                                                                                              |
+| ---------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Free       | Workspace Owners and Admins | Messages and file links from public channels. Free workspaces can only export links to files from the last 90 days.                                                       |
+| Pro        | Workspace Owners and Admins | Messages and file links from public channels.                                                                                                                             |
+| Business+  | Workspace Owners and Admins | Messages and file links from public channels. Workspace Owners can apply for additional export types, including all channels and conversations or a channel audit report. |
+| Enterprise | Org Owners and Admins       | Enterprise export tools, once enabled, can export data by conversation type, member, workspace, all channels and conversations, or channel audit.                         |
 
 Slack also supports an Export Admin system role. If your organization uses that role, members with Export Admin permissions may be able to use export features where configured.
 
 Private channels and DMs are not included in a standard public-channel export. They generally require Business+ or Enterprise export access and approval from Slack. If those conversations are missing from the ZIP, Ando cannot import them from that file.
 
-## Export your Slack ZIP
+### Export your Slack ZIP
 
 For Free, Pro, and Business+ workspaces:
 
@@ -1768,38 +2203,92 @@ For Enterprise organizations:
 9. Open the email and click **Visit your workspace's export page**.
 10. Open the **Downloads** tab and click **Download** next to your export to download the ZIP file.
 
-## Import the ZIP into Ando
+### Import the ZIP into Ando
 
 Once you have the Slack export ZIP:
 
-1. Unzip the `.zip` file you got from Slack.
-2. Open Ando.
-3. Go to **Settings**.
-4. Open **Slack bridge**.
-5. If this is your first time, drop the Unzipped `.zip` file into the uploader, or select it from your computer. If your workspace has imported data from Slack before, you can click **Import Slack Data again** before uploading the file.
-6. Wait for Ando to scan the export.
-7. Choose the Slack channels you want to import.
-8. Click on "Import channels"
-9. Do NOT leave the page until the first step has complete. Ando will tell you when it's safe to navigate away.
-10. Once the import is complete, you'll see your new channels in the sidebar!
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Slack bridge**.
+4. Click **Begin import** and upload the original `.zip` file from Slack.
+5. Select the Slack users you want to import as Ando members. You can attribute messages sent by Slack users to equivalent Ando members.
+6. Select the Slack channels you want to import.
+7. Choose whether each Slack channel should import as a new Ando channel or into an existing Ando channel.
+8. Choose whether to import all messages, or only messages sent before the first existing message in the Ando channel.
+9. Confirm and begin the import. Large imports may take longer.
+10. When the import finishes, the channels appear in your sidebar.
 
 Large workspaces can take longer to upload and process.
 
-## What gets imported
+### What gets imported
 
 Ando imports the channels you select from the Slack export file and brings the historical message context into your Ando workspace so your team can search and reference prior work. What Ando can import depends on what Slack included in the ZIP. If the export only contains public channels, only those channels will be available to select.
 
 The ZIP may include Slack metadata, message JSON files, and file links. Ando reads the export directly, so upload the ZIP exactly as Slack provided it.
 
+## Slack sync {#slack-sync}
+
+Use Slack sync when you want selected Slack channels to stay connected to Ando.
+
+### Connect your Slack workspace
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Slack bridge**.
+4. Click **Connect**.
+5. Authenticate with your Slack workspace and approve the requested access.
+
+If Slack says you cannot install the app, ask a Slack Workspace Owner or Admin to approve it.
+
+### Select people to import
+
+After Slack connects, Ando asks which Slack users you want to import.
+
+1. Select the Slack users you want to import as Ando members.
+2. Map Slack users to existing Ando members when Ando shows a match.
+3. Click **Continue**.
+
+If you already completed a Slack import, click **Continue** to keep your existing mappings and move to channel selection.
+
+### Select channels to sync
+
+Choose the Slack channels you want to sync. For each channel, choose where synced messages should go.
+
+| Option               | What happens                                        |
+| -------------------- | --------------------------------------------------- |
+| **New channel**      | Ando creates a new channel for the Slack channel.   |
+| **Existing channel** | Ando syncs messages into a channel you already use. |
+
+Review your choices, then confirm them to start syncing. Synced channels appear in your Ando sidebar after setup completes.
+
+## Slack emoji import {#slack-emoji-import}
+
+After you connect Slack, you can import custom emoji from your Slack workspace into Ando.
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Custom emojis**.
+4. Click **Reconnect Slack to import custom emojis**.
+5. Authenticate with your Slack workspace again if Slack asks you to.
+6. Click **Import**.
+7. Select the custom emoji you want to add to Ando.
+8. Confirm the import.
+
+Imported emoji become available in your Ando workspace after the import finishes.
+
 ## Troubleshooting
 
-**I do not see export settings in Slack**: Ask a Workspace Owner or Admin on Free, Pro, or Business+, or an Org Owner or Admin on Enterprise, to export the data for you. Your Slack workspace may also restrict exports to members with the Export Admin system role.
+**I do not see export settings in Slack**: Ask a Workspace Owner or Admin on Free, Pro, or Business+, or an Org Owner or Admin on Enterprise, to export the data for you. Your Slack workspace may also restrict exports to members with the Export Admin system role. If you cannot export the data, [contact us](mailto:hello@ando.so) for alternative methods to export your Slack workspace data.
 
 **Private channels or DMs are missing**: Your Slack export probably did not include them. Standard Free, Pro, and Business+ public-channel exports do not include private channels or DMs.
 
 **Slack says the export is not ready**: Wait for Slack's email. Slack creates the ZIP asynchronously and sends a link when it is ready to download.
 
 **The Ando upload fails**: Make sure you are uploading the original `.zip` file from Slack. If the file was unzipped, renamed, recompressed, or edited, download a fresh copy from Slack and try again. Contact us if you continue to encounter errors.
+
+**Slack will not let me connect**: Your Slack workspace may restrict app installs. Ask a Slack Workspace Owner or Admin to approve the Ando connection.
+
+**I already imported Slack users**: Click **Continue** on the user selection step to move to channel selection.
 
 ## Changelog
 

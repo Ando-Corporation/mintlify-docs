@@ -27,6 +27,24 @@
 - [Get a message](https://docs.ando.so/api-reference/messages/get-a-message.md): Returns a single conversation message by identifier.
 - [List thread replies](https://docs.ando.so/api-reference/messages/list-thread-replies.md): Returns replies for a thread root message.
 
+### Realtime
+
+- [Open a realtime connection](https://docs.ando.so/api-reference/realtime/open-a-realtime-connection.md): Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.
+
+### Webhook endpoints
+
+- [Create a webhook endpoint](https://docs.ando.so/api-reference/webhooks/create-a-webhook-endpoint.md): Creates a workspace webhook endpoint and returns its signing secret exactly once.
+- [List webhook endpoints](https://docs.ando.so/api-reference/webhooks/list-webhook-endpoints.md): Lists workspace webhook endpoint metadata.
+- [Get a webhook endpoint](https://docs.ando.so/api-reference/webhooks/get-a-webhook-endpoint.md): Returns webhook endpoint metadata and a recent delivery summary.
+- [Update a webhook endpoint](https://docs.ando.so/api-reference/webhooks/update-a-webhook-endpoint.md): Updates webhook endpoint metadata and delivery settings.
+- [Rotate webhook endpoint secret](https://docs.ando.so/api-reference/webhooks/rotate-webhook-endpoint-secret.md): Rotates a webhook endpoint signing secret and returns the new secret exactly once.
+- [Send a webhook test event](https://docs.ando.so/api-reference/webhooks/send-a-webhook-test-event.md): Creates a webhook.test event and schedules delivery to one endpoint.
+
+### Webhook deliveries
+
+- [List webhook deliveries](https://docs.ando.so/api-reference/webhooks/list-webhook-deliveries.md): Lists webhook deliveries with optional endpoint, event, status, and creation-time filters.
+- [Replay a webhook delivery](https://docs.ando.so/api-reference/webhooks/replay-a-webhook-delivery.md): Creates a fresh scheduled delivery for the same endpoint and event.
+
 ### Nearly stable
 
 - [Search tasks](https://docs.ando.so/api-reference/tasks/search-tasks.md): Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.
@@ -53,9 +71,11 @@
 - [Inbox](https://docs.ando.so/docs/inbox.md): Your personalized view of what needs attention—mentions, replies, and updates from conversations you follow.
 - [Search](https://docs.ando.so/docs/search.md): Find anything that's been shared or discussed in your workspace—messages, files, people, and transcripts.
 - [Messages](https://docs.ando.so/docs/messages.md): Your direct messages and private conversations with people and AI agents in your workspace.
+- [Managed agents](https://docs.ando.so/docs/managed-agents.md): Add an AI teammate that uses your team's tools and context to move work forward.
+- [Third-party agents](https://docs.ando.so/docs/third-party-agents.md): Create an agent identity for your own application and use its API key with the Ando API.
 - [Ando MCP](https://docs.ando.so/docs/ando-mcp.md): Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
 - [Import data from other apps](https://docs.ando.so/docs/import-data-from-other-apps.md): Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
-- [Importing from Slack](https://docs.ando.so/docs/importing-from-slack.md): Export your Slack workspace data, upload the ZIP to Ando, and choose the channels you want to import.
+- [Slack import and sync](https://docs.ando.so/docs/importing-from-slack.md): Import Slack history from a ZIP export or sync Slack channels into Ando.
 
 ## Changelog
 
@@ -65,4 +85,4 @@
 ## OpenAPI Specs
 
 - [openapi-public-api-v1-latest](https://docs.ando.so/openapi-public-api-v1-latest.json)
-- [openapi-public-api-v1-2026-05-17](https://docs.ando.so/openapi-public-api-v1-2026-05-17.json)
+- [openapi-public-api-v1-2026-06-03](https://docs.ando.so/openapi-public-api-v1-2026-06-03.json)
