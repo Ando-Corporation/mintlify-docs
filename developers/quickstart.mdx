@@ -1,0 +1,37 @@
+---
+title: "Developer quickstart"
+description: "Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path."
+icon: "rocket"
+---
+
+This quickstart gets the shared credentials in place, then points you to the
+right workflow guide.
+
+## 1. Create an API key
+
+1. Open Ando.
+2. Go to **Settings** -> **API keys**.
+3. Create or copy an API key.
+4. Store it as a server-side secret.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+## 2. Pick a workflow
+
+| Goal | Start here |
+| --- | --- |
+| Search and create messages over REST | [Messaging quickstart](/api-reference/messaging-quickstart) |
+| Use typed TypeScript helpers | [SDK guide](/developers/sdk) |
+| Use terminal commands or scripts | [CLI guide](/developers/cli) |
+| Connect a coding agent through MCP | [Ando MCP](/docs/ando-mcp) |
+| Subscribe to live ProductEvents | [Realtime guide](/developers/realtime) |
+| Receive durable signed events | [Webhook guide](/developers/webhooks) |
+
+## 3. Keep generated contracts close
+
+Do not copy endpoint parameter or response tables into your integration docs.
+Link the generated endpoint reference and regenerate `llms.txt` after docs
+changes so agents and search tools read the same contract as Mintlify.

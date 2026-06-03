@@ -1,0 +1,95 @@
+---
+title: "Reusable API snippets"
+description: "Copy small public API v1 snippets into server-side integrations."
+icon: "copy"
+---
+
+Use these snippets as building blocks for public API v1 clients. They keep the
+base URL, authentication header, idempotency behavior, and response envelope
+consistent across guides.
+
+## Environment
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Send API keys from a server-side environment. Use `x-api-key` as the canonical
+auth header:
+
+```bash
+curl -sS "$ANDO_API_BASE/search/messages?q=release" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Bearer transport is accepted for compatibility with older clients:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+## JSON request body
+
+```bash
+jq -n \
+  --arg markdown_content "Hello from the public API." \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-message.json
+```
+
+## Idempotent write
+
+Some write endpoints require `Idempotency-Key`; check the endpoint reference
+before sending a write request. Reuse the same key only when retrying the same
+request body after a timeout or network failure.
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @/tmp/ando-message.json
+```
+
+## Read an object response
+
+Object responses return the resource under `data`:
+
+```bash
+jq -r '.data.id' /tmp/ando-created-message.json
+```
+
+## Read a list response
+
+Search and list responses return items under `data.items`. List endpoints that
+support cursor pagination also return `data.page_info`; check the endpoint
+reference before reading cursor fields.
+
+```bash
+jq -r '.data.items[]?.id' /tmp/ando-search.json
+jq -r '.data.page_info.next_cursor // empty' /tmp/ando-list.json
+```
+
+## Error envelope
+
+Most public v1 errors use a structured `error` object:
+
+```bash
+jq -r '.error.code, .error.message' /tmp/ando-error.json
+```
+
+Compatibility endpoints can still return older error shapes. Check the endpoint
+reference when you handle errors for a specific route.
+
+## Beta endpoints
+
+Beta endpoint shapes are generated from the same OpenAPI source as stable
+routes, but they are not yet part of the stable public API v1 surface. Keep
+beta integrations behind a narrow rollout and read each endpoint's response
+schemas from the generated reference.

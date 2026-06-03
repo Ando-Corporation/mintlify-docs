@@ -202,7 +202,7 @@ const groupBy = (entries, key) => {
 };
 
 const authoredApiPages = authoredPages.filter(({ page }) =>
-  page.startsWith("api-reference/")
+  page.startsWith("api-reference/") || page.startsWith("developers/")
 );
 const productPages = authoredPages.filter(
   ({ page }) => page.startsWith("docs/") || page === "index"

@@ -6,6 +6,307 @@ Public API v1 uses `https://api.ando.so/v1` as the base URL. New integrations sh
 
 ## Public API pages
 
+# Developer overview
+Source: https://docs.ando.so/developers/overview
+
+> Choose the right Ando developer surface for your integration.
+
+Ando developer surfaces share the same workspace API-key model, but they solve
+different jobs. Start with the surface that matches the integration you are
+building, then use the generated references for exact request and response
+schemas.
+
+| Surface | Use it when |
+| --- | --- |
+| REST API | You need direct server-side access to search, messaging, realtime tickets, webhook endpoint management, or delivery logs. |
+| TypeScript SDK | You want typed helpers for REST, realtime subscriptions, webhook endpoint management, and webhook signature verification. |
+| CLI | You want agent-friendly terminal workflows, auth setup, raw public API calls, or webhook endpoint/delivery commands. |
+| MCP | You want an MCP-capable coding agent to search and fetch Ando workspace context. |
+| Realtime | Your integration is online and needs live ProductEvent delivery over websocket. |
+| Webhooks | Your integration needs durable signed HTTP delivery, delivery logs, and replay. |
+
+## Shared setup
+
+Use Ando API keys from a server-side environment:
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Create API keys in Ando from **Settings** -> **API keys**. Send API keys with
+`x-api-key` for REST requests. The SDK and CLI can also read `ANDO_API_KEY`.
+
+## Stability
+
+Stable public API routes are ready for production integrations. Beta routes,
+including realtime and webhook endpoint management, should stay behind a narrow
+rollout until they are promoted. The generated endpoint reference carries the
+current status for each operation.
+
+## Generated references
+
+Use generated references for the exact contract:
+
+- [Endpoint reference](/api-reference/endpoint-reference)
+
+For help, contact [hello@ando.so](mailto:hello@ando.so).
+# Developer quickstart
+Source: https://docs.ando.so/developers/quickstart
+
+> Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path.
+
+This quickstart gets the shared credentials in place, then points you to the
+right workflow guide.
+
+## 1. Create an API key
+
+1. Open Ando.
+2. Go to **Settings** -> **API keys**.
+3. Create or copy an API key.
+4. Store it as a server-side secret.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+## 2. Pick a workflow
+
+| Goal | Start here |
+| --- | --- |
+| Search and create messages over REST | [Messaging quickstart](/api-reference/messaging-quickstart) |
+| Use typed TypeScript helpers | [SDK guide](/developers/sdk) |
+| Use terminal commands or scripts | [CLI guide](/developers/cli) |
+| Connect a coding agent through MCP | [Ando MCP](/docs/ando-mcp) |
+| Subscribe to live ProductEvents | [Realtime guide](/developers/realtime) |
+| Receive durable signed events | [Webhook guide](/developers/webhooks) |
+
+## 3. Keep generated contracts close
+
+Do not copy endpoint parameter or response tables into your integration docs.
+Link the generated endpoint reference and regenerate `llms.txt` after docs
+changes so agents and search tools read the same contract as Mintlify.
+# SDK guide
+Source: https://docs.ando.so/developers/sdk
+
+> Use @andocorp/sdk for typed REST, realtime, and webhook helpers.
+
+Use the TypeScript SDK when you want typed helpers around Ando's public REST
+API, realtime subscriptions, webhook endpoint management, and webhook signature
+verification.
+
+## Install
+
+```bash
+pnpm add @andocorp/sdk
+```
+
+## Configure a client
+
+```ts
+import { AndoClient } from "@andocorp/sdk";
+
+const client = new AndoClient({
+  auth: {
+    apiKey: process.env.ANDO_API_KEY ?? "",
+  },
+});
+```
+
+REST requests use `https://api.ando.so` by default. Public API helpers target
+the `/v1` routes under that host.
+
+## REST helpers
+
+Public API helpers follow the generated operation surface:
+
+```ts
+await client.searchMessages({ q: "incident", mode: "semantic" });
+await client.listConversationMessages({ conversationId: "conv_123", limit: 20 });
+await client.createConversationMessage({
+  conversationId: "conv_123",
+  markdownContent: "hello",
+});
+```
+
+Use the [endpoint reference](/api-reference/endpoint-reference) for exact
+schemas and route status.
+
+## Realtime
+
+The SDK can open a public realtime subscription and connect to the returned
+`realtime.ando.so` websocket URL with the `ando.realtime.v1` protocol:
+
+```ts
+const subscription = await client.realtime.on("message.created", {
+  onEvent(event) {
+    console.log(event.message.id, event.message.content);
+  },
+});
+```
+
+Read [Realtime guide](/developers/realtime) before rolling out beta realtime
+integrations.
+
+## Webhook endpoint management
+
+Webhook endpoint and delivery helpers follow the public API surface:
+
+```ts
+const endpoint = await client.webhooks.createEndpoint({
+  name: "Production receiver",
+  url: "https://example.com/ando/webhooks",
+  enabledEvents: ["webhook.test", "message.created"],
+  deliveryScope: {
+    type: "workspace_member",
+    directMessageDeliveryEnabled: false,
+  },
+});
+
+await secrets.write("ando/webhook-signing-secret", endpoint.data.signing_secret);
+
+await client.webhooks.sendTestEvent(endpoint.data.id);
+await client.webhooks.listDeliveries({ endpointId: endpoint.data.id, limit: 20 });
+```
+
+Endpoint creation and secret rotation return one-time signing secrets. Store
+them in a secret manager before discarding the response, and avoid writing them
+to application logs.
+
+## Webhook receivers
+
+Use `@andocorp/sdk/webhooks` to verify raw webhook payloads:
+
+```ts
+import {
+  type AndoWebhookEvent,
+  verifyAndoWebhookSignature,
+} from "@andocorp/sdk/webhooks";
+```
+
+Read [Webhook guide](/developers/webhooks) for receiver behavior and signature
+verification requirements.
+# CLI guide
+Source: https://docs.ando.so/developers/cli
+
+> Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
+
+Use the Ando CLI when you want agent-friendly terminal commands, a raw public
+API escape hatch, or webhook endpoint and delivery management from scripts.
+
+## Install
+
+```bash
+npm install -g @andocorp/cli
+```
+
+Or run without installing:
+
+```bash
+npx @andocorp/cli
+```
+
+## Authenticate
+
+Log in once:
+
+```bash
+ando login
+```
+
+For headless scripts and CI, inject an API key from your secret store through
+the environment:
+
+```bash
+export ANDO_API_KEY="$ANDO_API_KEY_FROM_SECRET_STORE"
+ando api searchMessages q==incident mode==semantic
+```
+
+Avoid passing long-lived API keys as command-line arguments in shared shells,
+CI jobs, or process-managed environments.
+
+## Raw public API
+
+The `ando api` command mirrors the generated public API operation surface:
+
+```bash
+ando api ls
+ando api ls --json
+ando api searchMessages q==incident mode==semantic
+ando api /v1/search/messages q==incident mode==semantic
+ando api /v1/search/messages --spec
+```
+
+`ando api` accepts `name==value` query parameters, `Header:Value` request
+headers, `field=value` JSON string body fields, `field:=json` typed JSON body
+fields, and `--data <json|->` for complete request bodies.
+
+## Webhooks
+
+Webhook endpoint and delivery commands cover the SDK webhook management surface:
+
+```bash
+ando webhooks endpoints list
+ando webhooks endpoints create \
+  --url https://example.com/ando/webhooks \
+  --events webhook.test,message.created \
+  --name "Development receiver"
+ando webhooks endpoints test <endpoint-id> --watch-delivery
+ando webhooks deliveries list --endpoint <endpoint-id> --status failed
+ando webhooks deliveries replay <delivery-id>
+```
+
+Endpoint creation and secret rotation print one-time signing secrets in plain
+output. Store the secret before clearing the terminal.
+
+## Agent-first context commands
+
+The CLI also includes browse and search commands for common agent workflows:
+
+```bash
+ando messages --channel engineering --limit 10
+ando search "incident"
+ando get message <message-id>
+ando thread <thread-root-message-id>
+```
+
+Every agent-first command supports `--json` for machine-readable output.
+# Realtime guide
+Source: https://docs.ando.so/developers/realtime
+
+> Use beta realtime when an online integration needs live ProductEvent delivery.
+
+Use realtime when your integration is online and needs live ProductEvent
+delivery over websocket. Use webhooks instead when you need durable HTTP
+delivery, delivery logs, retries, and replay.
+
+Realtime is beta. Keep integrations behind a narrow rollout and read the
+generated endpoint reference for the current request and response schema.
+
+Start with the [Realtime quickstart](/api-reference/realtime-quickstart), then
+use the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
+for exact fields.
+
+SDK users can also subscribe through `client.realtime.on` from
+`@andocorp/sdk`.
+# Webhooks guide
+Source: https://docs.ando.so/developers/webhooks
+
+> Use beta webhooks when an integration needs durable signed ProductEvent delivery.
+
+Use webhooks when an integration needs durable signed HTTP delivery, delivery
+logs, and replay. Use realtime instead when an online client needs live
+websocket ProductEvent delivery.
+
+Webhook endpoint management is beta. Keep integrations behind a narrow rollout
+and use generated references for exact schemas:
+
+- [Endpoint reference](/api-reference/endpoint-reference)
+
+Webhook receivers must verify the raw request body with `Ando-Signature`,
+persist or enqueue the event quickly, return a 2xx response, and deduplicate
+business side effects by `Ando-Event-Id`.
 # API overview
 Source: https://docs.ando.so/api-reference/overview
 
@@ -290,6 +591,100 @@ clients should not send `author_id` when creating messages.
 
 Treat generated keys as secrets. Do not commit them, paste them into support
 tickets, add them to screenshots, or include them in validation logs.
+# Reusable API snippets
+Source: https://docs.ando.so/api-reference/snippets
+
+> Copy small public API v1 snippets into server-side integrations.
+
+Use these snippets as building blocks for public API v1 clients. They keep the
+base URL, authentication header, idempotency behavior, and response envelope
+consistent across guides.
+
+## Environment
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Send API keys from a server-side environment. Use `x-api-key` as the canonical
+auth header:
+
+```bash
+curl -sS "$ANDO_API_BASE/search/messages?q=release" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Bearer transport is accepted for compatibility with older clients:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+## JSON request body
+
+```bash
+jq -n \
+  --arg markdown_content "Hello from the public API." \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-message.json
+```
+
+## Idempotent write
+
+Some write endpoints require `Idempotency-Key`; check the endpoint reference
+before sending a write request. Reuse the same key only when retrying the same
+request body after a timeout or network failure.
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @/tmp/ando-message.json
+```
+
+## Read an object response
+
+Object responses return the resource under `data`:
+
+```bash
+jq -r '.data.id' /tmp/ando-created-message.json
+```
+
+## Read a list response
+
+Search and list responses return items under `data.items`. List endpoints that
+support cursor pagination also return `data.page_info`; check the endpoint
+reference before reading cursor fields.
+
+```bash
+jq -r '.data.items[]?.id' /tmp/ando-search.json
+jq -r '.data.page_info.next_cursor // empty' /tmp/ando-list.json
+```
+
+## Error envelope
+
+Most public v1 errors use a structured `error` object:
+
+```bash
+jq -r '.error.code, .error.message' /tmp/ando-error.json
+```
+
+Compatibility endpoints can still return older error shapes. Check the endpoint
+reference when you handle errors for a specific route.
+
+## Beta endpoints
+
+Beta endpoint shapes are generated from the same OpenAPI source as stable
+routes, but they are not yet part of the stable public API v1 surface. Keep
+beta integrations behind a narrow rollout and read each endpoint's response
+schemas from the generated reference.
 # Messaging quickstart
 Source: https://docs.ando.so/api-reference/messaging-quickstart
 
@@ -674,6 +1069,94 @@ associate a reply list with a thread.
 | `409` | The request conflicts with an existing idempotency key or resource state. |
 | `429` | The API key hit a public API rate limit. |
 | `5xx` | Server-side failure. Retry writes with the same idempotency key. |
+# Realtime quickstart
+Source: https://docs.ando.so/api-reference/realtime-quickstart
+
+> Open a beta realtime connection ticket from public API v1.
+
+The beta realtime route opens a temporary, pre-authorized websocket connection
+URL for ProductEvent delivery. API keys are validated on the HTTP request. The
+websocket connection uses the returned ticket URL and the `ando.realtime.v1`
+subprotocol.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export ANDO_REALTIME_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ando-realtime-quickstart.XXXXXX")"
+
+chmod 700 "$ANDO_REALTIME_DIR"
+```
+
+## 1. Create a subscription request
+
+This example subscribes to messages that mention the authenticated principal.
+
+```bash
+jq -n '{
+  subscriptions: [
+    {
+      target: "self",
+      delivery: "mentions",
+      events: ["message.created"]
+    }
+  ]
+}' > "$ANDO_REALTIME_DIR/open-connection.json"
+```
+
+## 2. Open a connection ticket
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/realtime/connections" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  --data @"$ANDO_REALTIME_DIR/open-connection.json" \
+  -o "$ANDO_REALTIME_DIR/connection.json"
+```
+
+The response returns `url`, `expires_at`, `expires_in_seconds`,
+`connection_id`, `protocol`, `heartbeat_interval_seconds`,
+`approximate_connection_time_seconds`, `resume_supported`, and the accepted
+`subscriptions`.
+
+```bash
+export ANDO_REALTIME_URL="$(
+  jq -r '.url // empty' "$ANDO_REALTIME_DIR/connection.json"
+)"
+export ANDO_REALTIME_PROTOCOL="$(
+  jq -r '.protocol // "ando.realtime.v1"' "$ANDO_REALTIME_DIR/connection.json"
+)"
+```
+
+## 3. Connect with the returned URL
+
+Use the returned websocket URL before `expires_at`. The URL already contains the
+temporary ticket; do not add the API key to the websocket request or write the
+ticket URL to shared logs.
+
+```bash
+test -n "$ANDO_REALTIME_URL" || {
+  echo "Realtime connection did not return url."
+  exit 1
+}
+
+echo "Realtime ticket loaded; connect before it expires with subprotocol $ANDO_REALTIME_PROTOCOL"
+```
+
+## Expected errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request shape failed validation. |
+| `401` | The API key is missing or invalid. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | A requested subscription target was not found or is not visible to the key. |
+| `409` | The request conflicts with existing connection state. |
+| `429` | The key hit a public API rate limit. |
+| `500` | Server-side failure. |
+| `503` | Realtime connection opening is not available in this deployment. |
+
+Read the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
+for the full request and response schemas.
 # Endpoint reference map
 Source: https://docs.ando.so/api-reference/endpoint-reference
 

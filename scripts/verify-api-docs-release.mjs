@@ -178,6 +178,7 @@ const publicApiIdentityTerms = [
 
 const checkLocalArtifacts = () => {
   checkDocsConfigOpenApiSource();
+  run("node", ["scripts/check-llms-freshness.mjs"]);
   const beforeIndex = fileText("llms.txt");
   const openApiFile = findDatedOpenApiFile("llms.txt", beforeIndex);
   const before = {
@@ -225,7 +226,10 @@ const checkLocalArtifacts = () => {
   }
 
   assertIncludes("llms.txt", after.index, [
+    "Developer overview",
     "## Public API v1",
+    "SDK guide",
+    "CLI guide",
     "Search quickstart",
     latestOpenApiFile,
     openApiFile,

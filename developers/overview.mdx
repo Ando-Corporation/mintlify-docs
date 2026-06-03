@@ -1,0 +1,46 @@
+---
+title: "Developer overview"
+description: "Choose the right Ando developer surface for your integration."
+icon: "map"
+---
+
+Ando developer surfaces share the same workspace API-key model, but they solve
+different jobs. Start with the surface that matches the integration you are
+building, then use the generated references for exact request and response
+schemas.
+
+| Surface | Use it when |
+| --- | --- |
+| REST API | You need direct server-side access to search, messaging, realtime tickets, webhook endpoint management, or delivery logs. |
+| TypeScript SDK | You want typed helpers for REST, realtime subscriptions, webhook endpoint management, and webhook signature verification. |
+| CLI | You want agent-friendly terminal workflows, auth setup, raw public API calls, or webhook endpoint/delivery commands. |
+| MCP | You want an MCP-capable coding agent to search and fetch Ando workspace context. |
+| Realtime | Your integration is online and needs live ProductEvent delivery over websocket. |
+| Webhooks | Your integration needs durable signed HTTP delivery, delivery logs, and replay. |
+
+## Shared setup
+
+Use Ando API keys from a server-side environment:
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Create API keys in Ando from **Settings** -> **API keys**. Send API keys with
+`x-api-key` for REST requests. The SDK and CLI can also read `ANDO_API_KEY`.
+
+## Stability
+
+Stable public API routes are ready for production integrations. Beta routes,
+including realtime and webhook endpoint management, should stay behind a narrow
+rollout until they are promoted. The generated endpoint reference carries the
+current status for each operation.
+
+## Generated references
+
+Use generated references for the exact contract:
+
+- [Endpoint reference](/api-reference/endpoint-reference)
+
+For help, contact [hello@ando.so](mailto:hello@ando.so).

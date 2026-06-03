@@ -1,0 +1,89 @@
+---
+title: "Realtime quickstart"
+description: "Open a beta realtime connection ticket from public API v1."
+icon: "radio"
+---
+
+The beta realtime route opens a temporary, pre-authorized websocket connection
+URL for ProductEvent delivery. API keys are validated on the HTTP request. The
+websocket connection uses the returned ticket URL and the `ando.realtime.v1`
+subprotocol.
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+export ANDO_REALTIME_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ando-realtime-quickstart.XXXXXX")"
+
+chmod 700 "$ANDO_REALTIME_DIR"
+```
+
+## 1. Create a subscription request
+
+This example subscribes to messages that mention the authenticated principal.
+
+```bash
+jq -n '{
+  subscriptions: [
+    {
+      target: "self",
+      delivery: "mentions",
+      events: ["message.created"]
+    }
+  ]
+}' > "$ANDO_REALTIME_DIR/open-connection.json"
+```
+
+## 2. Open a connection ticket
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/realtime/connections" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  --data @"$ANDO_REALTIME_DIR/open-connection.json" \
+  -o "$ANDO_REALTIME_DIR/connection.json"
+```
+
+The response returns `url`, `expires_at`, `expires_in_seconds`,
+`connection_id`, `protocol`, `heartbeat_interval_seconds`,
+`approximate_connection_time_seconds`, `resume_supported`, and the accepted
+`subscriptions`.
+
+```bash
+export ANDO_REALTIME_URL="$(
+  jq -r '.url // empty' "$ANDO_REALTIME_DIR/connection.json"
+)"
+export ANDO_REALTIME_PROTOCOL="$(
+  jq -r '.protocol // "ando.realtime.v1"' "$ANDO_REALTIME_DIR/connection.json"
+)"
+```
+
+## 3. Connect with the returned URL
+
+Use the returned websocket URL before `expires_at`. The URL already contains the
+temporary ticket; do not add the API key to the websocket request or write the
+ticket URL to shared logs.
+
+```bash
+test -n "$ANDO_REALTIME_URL" || {
+  echo "Realtime connection did not return url."
+  exit 1
+}
+
+echo "Realtime ticket loaded; connect before it expires with subprotocol $ANDO_REALTIME_PROTOCOL"
+```
+
+## Expected errors
+
+| Status | Meaning |
+| --- | --- |
+| `400` | Request shape failed validation. |
+| `401` | The API key is missing or invalid. |
+| `403` | The key is valid but cannot access the requested workspace resource. |
+| `404` | A requested subscription target was not found or is not visible to the key. |
+| `409` | The request conflicts with existing connection state. |
+| `429` | The key hit a public API rate limit. |
+| `500` | Server-side failure. |
+| `503` | Realtime connection opening is not available in this deployment. |
+
+Read the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
+for the full request and response schemas.

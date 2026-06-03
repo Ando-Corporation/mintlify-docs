@@ -87,10 +87,22 @@
         "icon": "braces",
         "groups": [
           {
+            "group": "Developer guides",
+            "pages": [
+              "developers/overview",
+              "developers/quickstart",
+              "developers/sdk",
+              "developers/cli",
+              "developers/realtime",
+              "developers/webhooks"
+            ]
+          },
+          {
             "group": "Start here",
             "pages": [
               "api-reference/overview",
-              "api-reference/authorization"
+              "api-reference/authorization",
+              "api-reference/snippets"
             ]
           },
           {
@@ -99,6 +111,12 @@
               "api-reference/messaging-quickstart",
               "api-reference/search-quickstart",
               "api-reference/http-api"
+            ]
+          },
+          {
+            "group": "Beta workflows",
+            "pages": [
+              "api-reference/realtime-quickstart"
             ]
           },
           {
