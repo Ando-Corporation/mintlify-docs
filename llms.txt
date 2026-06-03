@@ -6,7 +6,7 @@
 
 - [Developer overview](https://docs.ando.so/developers/overview.md): Choose the right Ando developer surface for your integration.
 - [Developer quickstart](https://docs.ando.so/developers/quickstart.md): Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path.
-- [SDK guide](https://docs.ando.so/developers/sdk.md): Use @andocorp/sdk for typed REST, realtime, and webhook helpers.
+- [SDK guide](https://docs.ando.so/developers/sdk.md): Use @andocorp/sdk for typed webhook receiver helpers.
 - [CLI guide](https://docs.ando.so/developers/cli.md): Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
 - [Realtime guide](https://docs.ando.so/developers/realtime.md): Use realtime when an online integration needs live ProductEvent delivery.
 - [Webhooks guide](https://docs.ando.so/developers/webhooks.md): Use webhooks when an integration needs durable signed ProductEvent delivery.

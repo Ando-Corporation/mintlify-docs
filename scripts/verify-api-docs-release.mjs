@@ -387,7 +387,8 @@ const checkProduction = async () => {
     "New integrations should send `x-api-key`",
     "Use Ando API keys from a server-side environment",
     "Use the stable messaging endpoints",
-    "Searches tasks visible to the authenticated API key. This is a nearly stable task-search route",
+    "Searches tasks visible to the authenticated API key.",
+    "Stability: Candidate",
     ...publicApiIdentityTerms,
   ]);
   assertExcludes("/llms-full.txt", llmsFull.text, staleLlmsPhrases);
@@ -396,7 +397,7 @@ const checkProduction = async () => {
   const expectedOpenApiPhrases = [
     '"name": "x-api-key"',
     "legacy compatibility route kept for older clients",
-    "nearly stable task-search route",
+    "Searches tasks visible to the authenticated API key.",
   ];
   const staleOpenApiPhrases = [
     "legacy frozen non-GA compatibility route",
@@ -415,6 +416,15 @@ const checkProduction = async () => {
   }
   const latestOpenApiJson = parseJson(`/${latestOpenApiFile}`, latestOpenApi.text);
   const latestOpenApiPaths = Object.keys(latestOpenApiJson.paths ?? {}).sort();
+  const searchTasks = latestOpenApiJson.paths?.["/search/tasks"]?.get;
+  if (searchTasks?.operationId !== "searchTasks") {
+    throw new Error(`/${latestOpenApiFile} is missing searchTasks.`);
+  }
+  if (searchTasks?.["x-ando-status-probe-owner"] !== "public_api_search_read_shadow") {
+    throw new Error(
+      `/${latestOpenApiFile} searchTasks must keep shadow status evidence.`
+    );
+  }
 
   const aliasPaths = openApiAliasFiles.map((aliasFile) => `/${aliasFile}`);
   for (const aliasPath of aliasPaths) {
