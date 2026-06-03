@@ -117,7 +117,8 @@
           {
             "group": "Realtime workflows",
             "pages": [
-              "api-reference/realtime-quickstart"
+              "api-reference/realtime-quickstart",
+              "api-reference/webhooks"
             ]
           },
           {
@@ -174,6 +175,12 @@
                 "pages": [
                   "GET /webhook-deliveries",
                   "POST /webhook-deliveries/{deliveryId}/replay"
+                ]
+              },
+              {
+                "group": "Generated references",
+                "pages": [
+                  "api-reference/webhook-events"
                 ]
               },
               {
