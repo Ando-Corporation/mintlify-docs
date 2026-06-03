@@ -486,6 +486,1557 @@
         ],
         "type": "object"
       },
+      "OpenRealtimeConnectionRequest": {
+        "additionalProperties": false,
+        "description": "Public realtime connection-opening request.",
+        "properties": {
+          "resume_from": {
+            "$ref": "#/components/schemas/RealtimeResumeRequest"
+          },
+          "subscriptions": {
+            "description": "Realtime subscriptions to authorize for this connection.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeConnectionSubscriptionRequest"
+            },
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "subscriptions"
+        ],
+        "type": "object"
+      },
+      "OpenRealtimeConnectionResponse": {
+        "additionalProperties": false,
+        "description": "Temporary public realtime websocket connection details.",
+        "properties": {
+          "approximate_connection_time_seconds": {
+            "description": "Approximate expected connection lifetime in seconds when the server advertises one.",
+            "type": "number",
+            "nullable": true
+          },
+          "connection_id": {
+            "description": "Realtime connection identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "expires_at": {
+            "description": "Timestamp when the returned connection URL expires if it has not been used.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "expires_in_seconds": {
+            "description": "Seconds until the returned connection URL expires if it has not been used.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "heartbeat_interval_seconds": {
+            "description": "Recommended heartbeat interval for the socket.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "protocol": {
+            "description": "Required websocket subprotocol.",
+            "enum": [
+              "ando.realtime.v1"
+            ],
+            "type": "string"
+          },
+          "resume_supported": {
+            "description": "Whether bounded resume is supported for this connection.",
+            "type": "boolean"
+          },
+          "subscriptions": {
+            "description": "Canonical subscriptions authorized for the socket.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeConnectionSubscription"
+            },
+            "type": "array"
+          },
+          "url": {
+            "description": "Temporary pre-authorized websocket URL. Treat the ticket query parameter as secret.",
+            "type": "string"
+          },
+          "warnings": {
+            "description": "Non-fatal connection-opening warnings.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeConnectionWarning"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "url",
+          "expires_at",
+          "expires_in_seconds",
+          "connection_id",
+          "protocol",
+          "heartbeat_interval_seconds",
+          "approximate_connection_time_seconds",
+          "resume_supported",
+          "subscriptions"
+        ],
+        "type": "object"
+      },
+      "RealtimeAckError": {
+        "additionalProperties": false,
+        "description": "Client-side processing error attached to an acknowledgement.",
+        "properties": {
+          "code": {
+            "description": "Machine-readable acknowledgement error code.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable acknowledgement error message.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "type": "object"
+      },
+      "RealtimeAckFrame": {
+        "additionalProperties": false,
+        "description": "Client acknowledgement frame for one realtime event envelope.",
+        "properties": {
+          "envelope_id": {
+            "description": "Realtime delivery envelope identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "error": {
+            "$ref": "#/components/schemas/RealtimeAckError"
+          }
+        },
+        "required": [
+          "envelope_id"
+        ],
+        "type": "object"
+      },
+      "RealtimeConnectionSubscription": {
+        "additionalProperties": false,
+        "description": "Canonical realtime subscription authorized by the API.",
+        "properties": {
+          "delivery": {
+            "$ref": "#/components/schemas/RealtimeDelivery"
+          },
+          "events": {
+            "description": "ProductEvent types delivered on this subscription.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeEventType"
+            },
+            "type": "array",
+            "minItems": 1
+          },
+          "id": {
+            "description": "Realtime subscription identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "target": {
+            "$ref": "#/components/schemas/RealtimeObjectTarget"
+          }
+        },
+        "required": [
+          "id",
+          "target",
+          "delivery",
+          "events"
+        ],
+        "type": "object"
+      },
+      "RealtimeConnectionSubscriptionRequest": {
+        "additionalProperties": false,
+        "description": "Realtime subscription requested while opening a connection.",
+        "properties": {
+          "delivery": {
+            "$ref": "#/components/schemas/RealtimeDelivery"
+          },
+          "events": {
+            "description": "ProductEvent types requested for this subscription.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeEventType"
+            },
+            "type": "array",
+            "minItems": 1
+          },
+          "target": {
+            "$ref": "#/components/schemas/RealtimeTarget"
+          }
+        },
+        "required": [
+          "target",
+          "delivery",
+          "events"
+        ],
+        "type": "object"
+      },
+      "RealtimeConnectionWarning": {
+        "additionalProperties": false,
+        "description": "Non-fatal realtime connection-opening warning.",
+        "properties": {
+          "code": {
+            "description": "Realtime connection warning code.",
+            "enum": [
+              "resume_failed",
+              "resume_unavailable"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable warning message.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object"
+      },
+      "RealtimeDelivery": {
+        "description": "Realtime delivery filter. The initial beta supports mentions.",
+        "enum": [
+          "mentions"
+        ],
+        "type": "string"
+      },
+      "RealtimeDisconnectFrame": {
+        "additionalProperties": false,
+        "description": "Server frame sent before a planned realtime socket close when possible.",
+        "properties": {
+          "reason": {
+            "description": "Realtime disconnect reason.",
+            "enum": [
+              "server_restart",
+              "deploy_draining",
+              "connection_max_age",
+              "backpressure",
+              "temporary_unavailable",
+              "refresh_requested",
+              "invalid_ticket",
+              "expired_ticket",
+              "revoked_api_key",
+              "missing_scope",
+              "unsupported_subscription",
+              "policy_violation"
+            ],
+            "type": "string"
+          },
+          "retry_after_seconds": {
+            "description": "Recommended delay before reconnecting.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "type": {
+            "description": "Frame type.",
+            "enum": [
+              "disconnect"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "RealtimeEventFrame": {
+        "additionalProperties": false,
+        "description": "Server delivery frame containing one public ProductEvent envelope.",
+        "properties": {
+          "accepts_response_payload": {
+            "description": "Whether the server accepts a response payload. The initial protocol only supports acknowledgement.",
+            "enum": [
+              false
+            ],
+            "type": "boolean"
+          },
+          "cursor": {
+            "description": "Resume cursor associated with this delivery.",
+            "type": "string"
+          },
+          "envelope_id": {
+            "description": "Unique websocket delivery attempt identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RealtimeProductEventEnvelope"
+          },
+          "subscription_id": {
+            "description": "Subscription that received this event.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "type": {
+            "description": "Frame type.",
+            "enum": [
+              "event"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "envelope_id",
+          "accepts_response_payload",
+          "subscription_id",
+          "cursor",
+          "payload"
+        ],
+        "type": "object"
+      },
+      "RealtimeEventType": {
+        "description": "ProductEvent type available on public realtime sockets.",
+        "enum": [
+          "message.created"
+        ],
+        "type": "string"
+      },
+      "RealtimeHelloFrame": {
+        "additionalProperties": false,
+        "description": "Server hello frame sent after a realtime socket connects.",
+        "properties": {
+          "connection_id": {
+            "description": "Realtime connection identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "heartbeat_interval_seconds": {
+            "description": "Recommended heartbeat interval for the socket.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "resume_supported": {
+            "description": "Whether bounded resume is supported for this connection.",
+            "type": "boolean"
+          },
+          "subscriptions": {
+            "description": "Canonical subscriptions authorized for this socket.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeConnectionSubscription"
+            },
+            "type": "array"
+          },
+          "type": {
+            "description": "Frame type.",
+            "enum": [
+              "hello"
+            ],
+            "type": "string"
+          },
+          "warnings": {
+            "description": "Non-fatal connection warnings.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeConnectionWarning"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "type",
+          "connection_id",
+          "heartbeat_interval_seconds",
+          "resume_supported",
+          "subscriptions"
+        ],
+        "type": "object"
+      },
+      "RealtimeWarningFrame": {
+        "additionalProperties": false,
+        "description": "Server warning frame sent when a non-fatal realtime condition occurs after connection.",
+        "properties": {
+          "type": {
+            "description": "Frame type.",
+            "enum": [
+              "warning"
+            ],
+            "type": "string"
+          },
+          "warnings": {
+            "description": "Non-fatal realtime socket warnings.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeConnectionWarning"
+            },
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "type",
+          "warnings"
+        ],
+        "type": "object"
+      },
+      "RealtimeObjectTarget": {
+        "additionalProperties": false,
+        "description": "Canonical realtime target resolved by the API. The beta returns workspace membership targets only.",
+        "properties": {
+          "id": {
+            "description": "Target identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "type": {
+            "description": "Target type.",
+            "enum": [
+              "workspace_membership"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      },
+      "RealtimeProductEventData": {
+        "additionalProperties": false,
+        "description": "Public ProductEvent data payload. Event-specific object schemas are owned by the ProductEvent registry.",
+        "properties": {
+          "object": {
+            "additionalProperties": true,
+            "description": "Event-specific public DTO.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "object"
+        ],
+        "type": "object"
+      },
+      "RealtimeProductEventEnvelope": {
+        "additionalProperties": false,
+        "description": "RFC 085 ProductEvent envelope delivered over a public realtime socket.",
+        "properties": {
+          "api_version": {
+            "description": "ProductEvent API version.",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "ProductEvent creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RealtimeProductEventData"
+          },
+          "id": {
+            "description": "Canonical ProductEvent identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "object": {
+            "description": "ProductEvent object type.",
+            "enum": [
+              "event"
+            ],
+            "type": "string"
+          },
+          "related": {
+            "additionalProperties": false,
+            "description": "Related resource identifiers for routing and debugging.",
+            "properties": {
+              "call_id": {
+                "description": "Related call identifier.",
+                "type": "string",
+                "nullable": true
+              },
+              "conversation_id": {
+                "description": "Related conversation identifier.",
+                "type": "string",
+                "nullable": true
+              },
+              "message_id": {
+                "description": "Related message identifier.",
+                "type": "string",
+                "nullable": true
+              },
+              "thread_root_message_id": {
+                "description": "Related thread root message identifier.",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "conversation_id",
+              "message_id",
+              "thread_root_message_id",
+              "call_id"
+            ],
+            "type": "object"
+          },
+          "type": {
+            "$ref": "#/components/schemas/RealtimeEventType"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "type",
+          "api_version",
+          "created_at",
+          "workspace_id",
+          "data",
+          "related"
+        ],
+        "type": "object"
+      },
+      "RealtimeResumeRequest": {
+        "additionalProperties": false,
+        "description": "Bounded realtime resume request.",
+        "properties": {
+          "cursor": {
+            "description": "Last acknowledged realtime cursor.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cursor"
+        ],
+        "type": "object"
+      },
+      "RealtimeServerFrame": {
+        "description": "Server frame sent over the public realtime websocket.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/RealtimeHelloFrame"
+          },
+          {
+            "$ref": "#/components/schemas/RealtimeEventFrame"
+          },
+          {
+            "$ref": "#/components/schemas/RealtimeDisconnectFrame"
+          },
+          {
+            "$ref": "#/components/schemas/RealtimeWarningFrame"
+          }
+        ]
+      },
+      "RealtimeTarget": {
+        "description": "Realtime target requested while opening a connection. The beta supports self or an explicit workspace membership target.",
+        "oneOf": [
+          {
+            "description": "Authenticated principal shorthand.",
+            "enum": [
+              "self"
+            ],
+            "type": "string"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Workspace membership realtime target.",
+            "properties": {
+              "id": {
+                "description": "Workspace membership identifier.",
+                "type": "string",
+                "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+              },
+              "type": {
+                "description": "Target type.",
+                "enum": [
+                  "workspace_membership"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "WebhookEndpointDeliveryScope": {
+        "description": "Webhook endpoint runtime data recipient.",
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "description": "Member-targeted endpoint delivery scope.",
+            "properties": {
+              "actor_workspace_membership_id": {
+                "description": "Workspace membership the endpoint acts as.",
+                "type": "string",
+                "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+              },
+              "direct_message_delivery_enabled": {
+                "description": "Whether direct-message events are delivered for conversations the actor belongs to.",
+                "type": "boolean"
+              },
+              "type": {
+                "description": "Delivery scope type.",
+                "enum": [
+                  "workspace_member"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "actor_workspace_membership_id",
+              "direct_message_delivery_enabled"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Unsupported workspace export placeholder.",
+            "properties": {
+              "status": {
+                "description": "Workspace export approval state.",
+                "enum": [
+                  "unsupported",
+                  "requires_approval",
+                  "approved"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "description": "Delivery scope type.",
+                "enum": [
+                  "workspace_export"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "status"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "WebhookEndpointDeliveryScopeInput": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint delivery-scope update.",
+        "properties": {
+          "direct_message_delivery_enabled": {
+            "description": "Whether direct-message events are delivered for conversations the actor belongs to.",
+            "type": "boolean"
+          },
+          "type": {
+            "description": "Delivery scope type.",
+            "enum": [
+              "workspace_member"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "CreateWebhookEndpointBody": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint creation request.",
+        "properties": {
+          "enabled_events": {
+            "description": "Product event types to deliver to this endpoint.",
+            "items": {
+              "description": "Webhook event type.",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "conversation.membership.created",
+                "conversation.archived",
+                "conversation.unarchived",
+                "call.started",
+                "call.ended",
+                "call.updated",
+                "call.transcript.updated",
+                "webhook.test"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "delivery_scope": {
+            "$ref": "#/components/schemas/WebhookEndpointDeliveryScopeInput"
+          },
+          "name": {
+            "description": "Optional endpoint label.",
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "description": "HTTPS receiver URL.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "enabled_events"
+        ],
+        "type": "object"
+      },
+      "RotateWebhookEndpointSecretBody": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint secret rotation request.",
+        "properties": {
+          "previous_secret_ttl_seconds": {
+            "description": "Seconds to keep the previous secret active. Maximum is 86400.",
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "type": "object"
+      },
+      "UpdateWebhookEndpointBody": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint update request.",
+        "properties": {
+          "enabled_events": {
+            "description": "Product event types to deliver to this endpoint.",
+            "items": {
+              "description": "Webhook event type.",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "conversation.membership.created",
+                "conversation.archived",
+                "conversation.unarchived",
+                "call.started",
+                "call.ended",
+                "call.updated",
+                "call.transcript.updated",
+                "webhook.test"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "delivery_scope": {
+            "$ref": "#/components/schemas/WebhookEndpointDeliveryScopeInput"
+          },
+          "name": {
+            "description": "Optional endpoint label.",
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "description": "Endpoint status.",
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "description": "HTTPS receiver URL.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WebhookDelivery": {
+        "additionalProperties": false,
+        "description": "Webhook delivery state visible through the public API.",
+        "properties": {
+          "api_version": {
+            "description": "Webhook event API version.",
+            "type": "string"
+          },
+          "attempt_count": {
+            "description": "Number of attempted deliveries.",
+            "type": "integer"
+          },
+          "created_at": {
+            "description": "Delivery creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "endpoint_enabled_events": {
+            "description": "Events currently enabled on the endpoint.",
+            "items": {
+              "description": "Webhook event type.",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "conversation.membership.created",
+                "conversation.archived",
+                "conversation.unarchived",
+                "call.started",
+                "call.ended",
+                "call.updated",
+                "call.transcript.updated",
+                "webhook.test"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "endpoint_id": {
+            "description": "Webhook endpoint identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "endpoint_signing_secret_prefix": {
+            "description": "Display-safe prefix of the endpoint signing secret.",
+            "type": "string",
+            "nullable": true
+          },
+          "endpoint_status": {
+            "description": "Current endpoint status.",
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "endpoint_url": {
+            "description": "Current endpoint receiver URL.",
+            "type": "string",
+            "nullable": true
+          },
+          "event_id": {
+            "description": "Webhook event identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "event_type": {
+            "description": "Webhook event type.",
+            "enum": [
+              "message.created",
+              "message.updated",
+              "conversation.membership.created",
+              "conversation.archived",
+              "conversation.unarchived",
+              "call.started",
+              "call.ended",
+              "call.updated",
+              "call.transcript.updated",
+              "webhook.test"
+            ],
+            "type": "string"
+          },
+          "failed_at": {
+            "description": "Terminal failure timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "first_attempted_at": {
+            "description": "First attempt timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "id": {
+            "description": "Webhook delivery identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "last_attempted_at": {
+            "description": "Last attempt timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "last_error_code": {
+            "description": "Last delivery error code.",
+            "type": "string",
+            "nullable": true
+          },
+          "last_error_message": {
+            "description": "Last delivery error message.",
+            "type": "string",
+            "nullable": true
+          },
+          "last_http_status": {
+            "description": "Last receiver HTTP status.",
+            "type": "number",
+            "nullable": true
+          },
+          "max_attempts": {
+            "description": "Maximum automatic delivery attempts.",
+            "type": "integer"
+          },
+          "next_attempt_at": {
+            "description": "Next scheduled attempt timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "object": {
+            "description": "Object type.",
+            "enum": [
+              "webhook_delivery"
+            ],
+            "type": "string"
+          },
+          "replayable": {
+            "description": "Whether the delivery can be replayed from the public API.",
+            "type": "boolean"
+          },
+          "status": {
+            "description": "Delivery status.",
+            "enum": [
+              "pending",
+              "scheduled",
+              "in_flight",
+              "succeeded",
+              "retrying",
+              "failed",
+              "skipped"
+            ],
+            "type": "string"
+          },
+          "succeeded_at": {
+            "description": "Success timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updated_at": {
+            "description": "Last update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "object",
+          "id",
+          "workspace_id",
+          "endpoint_id",
+          "endpoint_url",
+          "endpoint_status",
+          "endpoint_enabled_events",
+          "endpoint_signing_secret_prefix",
+          "event_id",
+          "event_type",
+          "api_version",
+          "status",
+          "attempt_count",
+          "max_attempts",
+          "next_attempt_at",
+          "first_attempted_at",
+          "last_attempted_at",
+          "succeeded_at",
+          "failed_at",
+          "last_http_status",
+          "last_error_code",
+          "last_error_message",
+          "replayable",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "WebhookDeliveryListResponse": {
+        "additionalProperties": false,
+        "description": "Webhook delivery list response.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Webhook deliveries.",
+                "items": {
+                  "$ref": "#/components/schemas/WebhookDelivery"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/WebhookDelivery"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpoint": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint metadata. Signing secret plaintext is never returned here.",
+        "properties": {
+          "created_at": {
+            "description": "Endpoint creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "delivery_scope": {
+            "$ref": "#/components/schemas/WebhookEndpointDeliveryScope"
+          },
+          "disabled_at": {
+            "description": "Endpoint disabled timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "enabled_events": {
+            "description": "Product event types delivered to this endpoint.",
+            "items": {
+              "description": "Webhook event type.",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "conversation.membership.created",
+                "conversation.archived",
+                "conversation.unarchived",
+                "call.started",
+                "call.ended",
+                "call.updated",
+                "call.transcript.updated",
+                "webhook.test"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "id": {
+            "description": "Webhook endpoint identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "name": {
+            "description": "Endpoint label.",
+            "type": "string",
+            "nullable": true
+          },
+          "object": {
+            "description": "Object type.",
+            "enum": [
+              "webhook_endpoint"
+            ],
+            "type": "string"
+          },
+          "previous_signing_secret_expires_at": {
+            "description": "Previous secret expiration timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "signing_secret_prefix": {
+            "description": "Display-safe prefix of the active signing secret.",
+            "type": "string"
+          },
+          "status": {
+            "description": "Endpoint status.",
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "url": {
+            "description": "Receiver URL.",
+            "type": "string"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "object",
+          "id",
+          "workspace_id",
+          "name",
+          "url",
+          "enabled_events",
+          "delivery_scope",
+          "status",
+          "signing_secret_prefix",
+          "previous_signing_secret_expires_at",
+          "disabled_at",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointDeliverySummary": {
+        "additionalProperties": false,
+        "description": "Delivery summary over the endpoint's most recent 100 deliveries.",
+        "properties": {
+          "failed_count": {
+            "description": "Failed delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "in_flight_count": {
+            "description": "In-flight delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "latest_attempted_at": {
+            "description": "Latest attempt timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "latest_delivery_id": {
+            "description": "Latest delivery identifier.",
+            "type": "string",
+            "nullable": true
+          },
+          "latest_delivery_status": {
+            "description": "Latest delivery status.",
+            "enum": [
+              "pending",
+              "scheduled",
+              "in_flight",
+              "succeeded",
+              "retrying",
+              "failed",
+              "skipped"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "latest_failed_at": {
+            "description": "Latest failure timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "latest_succeeded_at": {
+            "description": "Latest success timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pending_count": {
+            "description": "Pending delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "recent_count": {
+            "description": "Number of deliveries summarized, capped at the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "retrying_count": {
+            "description": "Retrying delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "scheduled_count": {
+            "description": "Scheduled delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "skipped_count": {
+            "description": "Skipped delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          },
+          "succeeded_count": {
+            "description": "Succeeded delivery count within the most recent 100 deliveries.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "recent_count",
+          "pending_count",
+          "scheduled_count",
+          "in_flight_count",
+          "retrying_count",
+          "succeeded_count",
+          "failed_count",
+          "skipped_count",
+          "latest_delivery_id",
+          "latest_delivery_status",
+          "latest_attempted_at",
+          "latest_succeeded_at",
+          "latest_failed_at"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointDetail": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint detail.",
+        "properties": {
+          "created_at": {
+            "description": "Endpoint creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "delivery_scope": {
+            "$ref": "#/components/schemas/WebhookEndpointDeliveryScope"
+          },
+          "disabled_at": {
+            "description": "Endpoint disabled timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "enabled_events": {
+            "description": "Product event types delivered to this endpoint.",
+            "items": {
+              "description": "Webhook event type.",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "conversation.membership.created",
+                "conversation.archived",
+                "conversation.unarchived",
+                "call.started",
+                "call.ended",
+                "call.updated",
+                "call.transcript.updated",
+                "webhook.test"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "id": {
+            "description": "Webhook endpoint identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "name": {
+            "description": "Endpoint label.",
+            "type": "string",
+            "nullable": true
+          },
+          "object": {
+            "description": "Object type.",
+            "enum": [
+              "webhook_endpoint"
+            ],
+            "type": "string"
+          },
+          "previous_signing_secret_expires_at": {
+            "description": "Previous secret expiration timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "signing_secret_prefix": {
+            "description": "Display-safe prefix of the active signing secret.",
+            "type": "string"
+          },
+          "status": {
+            "description": "Endpoint status.",
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "url": {
+            "description": "Receiver URL.",
+            "type": "string"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "delivery_summary": {
+            "$ref": "#/components/schemas/WebhookEndpointDeliverySummary"
+          }
+        },
+        "required": [
+          "object",
+          "id",
+          "workspace_id",
+          "name",
+          "url",
+          "enabled_events",
+          "delivery_scope",
+          "status",
+          "signing_secret_prefix",
+          "previous_signing_secret_expires_at",
+          "disabled_at",
+          "created_at",
+          "updated_at",
+          "delivery_summary"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointDetailResponse": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint detail response.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WebhookEndpointDetail"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointListResponse": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint list response.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Standard public response data. New clients should read data.items.",
+            "properties": {
+              "items": {
+                "description": "Webhook endpoints.",
+                "items": {
+                  "$ref": "#/components/schemas/WebhookEndpoint"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "type": "object"
+          },
+          "items": {
+            "description": "Compatibility alias for data.items. New clients should read data.items.",
+            "items": {
+              "$ref": "#/components/schemas/WebhookEndpoint"
+            },
+            "type": "array",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "data",
+          "items"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointResponse": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint response.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WebhookEndpoint"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointSecret": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint response with one-time plaintext secret.",
+        "properties": {
+          "created_at": {
+            "description": "Endpoint creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "delivery_scope": {
+            "$ref": "#/components/schemas/WebhookEndpointDeliveryScope"
+          },
+          "disabled_at": {
+            "description": "Endpoint disabled timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "enabled_events": {
+            "description": "Product event types delivered to this endpoint.",
+            "items": {
+              "description": "Webhook event type.",
+              "enum": [
+                "message.created",
+                "message.updated",
+                "conversation.membership.created",
+                "conversation.archived",
+                "conversation.unarchived",
+                "call.started",
+                "call.ended",
+                "call.updated",
+                "call.transcript.updated",
+                "webhook.test"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "id": {
+            "description": "Webhook endpoint identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "name": {
+            "description": "Endpoint label.",
+            "type": "string",
+            "nullable": true
+          },
+          "object": {
+            "description": "Object type.",
+            "enum": [
+              "webhook_endpoint"
+            ],
+            "type": "string"
+          },
+          "previous_signing_secret_expires_at": {
+            "description": "Previous secret expiration timestamp.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "signing_secret_prefix": {
+            "description": "Display-safe prefix of the active signing secret.",
+            "type": "string"
+          },
+          "status": {
+            "description": "Endpoint status.",
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "url": {
+            "description": "Receiver URL.",
+            "type": "string"
+          },
+          "workspace_id": {
+            "description": "Workspace identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "signing_secret": {
+            "description": "Plaintext webhook signing secret. Store it immediately.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "object",
+          "id",
+          "workspace_id",
+          "name",
+          "url",
+          "enabled_events",
+          "delivery_scope",
+          "status",
+          "signing_secret_prefix",
+          "previous_signing_secret_expires_at",
+          "disabled_at",
+          "created_at",
+          "updated_at",
+          "signing_secret"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointSecretResponse": {
+        "additionalProperties": false,
+        "description": "Webhook endpoint response with one-time plaintext secret.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WebhookEndpointSecret"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
+      "WebhookReplayResponse": {
+        "additionalProperties": false,
+        "description": "Webhook delivery replay response.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Replay delivery data.",
+            "properties": {
+              "delivery_id": {
+                "description": "New webhook delivery identifier.",
+                "type": "string",
+                "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+              }
+            },
+            "required": [
+              "delivery_id"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
+      "WebhookTestEventResponse": {
+        "additionalProperties": false,
+        "description": "Webhook test event response.",
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "Webhook test event data.",
+            "properties": {
+              "delivery_ids": {
+                "description": "Planned webhook delivery identifiers.",
+                "items": {
+                  "description": "Webhook delivery identifier.",
+                  "type": "string",
+                  "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+                },
+                "type": "array"
+              },
+              "event_id": {
+                "description": "Webhook event identifier.",
+                "type": "string",
+                "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+              }
+            },
+            "required": [
+              "event_id",
+              "delivery_ids"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
       "ConversationMessagesResponse": {
         "additionalProperties": false,
         "description": "Conversation messages response with the standard public data envelope plus legacy top-level aliases.",
@@ -629,8 +2180,9 @@
             "nullable": true
           },
           "author_id": {
-            "description": "Ignored legacy body author workspace member identifier. The authenticated API-key workspace member is always the author.",
-            "type": "string"
+            "description": "Ignored legacy body author workspace member identifier. Deprecated: the authenticated API-key workspace member is always the author.",
+            "type": "string",
+            "deprecated": true
           }
         },
         "required": [
@@ -795,10 +2347,16 @@
             "description": "Workspace member title.",
             "type": "string",
             "nullable": true
+          },
+          "workspaceMembershipId": {
+            "description": "Canonical workspace membership identifier. Matches legacy id during the compatibility window.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
           }
         },
         "required": [
           "id",
+          "workspaceMembershipId",
           "display_name",
           "email",
           "title",
@@ -806,14 +2364,20 @@
         ],
         "type": "object"
       },
-      "MessageResult": {
+      "PublicApiSearchMessageResult": {
         "additionalProperties": false,
-        "description": "Public message result. This intentionally omits reply lineage fields such as thread_root_id and replied_to_message_id; use the thread replies route and its thread_root_id payload field to validate thread grouping.",
+        "description": "Search result for a message.",
         "properties": {
-          "author_id": {
-            "description": "Author workspace member identifier.",
+          "authorWorkspaceMembershipId": {
+            "description": "Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.",
             "type": "string",
             "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "author_id": {
+            "description": "Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p",
+            "deprecated": true
           },
           "author_name": {
             "description": "Author workspace member display name.",
@@ -864,6 +2428,7 @@
           "id",
           "conversation_id",
           "conversation_name",
+          "authorWorkspaceMembershipId",
           "author_id",
           "author_name",
           "content",
@@ -873,14 +2438,121 @@
         ],
         "type": "object"
       },
+      "MessageResult": {
+        "additionalProperties": false,
+        "description": "Public message result. This intentionally omits reply lineage fields such as thread_root_id and replied_to_message_id; use the thread replies route and its thread_root_id payload field to validate thread grouping.",
+        "properties": {
+          "authorWorkspaceMembershipId": {
+            "description": "Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "author_id": {
+            "description": "Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p",
+            "deprecated": true
+          },
+          "author_name": {
+            "description": "Author workspace member display name.",
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "description": "Message markdown content.",
+            "type": "string",
+            "nullable": true
+          },
+          "conversation_id": {
+            "description": "Conversation identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "conversation_name": {
+            "description": "Conversation name.",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "Message creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "id": {
+            "description": "Message identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "image_urls": {
+            "description": "Image URLs extracted from the message.",
+            "items": {
+              "description": "Image URL.",
+              "type": "string",
+              "format": "uri"
+            },
+            "type": "array"
+          },
+          "reactions": {
+            "description": "Emoji reaction counts on the message.",
+            "items": {
+              "$ref": "#/components/schemas/MessageReactionSummary"
+            },
+            "type": "array"
+          },
+          "replies_count": {
+            "description": "Number of thread replies.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "conversation_id",
+          "conversation_name",
+          "authorWorkspaceMembershipId",
+          "author_id",
+          "author_name",
+          "content",
+          "image_urls",
+          "reactions",
+          "replies_count",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "MessageReactionSummary": {
+        "additionalProperties": false,
+        "description": "Emoji reaction count for a message.",
+        "properties": {
+          "count": {
+            "description": "Number of reactions for this emoji.",
+            "type": "integer"
+          },
+          "emoji_text": {
+            "description": "Emoji text.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "emoji_text",
+          "count"
+        ],
+        "type": "object"
+      },
       "MessageResultResponse": {
         "additionalProperties": false,
         "description": "Message detail response with the standard public data envelope plus legacy top-level aliases.",
         "properties": {
-          "author_id": {
-            "description": "Author workspace member identifier.",
+          "authorWorkspaceMembershipId": {
+            "description": "Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.",
             "type": "string",
             "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "author_id": {
+            "description": "Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p",
+            "deprecated": true
           },
           "author_name": {
             "description": "Author workspace member display name.",
@@ -925,6 +2597,13 @@
             },
             "type": "array"
           },
+          "reactions": {
+            "description": "Emoji reaction counts on the message.",
+            "items": {
+              "$ref": "#/components/schemas/MessageReactionSummary"
+            },
+            "type": "array"
+          },
           "replies_count": {
             "description": "Number of thread replies.",
             "type": "integer"
@@ -935,10 +2614,12 @@
           "id",
           "conversation_id",
           "conversation_name",
+          "authorWorkspaceMembershipId",
           "author_id",
           "author_name",
           "content",
           "image_urls",
+          "reactions",
           "replies_count",
           "created_at"
         ],
@@ -1251,7 +2932,7 @@
               "items": {
                 "description": "Message results.",
                 "items": {
-                  "$ref": "#/components/schemas/MessageResult"
+                  "$ref": "#/components/schemas/PublicApiSearchMessageResult"
                 },
                 "type": "array"
               }
@@ -1264,7 +2945,7 @@
           "items": {
             "description": "Compatibility alias for data.items. New clients should read data.items.",
             "items": {
-              "$ref": "#/components/schemas/MessageResult"
+              "$ref": "#/components/schemas/PublicApiSearchMessageResult"
             },
             "type": "array",
             "deprecated": true
@@ -1374,10 +3055,16 @@
             "description": "Author display label.",
             "type": "string"
           },
-          "author_member_id": {
-            "description": "Author workspace member identifier.",
+          "authorWorkspaceMembershipId": {
+            "description": "Canonical author workspace membership identifier. Matches legacy author_member_id during the compatibility window.",
             "type": "string",
             "nullable": true
+          },
+          "author_member_id": {
+            "description": "Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.",
+            "type": "string",
+            "nullable": true,
+            "deprecated": true
           },
           "body_markdown": {
             "description": "Entry markdown body.",
@@ -1431,6 +3118,7 @@
           "workspace_id",
           "kind",
           "author_kind",
+          "authorWorkspaceMembershipId",
           "author_member_id",
           "author_label",
           "run_id",
@@ -1624,10 +3312,16 @@
             "example": "2026-05-14T08:00:00.000Z",
             "format": "date-time"
           },
-          "creator_member_id": {
-            "description": "Creator workspace member identifier.",
+          "creatorWorkspaceMembershipId": {
+            "description": "Canonical creator workspace membership identifier. Matches legacy creator_member_id during the compatibility window.",
             "type": "string",
             "nullable": true
+          },
+          "creator_member_id": {
+            "description": "Creator workspace member identifier. Deprecated: read creatorWorkspaceMembershipId instead.",
+            "type": "string",
+            "nullable": true,
+            "deprecated": true
           },
           "id": {
             "description": "Task identifier.",
@@ -1675,6 +3369,7 @@
           "summary",
           "conversation_id",
           "conversation_name",
+          "creatorWorkspaceMembershipId",
           "creator_member_id",
           "state_version",
           "last_activity_at",
@@ -2071,20 +3766,34 @@
                       "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
                       "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                       "conversation_name": "Launch planning",
+                      "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                       "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                       "author_name": "Alex Kim",
                       "content": "Validated the route migration.",
                       "image_urls": [],
+                      "reactions": [
+                        {
+                          "emoji_text": ":thumbsup:",
+                          "count": 2
+                        }
+                      ],
                       "replies_count": 1,
                       "created_at": "2026-05-14T08:00:00.000Z",
                       "data": {
                         "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "conversation_name": "Launch planning",
+                        "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "author_name": "Alex Kim",
                         "content": "Validated the route migration.",
                         "image_urls": [],
+                        "reactions": [
+                          {
+                            "emoji_text": ":thumbsup:",
+                            "count": 2
+                          }
+                        ],
                         "replies_count": 1,
                         "created_at": "2026-05-14T08:00:00.000Z"
                       }
@@ -2202,10 +3911,17 @@
                             "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4r",
                             "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "conversation_name": "Launch planning",
+                            "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "author_name": "Alex Kim",
                             "content": "Follow-up looks good.",
                             "image_urls": [],
+                            "reactions": [
+                              {
+                                "emoji_text": ":thumbsup:",
+                                "count": 2
+                              }
+                            ],
                             "replies_count": 0,
                             "created_at": "2026-05-14T08:05:00.000Z"
                           }
@@ -2226,10 +3942,17 @@
                           "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4r",
                           "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "conversation_name": "Launch planning",
+                          "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "author_name": "Alex Kim",
                           "content": "Follow-up looks good.",
                           "image_urls": [],
+                          "reactions": [
+                            {
+                              "emoji_text": ":thumbsup:",
+                              "count": 2
+                            }
+                          ],
                           "replies_count": 0,
                           "created_at": "2026-05-14T08:05:00.000Z"
                         }
@@ -2353,10 +4076,17 @@
                             "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "conversation_name": "Launch planning",
+                            "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "author_name": "Alex Kim",
                             "content": "Validated the route migration.",
                             "image_urls": [],
+                            "reactions": [
+                              {
+                                "emoji_text": ":thumbsup:",
+                                "count": 2
+                              }
+                            ],
                             "replies_count": 1,
                             "created_at": "2026-05-14T08:00:00.000Z"
                           }
@@ -2376,10 +4106,17 @@
                           "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "conversation_name": "Launch planning",
+                          "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "author_name": "Alex Kim",
                           "content": "Validated the route migration.",
                           "image_urls": [],
+                          "reactions": [
+                            {
+                              "emoji_text": ":thumbsup:",
+                              "count": 2
+                            }
+                          ],
                           "replies_count": 1,
                           "created_at": "2026-05-14T08:00:00.000Z"
                         }
@@ -2513,10 +4250,17 @@
                         "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "conversation_name": "Launch planning",
+                        "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                         "author_name": "Alex Kim",
                         "content": "Validated the route migration.",
                         "image_urls": [],
+                        "reactions": [
+                          {
+                            "emoji_text": ":thumbsup:",
+                            "count": 2
+                          }
+                        ],
                         "replies_count": 1,
                         "created_at": "2026-05-14T08:00:00.000Z"
                       },
@@ -2579,6 +4323,1057 @@
         "x-ando-runtime-owner": "api_platform",
         "x-ando-status-probe-owner": "public_api_messaging",
         "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/realtime/connections": {
+      "post": {
+        "description": "Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.",
+        "operationId": "openRealtimeConnection",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "memberMentions": {
+                  "summary": "Subscribe to messages that mention the authenticated principal.",
+                  "value": {
+                    "subscriptions": [
+                      {
+                        "target": "self",
+                        "delivery": "mentions",
+                        "events": [
+                          "message.created"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/OpenRealtimeConnectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "connection": {
+                    "summary": "Temporary realtime connection URL.",
+                    "value": {
+                      "url": "wss://realtime.ando.so/link?ticket=rtconn_opaque_temporary_ticket",
+                      "expires_at": "2026-05-29T01:00:00.000Z",
+                      "expires_in_seconds": 60,
+                      "connection_id": "rtconn_01jzn7e61x3a7v9h2r7t2m3q4p",
+                      "protocol": "ando.realtime.v1",
+                      "heartbeat_interval_seconds": 30,
+                      "approximate_connection_time_seconds": null,
+                      "resume_supported": true,
+                      "subscriptions": [
+                        {
+                          "id": "rtsub_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "target": {
+                            "type": "workspace_membership",
+                            "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
+                          },
+                          "delivery": "mentions",
+                          "events": [
+                            "message.created"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/OpenRealtimeConnectionResponse"
+                }
+              }
+            },
+            "description": "Opened temporary realtime connection."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "realtimeUnavailable": {
+                    "summary": "Realtime unavailable.",
+                    "value": {
+                      "error": {
+                        "code": "realtime_unavailable",
+                        "message": "Public realtime connection opening is not available yet."
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicApiErrorResponse"
+                }
+              }
+            },
+            "description": "Public realtime connection opening is not available in this deployment."
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Open a realtime connection",
+        "tags": [
+          "Realtime"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_realtime_connections.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "runtime_boundary",
+        "x-ando-public-path": "/v1/realtime/connections",
+        "x-ando-runtime-owner": "backend_runtime",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "express"
+      }
+    },
+    "/webhook-endpoints": {
+      "post": {
+        "description": "Creates a workspace webhook endpoint and returns its signing secret exactly once.",
+        "operationId": "createWebhookEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "endpoint": {
+                  "summary": "Create a webhook endpoint.",
+                  "value": {
+                    "name": "Production receiver",
+                    "url": "https://example.com/ando/webhooks",
+                    "enabled_events": [
+                      "webhook.test",
+                      "message.created",
+                      "message.updated",
+                      "conversation.membership.created",
+                      "conversation.archived",
+                      "conversation.unarchived",
+                      "call.started",
+                      "call.ended",
+                      "call.updated",
+                      "call.transcript.updated"
+                    ]
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebhookEndpointBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "created": {
+                    "summary": "Created endpoint with one-time signing secret.",
+                    "value": {
+                      "data": {
+                        "object": "webhook_endpoint",
+                        "id": "wep_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "workspace_id": "workspace_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "name": "Production receiver",
+                        "url": "https://example.com/ando/webhooks",
+                        "enabled_events": [
+                          "webhook.test",
+                          "message.created",
+                          "message.updated",
+                          "conversation.membership.created",
+                          "conversation.archived",
+                          "conversation.unarchived",
+                          "call.started",
+                          "call.ended",
+                          "call.updated",
+                          "call.transcript.updated"
+                        ],
+                        "delivery_scope": {
+                          "type": "workspace_member",
+                          "actor_workspace_membership_id": "wsm_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "direct_message_delivery_enabled": false
+                        },
+                        "status": "active",
+                        "signing_secret_prefix": "example",
+                        "previous_signing_secret_expires_at": null,
+                        "disabled_at": null,
+                        "created_at": "2026-05-27T08:00:00.000Z",
+                        "updated_at": "2026-05-27T08:00:00.000Z",
+                        "signing_secret": "example"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointSecretResponse"
+                }
+              }
+            },
+            "description": "Created webhook endpoint."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Create a webhook endpoint",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_endpoints.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/webhook-endpoints",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      },
+      "get": {
+        "description": "Lists workspace webhook endpoint metadata.",
+        "operationId": "listWebhookEndpoints",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "endpoints": {
+                    "summary": "Webhook endpoints.",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "object": "webhook_endpoint",
+                            "id": "wep_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "workspace_id": "workspace_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "name": "Production receiver",
+                            "url": "https://example.com/ando/webhooks",
+                            "enabled_events": [
+                              "webhook.test",
+                              "message.created",
+                              "message.updated",
+                              "conversation.membership.created",
+                              "conversation.archived",
+                              "conversation.unarchived",
+                              "call.started",
+                              "call.ended",
+                              "call.updated",
+                              "call.transcript.updated"
+                            ],
+                            "delivery_scope": {
+                              "type": "workspace_member",
+                              "actor_workspace_membership_id": "wsm_01jzn7e61x3a7v9h2r7t2m3q4p",
+                              "direct_message_delivery_enabled": false
+                            },
+                            "status": "active",
+                            "signing_secret_prefix": "example",
+                            "previous_signing_secret_expires_at": null,
+                            "disabled_at": null,
+                            "created_at": "2026-05-27T08:00:00.000Z",
+                            "updated_at": "2026-05-27T08:00:00.000Z"
+                          }
+                        ]
+                      },
+                      "items": [
+                        {
+                          "object": "webhook_endpoint",
+                          "id": "wep_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "workspace_id": "workspace_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "name": "Production receiver",
+                          "url": "https://example.com/ando/webhooks",
+                          "enabled_events": [
+                            "webhook.test",
+                            "message.created",
+                            "message.updated",
+                            "conversation.membership.created",
+                            "conversation.archived",
+                            "conversation.unarchived",
+                            "call.started",
+                            "call.ended",
+                            "call.updated",
+                            "call.transcript.updated"
+                          ],
+                          "delivery_scope": {
+                            "type": "workspace_member",
+                            "actor_workspace_membership_id": "wsm_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "direct_message_delivery_enabled": false
+                          },
+                          "status": "active",
+                          "signing_secret_prefix": "example",
+                          "previous_signing_secret_expires_at": null,
+                          "disabled_at": null,
+                          "created_at": "2026-05-27T08:00:00.000Z",
+                          "updated_at": "2026-05-27T08:00:00.000Z"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointListResponse"
+                }
+              }
+            },
+            "description": "Webhook endpoints."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "List webhook endpoints",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_endpoints.get",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/webhook-endpoints",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/webhook-endpoints/{endpointId}": {
+      "get": {
+        "description": "Returns webhook endpoint metadata and a recent delivery summary.",
+        "operationId": "getWebhookEndpoint",
+        "parameters": [
+          {
+            "description": "Webhook endpoint identifier.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "description": "Webhook endpoint identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointDetailResponse"
+                }
+              }
+            },
+            "description": "Webhook endpoint details."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a webhook endpoint",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_endpoints_by_endpointid.get",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/webhook-endpoints/:endpointId",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      },
+      "patch": {
+        "description": "Updates webhook endpoint metadata and delivery settings.",
+        "operationId": "updateWebhookEndpoint",
+        "parameters": [
+          {
+            "description": "Webhook endpoint identifier.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "description": "Webhook endpoint identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWebhookEndpointBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointResponse"
+                }
+              }
+            },
+            "description": "Updated webhook endpoint."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Update a webhook endpoint",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_endpoints_by_endpointid.patch",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/webhook-endpoints/:endpointId",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/webhook-endpoints/{endpointId}/rotate-secret": {
+      "post": {
+        "description": "Rotates a webhook endpoint signing secret and returns the new secret exactly once.",
+        "operationId": "rotateWebhookEndpointSecret",
+        "parameters": [
+          {
+            "description": "Webhook endpoint identifier.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "description": "Webhook endpoint identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RotateWebhookEndpointSecretBody"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointSecretResponse"
+                }
+              }
+            },
+            "description": "Rotated webhook endpoint secret."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Rotate webhook endpoint secret",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_endpoints_by_endpointid_rotate_secret.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/webhook-endpoints/:endpointId/rotate-secret",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/webhook-endpoints/{endpointId}/test": {
+      "post": {
+        "description": "Creates a webhook.test event and schedules delivery to one endpoint.",
+        "operationId": "sendWebhookEndpointTestEvent",
+        "parameters": [
+          {
+            "description": "Webhook endpoint identifier.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "description": "Webhook endpoint identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookTestEventResponse"
+                }
+              }
+            },
+            "description": "Scheduled webhook test event."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Send a webhook test event",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_endpoints_by_endpointid_test.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/webhook-endpoints/:endpointId/test",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/webhook-deliveries": {
+      "get": {
+        "description": "Lists webhook deliveries with optional endpoint, event, status, and creation-time filters.",
+        "operationId": "listWebhookDeliveries",
+        "parameters": [
+          {
+            "description": "Filter by webhook endpoint identifier.",
+            "in": "query",
+            "name": "endpoint_id",
+            "schema": {
+              "description": "Filter by webhook endpoint identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by webhook event identifier.",
+            "in": "query",
+            "name": "event_id",
+            "schema": {
+              "description": "Filter by webhook event identifier.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by delivery status.",
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "description": "Filter by delivery status.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Return deliveries created after this timestamp.",
+            "in": "query",
+            "name": "created_after",
+            "schema": {
+              "description": "Return deliveries created after this timestamp.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Return deliveries created before this timestamp.",
+            "in": "query",
+            "name": "created_before",
+            "schema": {
+              "description": "Return deliveries created before this timestamp.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of deliveries to return.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Maximum number of deliveries to return.",
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "deliveries": {
+                    "summary": "Webhook deliveries.",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "object": "webhook_delivery",
+                            "id": "whd_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "workspace_id": "workspace_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "endpoint_id": "wep_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "endpoint_url": "https://example.com/ando/webhooks",
+                            "endpoint_status": "active",
+                            "endpoint_enabled_events": [
+                              "webhook.test",
+                              "message.created",
+                              "message.updated",
+                              "conversation.membership.created",
+                              "conversation.archived",
+                              "conversation.unarchived",
+                              "call.started",
+                              "call.ended",
+                              "call.updated",
+                              "call.transcript.updated"
+                            ],
+                            "endpoint_signing_secret_prefix": "example",
+                            "event_id": "whe_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "event_type": "webhook.test",
+                            "api_version": "2026-05-27",
+                            "status": "scheduled",
+                            "attempt_count": 0,
+                            "max_attempts": 8,
+                            "next_attempt_at": "2026-05-27T08:00:00.000Z",
+                            "first_attempted_at": null,
+                            "last_attempted_at": null,
+                            "succeeded_at": null,
+                            "failed_at": null,
+                            "last_http_status": null,
+                            "last_error_code": null,
+                            "last_error_message": null,
+                            "replayable": false,
+                            "created_at": "2026-05-27T08:00:00.000Z",
+                            "updated_at": "2026-05-27T08:00:00.000Z"
+                          }
+                        ]
+                      },
+                      "items": [
+                        {
+                          "object": "webhook_delivery",
+                          "id": "whd_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "workspace_id": "workspace_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "endpoint_id": "wep_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "endpoint_url": "https://example.com/ando/webhooks",
+                          "endpoint_status": "active",
+                          "endpoint_enabled_events": [
+                            "webhook.test",
+                            "message.created",
+                            "message.updated",
+                            "conversation.membership.created",
+                            "conversation.archived",
+                            "conversation.unarchived",
+                            "call.started",
+                            "call.ended",
+                            "call.updated",
+                            "call.transcript.updated"
+                          ],
+                          "endpoint_signing_secret_prefix": "example",
+                          "event_id": "whe_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "event_type": "webhook.test",
+                          "api_version": "2026-05-27",
+                          "status": "scheduled",
+                          "attempt_count": 0,
+                          "max_attempts": 8,
+                          "next_attempt_at": "2026-05-27T08:00:00.000Z",
+                          "first_attempted_at": null,
+                          "last_attempted_at": null,
+                          "succeeded_at": null,
+                          "failed_at": null,
+                          "last_http_status": null,
+                          "last_error_code": null,
+                          "last_error_message": null,
+                          "replayable": false,
+                          "created_at": "2026-05-27T08:00:00.000Z",
+                          "updated_at": "2026-05-27T08:00:00.000Z"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDeliveryListResponse"
+                }
+              }
+            },
+            "description": "Webhook deliveries."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "List webhook deliveries",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_deliveries.get",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/webhook-deliveries",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/webhook-deliveries/{deliveryId}/replay": {
+      "post": {
+        "description": "Creates a fresh scheduled delivery for the same endpoint and event.",
+        "operationId": "replayWebhookDelivery",
+        "parameters": [
+          {
+            "description": "Webhook delivery identifier.",
+            "in": "path",
+            "name": "deliveryId",
+            "required": true,
+            "schema": {
+              "description": "Webhook delivery identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookReplayResponse"
+                }
+              }
+            },
+            "description": "Scheduled webhook delivery replay."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Replay a webhook delivery",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-ga-status": "beta_non_ga",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_webhook_deliveries_by_deliveryid_replay.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-disposition": "beta",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/webhook-deliveries/:deliveryId/replay",
+        "x-ando-runtime-owner": "convex_product",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "convex_http",
         "x-ando-selected-runtime": "convex_http",
         "x-ando-target-runtime": "convex_http"
       }
@@ -3024,6 +5819,7 @@
                         "items": [
                           {
                             "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                            "workspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                             "display_name": "Alex Kim",
                             "email": "alex@example.com",
                             "title": "Engineering",
@@ -3034,6 +5830,7 @@
                       "items": [
                         {
                           "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
+                          "workspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p",
                           "display_name": "Alex Kim",
                           "email": "alex@example.com",
                           "title": "Engineering",
@@ -3195,7 +5992,8 @@
                             "content": "Validated the route migration.",
                             "image_urls": [],
                             "replies_count": 1,
-                            "created_at": "2026-05-14T08:00:00.000Z"
+                            "created_at": "2026-05-14T08:00:00.000Z",
+                            "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
                           }
                         ]
                       },
@@ -3209,7 +6007,8 @@
                           "content": "Validated the route migration.",
                           "image_urls": [],
                           "replies_count": 1,
-                          "created_at": "2026-05-14T08:00:00.000Z"
+                          "created_at": "2026-05-14T08:00:00.000Z",
+                          "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
                         }
                       ]
                     }
@@ -3478,7 +6277,7 @@
                     "entry": {
                       "kind": "worklog",
                       "author_kind": "local_agent",
-                      "author_label": "Ando CLI",
+                      "author_label": "Local agent",
                       "body_markdown": "Validated the route migration."
                     },
                     "task_patch": {
@@ -3596,6 +6395,10 @@
     {
       "description": "Task routes.",
       "name": "Tasks"
+    },
+    {
+      "description": "Outbound webhook endpoint and delivery routes.",
+      "name": "Webhooks"
     }
   ]
 }

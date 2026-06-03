@@ -9,6 +9,7 @@ const siteUrl = "https://docs.ando.so";
 const latestOpenApiFile = "openapi-public-api-v1-latest.json";
 const openApiAliasFiles = ["openapi.json", "api-reference/openapi.json"];
 const datedOpenApiPattern = /^openapi-public-api-v1-\d{4}-\d{2}-\d{2}\.json$/;
+const httpMethods = ["delete", "get", "patch", "post", "put"];
 
 const readText = (relativePath) =>
   fs.readFileSync(path.join(rootDir, relativePath), "utf8");
@@ -146,7 +147,7 @@ const authoredPages = allPages.filter(({ page }) =>
 
 const endpointByRef = new Map();
 for (const [openApiPath, pathItem] of Object.entries(openApi.paths ?? {})) {
-  for (const method of ["get", "post"]) {
+  for (const method of httpMethods) {
     const operation = pathItem[method];
     if (operation == null) continue;
     endpointByRef.set(`${method.toUpperCase()} ${openApiPath}`, {

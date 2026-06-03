@@ -43,11 +43,14 @@ node scripts/verify-api-docs-release.mjs --monorepo /Users/graemeboy/ando/ando
 That runs:
 
 ```bash
-corepack pnpm run sync:public-api-openapi
-corepack pnpm run check:public-api-openapi
-corepack pnpm --filter @ando/shared test -- public-api-contracts.test.ts
+pnpm run sync:public-api-openapi
+pnpm run check:public-api-openapi
+pnpm --filter @ando/shared test -- public-api-contracts.test.ts
 git diff --check
 ```
+
+The verifier uses the repo-compatible `pnpm` on `PATH`; if direct `pnpm` is
+unavailable, it falls back to Corepack.
 
 After Mintlify publishes to production, run:
 
