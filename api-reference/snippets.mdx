@@ -87,9 +87,9 @@ jq -r '.error.code, .error.message' /tmp/ando-error.json
 Compatibility endpoints can still return older error shapes. Check the endpoint
 reference when you handle errors for a specific route.
 
-## Beta endpoints
+## Preview endpoints
 
-Beta endpoint shapes are generated from the same OpenAPI source as stable
+Preview endpoint shapes are generated from the same OpenAPI source as stable
 routes, but they are not yet part of the stable public API v1 surface. Keep
-beta integrations behind a narrow rollout and read each endpoint's response
+preview integrations behind a narrow rollout and read each endpoint's response
 schemas from the generated reference.

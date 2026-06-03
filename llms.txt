@@ -8,15 +8,15 @@
 - [Developer quickstart](https://docs.ando.so/developers/quickstart.md): Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path.
 - [SDK guide](https://docs.ando.so/developers/sdk.md): Use @andocorp/sdk for typed REST, realtime, and webhook helpers.
 - [CLI guide](https://docs.ando.so/developers/cli.md): Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
-- [Realtime guide](https://docs.ando.so/developers/realtime.md): Use beta realtime when an online integration needs live ProductEvent delivery.
-- [Webhooks guide](https://docs.ando.so/developers/webhooks.md): Use beta webhooks when an integration needs durable signed ProductEvent delivery.
+- [Realtime guide](https://docs.ando.so/developers/realtime.md): Use realtime when an online integration needs live ProductEvent delivery.
+- [Webhooks guide](https://docs.ando.so/developers/webhooks.md): Use webhooks when an integration needs durable signed ProductEvent delivery.
 - [API overview](https://docs.ando.so/api-reference/overview.md): Build API-key integrations with Ando's public API v1.
 - [Authorization](https://docs.ando.so/api-reference/authorization.md): Create an Ando API key, store it safely, and send authenticated API requests.
 - [Reusable API snippets](https://docs.ando.so/api-reference/snippets.md): Copy small public API v1 snippets into server-side integrations.
 - [Messaging quickstart](https://docs.ando.so/api-reference/messaging-quickstart.md): Run the stable message workflow from search through replies.
 - [Search quickstart](https://docs.ando.so/api-reference/search-quickstart.md): Use stable search endpoints to find messages, conversations, workspace members, and calls.
 - [Messaging API](https://docs.ando.so/api-reference/http-api.md): Search, list, create, fetch, and reply to Ando messages.
-- [Realtime quickstart](https://docs.ando.so/api-reference/realtime-quickstart.md): Open a beta realtime connection ticket from public API v1.
+- [Realtime quickstart](https://docs.ando.so/api-reference/realtime-quickstart.md): Open a realtime connection ticket from public API v1.
 - [Endpoint reference map](https://docs.ando.so/api-reference/endpoint-reference.md): Scan public API v1 endpoints by stability level before opening generated schemas.
 
 ## Endpoint reference
@@ -55,7 +55,7 @@
 
 ### Nearly stable
 
-- [Search tasks](https://docs.ando.so/api-reference/tasks/search-tasks.md): Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.
+- [Search tasks](https://docs.ando.so/api-reference/tasks/search-tasks.md): Searches tasks visible to the authenticated API key.
 
 ### Preview
 

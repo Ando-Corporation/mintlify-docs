@@ -39,10 +39,9 @@ Create API keys in Ando from **Settings** -> **API keys**. Send API keys with
 
 ## Stability
 
-Stable public API routes are ready for production integrations. Beta routes,
-including realtime and webhook endpoint management, should stay behind a narrow
-rollout until they are promoted. The generated endpoint reference carries the
-current status for each operation.
+Stable public API routes are ready for production integrations. The generated
+endpoint reference carries the current status for each operation and should be
+the source of truth for rollout planning.
 
 ## Generated references
 
@@ -146,7 +145,7 @@ const subscription = await client.realtime.on("message.created", {
 });
 ```
 
-Read [Realtime guide](/developers/realtime) before rolling out beta realtime
+Read [Realtime guide](/developers/realtime) before rolling out realtime
 integrations.
 
 ## Webhook endpoint management
@@ -275,14 +274,14 @@ Every agent-first command supports `--json` for machine-readable output.
 # Realtime guide
 Source: https://docs.ando.so/developers/realtime
 
-> Use beta realtime when an online integration needs live ProductEvent delivery.
+> Use realtime when an online integration needs live ProductEvent delivery.
 
 Use realtime when your integration is online and needs live ProductEvent
 delivery over websocket. Use webhooks instead when you need durable HTTP
 delivery, delivery logs, retries, and replay.
 
-Realtime is beta. Keep integrations behind a narrow rollout and read the
-generated endpoint reference for the current request and response schema.
+Read the generated endpoint reference for the current request and response
+schema before rollout.
 
 Start with the [Realtime quickstart](/api-reference/realtime-quickstart), then
 use the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
@@ -293,14 +292,13 @@ SDK users can also subscribe through `client.realtime.on` from
 # Webhooks guide
 Source: https://docs.ando.so/developers/webhooks
 
-> Use beta webhooks when an integration needs durable signed ProductEvent delivery.
+> Use webhooks when an integration needs durable signed ProductEvent delivery.
 
 Use webhooks when an integration needs durable signed HTTP delivery, delivery
 logs, and replay. Use realtime instead when an online client needs live
 websocket ProductEvent delivery.
 
-Webhook endpoint management is beta. Keep integrations behind a narrow rollout
-and use generated references for exact schemas:
+Use generated references for exact webhook endpoint and delivery schemas:
 
 - [Endpoint reference](/api-reference/endpoint-reference)
 
@@ -679,11 +677,11 @@ jq -r '.error.code, .error.message' /tmp/ando-error.json
 Compatibility endpoints can still return older error shapes. Check the endpoint
 reference when you handle errors for a specific route.
 
-## Beta endpoints
+## Preview endpoints
 
-Beta endpoint shapes are generated from the same OpenAPI source as stable
+Preview endpoint shapes are generated from the same OpenAPI source as stable
 routes, but they are not yet part of the stable public API v1 surface. Keep
-beta integrations behind a narrow rollout and read each endpoint's response
+preview integrations behind a narrow rollout and read each endpoint's response
 schemas from the generated reference.
 # Messaging quickstart
 Source: https://docs.ando.so/api-reference/messaging-quickstart
@@ -1072,9 +1070,9 @@ associate a reply list with a thread.
 # Realtime quickstart
 Source: https://docs.ando.so/api-reference/realtime-quickstart
 
-> Open a beta realtime connection ticket from public API v1.
+> Open a realtime connection ticket from public API v1.
 
-The beta realtime route opens a temporary, pre-authorized websocket connection
+The realtime route opens a temporary, pre-authorized websocket connection
 URL for ProductEvent delivery. API keys are validated on the HTTP request. The
 websocket connection uses the returned ticket URL and the `ando.realtime.v1`
 subprotocol.
@@ -1163,17 +1161,16 @@ Source: https://docs.ando.so/api-reference/endpoint-reference
 > Scan public API v1 endpoints by stability level before opening generated schemas.
 
 Use the endpoint groups below by stability level, not by internal implementation
-area. Stable endpoints are ready for production integrations. Beta, nearly
-stable, preview, and legacy compatibility endpoints need narrower rollout
-judgment.
+area. Stable endpoints are ready for production integrations. Preview and
+legacy compatibility endpoints need narrower rollout judgment.
 
 | Group | Stability | Use it for |
 | --- | --- | --- |
 | Stable search | Production discovery workflows for messages, conversations, workspace members, and calls. | Start here when an integration needs context ids before reading or writing. |
 | Stable messaging | Production message workflows. | List, create, fetch, and reply to conversation messages. |
-| Realtime | Beta realtime session setup. | Open a short-lived connection token from a trusted server before a realtime client connects. |
-| Webhook endpoints | Beta webhook endpoint management. | Create, list, update, rotate, and test webhook destinations. |
-| Webhook deliveries | Beta webhook delivery operations. | Inspect recent deliveries and replay a delivery when it is safe to retry. |
+| Realtime | Preview realtime session setup. | Open a short-lived connection token from a trusted server before a realtime client connects. |
+| Webhook endpoints | Preview webhook endpoint management. | Create, list, update, rotate, and test webhook destinations. |
+| Webhook deliveries | Preview webhook delivery operations. | Inspect recent deliveries and replay a delivery when it is safe to retry. |
 | Nearly stable | Endpoint shape that is close to public v1 but not fully promoted. | Test behind a feature flag or limited internal integration. |
 | Preview | Exploratory integrations. | Build only when the risk of shape changes is acceptable. |
 | Legacy compatibility | Existing compatibility behavior. | Avoid for new integrations unless no stable route covers the use case. |
@@ -1452,7 +1449,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/realtime/open-a-realtime-connection
 
-Stability: Beta
+Stability: Preview
 
 Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.
 
@@ -1484,7 +1481,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/create-a-webhook-endpoint
 
-Stability: Beta
+Stability: Preview
 
 Creates a workspace webhook endpoint and returns its signing secret exactly once.
 
@@ -1512,7 +1509,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/list-webhook-endpoints
 
-Stability: Beta
+Stability: Preview
 
 Lists workspace webhook endpoint metadata.
 
@@ -1540,7 +1537,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/get-a-webhook-endpoint
 
-Stability: Beta
+Stability: Preview
 
 Returns webhook endpoint metadata and a recent delivery summary.
 
@@ -1570,7 +1567,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/update-a-webhook-endpoint
 
-Stability: Beta
+Stability: Preview
 
 Updates webhook endpoint metadata and delivery settings.
 
@@ -1600,7 +1597,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/rotate-webhook-endpoint-secret
 
-Stability: Beta
+Stability: Preview
 
 Rotates a webhook endpoint signing secret and returns the new secret exactly once.
 
@@ -1630,7 +1627,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/send-a-webhook-test-event
 
-Stability: Beta
+Stability: Preview
 
 Creates a webhook.test event and schedules delivery to one endpoint.
 
@@ -1663,7 +1660,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/list-webhook-deliveries
 
-Stability: Beta
+Stability: Preview
 
 Lists webhook deliveries with optional endpoint, event, status, and creation-time filters.
 
@@ -1698,7 +1695,7 @@ Responses:
 
 Source: https://docs.ando.so/api-reference/webhooks/replay-a-webhook-delivery
 
-Stability: Beta
+Stability: Preview
 
 Creates a fresh scheduled delivery for the same endpoint and event.
 
@@ -1733,7 +1730,7 @@ Source: https://docs.ando.so/api-reference/tasks/search-tasks
 
 Stability: Candidate
 
-Searches tasks visible to the authenticated API key. This is a nearly stable task-search route and remains shadow-status until declared rate limits, status evidence, and telemetry evidence close.
+Searches tasks visible to the authenticated API key.
 
 Canonical request: `GET https://api.ando.so/v1/search/tasks`
 

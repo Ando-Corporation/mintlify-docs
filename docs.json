@@ -114,7 +114,7 @@
             ]
           },
           {
-            "group": "Beta workflows",
+            "group": "Realtime workflows",
             "pages": [
               "api-reference/realtime-quickstart"
             ]
@@ -147,7 +147,7 @@
               },
               {
                 "group": "Realtime",
-                "tag": "Beta",
+                "tag": "Preview",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
                   "POST /realtime/connections"
@@ -155,7 +155,7 @@
               },
               {
                 "group": "Webhook endpoints",
-                "tag": "Beta",
+                "tag": "Preview",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
                   "POST /webhook-endpoints",
@@ -168,7 +168,7 @@
               },
               {
                 "group": "Webhook deliveries",
-                "tag": "Beta",
+                "tag": "Preview",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
                   "GET /webhook-deliveries",
