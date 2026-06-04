@@ -1,0 +1,33 @@
+---
+title: "Linear"
+description: "Connect Linear to Ando so agents can search, create, and update issues with the right attribution."
+icon: "square-kanban"
+---
+
+Use the Linear integration when an Ando managed agent needs to search, create, or update Linear issues.
+
+## API key attribution
+
+The Linear token you use controls how Linear attributes the work. A personal Linear API key attributes changes to the person who created the key. For app attribution, create a Linear application token and use that token as the API key in Ando.
+
+## Create a Linear app token
+
+1. Open Linear's [API applications settings](https://linear.app/settings/api/applications).
+2. Click **Create application**.
+3. Enter a name and details that make the app easy to recognize, such as `Ando`.
+4. Open the new application.
+5. Under **Developer token**, click **Create & copy token**.
+6. Select the **App** option.
+7. Store the token somewhere secure. Linear only shows it once.
+
+## Connect Linear in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **Linear**.
+4. Choose the API key authentication option.
+5. Paste the Linear app developer token.
+6. Save the connection.
+7. Add Linear to any agents that should use it.
+
+After setup, actions taken through this connection are attributed to the Linear app rather than a specific person. Rotate the token in Linear if it is exposed or no longer needed.

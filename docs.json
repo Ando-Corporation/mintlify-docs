@@ -40,7 +40,6 @@
             "group": "Getting Started",
             "pages": [
               "docs/start-guide",
-              "docs/concepts",
               "docs/download-ando"
             ]
           },
@@ -64,6 +63,7 @@
             "pages": [
               "docs/ando-mcp",
               "docs/ando-mcp-tools",
+              "docs/linear",
               "docs/import-data-from-other-apps",
               "docs/importing-from-slack"
             ]
@@ -261,6 +261,10 @@
   "redirects": [
     {
       "source": "/docs",
+      "destination": "/docs/start-guide"
+    },
+    {
+      "source": "/docs/concepts",
       "destination": "/docs/start-guide"
     },
     {

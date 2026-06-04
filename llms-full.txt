@@ -2155,53 +2155,65 @@ Source: https://docs.ando.so/docs/start-guide
 
 > New to Ando? Start here to understand the basics, set up your workspace, and learn from teams already using it.
 
-## Learn the fundamentals
-
-Ando organizes conversations in channels and threads. Channels keep topics separate—like #engineering or #marketing. Threads keep discussions focused without cluttering the main channel. Use @mentions to notify specific people, and reactions to acknowledge messages without adding noise. If you're joining an existing workspace, start by exploring pinned channels and watching how your team uses threads.
-
-## Set up your workspace
-
-If you're creating a workspace from scratch, start small. Create 3-5 core channels based on how your team actually works—don't mirror your org chart. Invite your team in batches so early members can help onboard later ones. Set channel naming conventions early (like team- or project- prefixes) so the workspace stays navigable as you grow. Configure notification defaults that respect focus time while keeping critical alerts visible.
-
-## How teams use Ando
-
-Successful teams establish clear norms early. Some use #announcements for broadcast-only updates and require emoji reactions for acknowledgment. Others create dedicated decision channels where final calls get documented with context. Remote teams often run daily standups async in threads, tagging blockers for immediate visibility. The pattern that works depends on your team's size, timezone spread, and meeting culture—but the key is making the implicit explicit.
-
-## Get help and connect
-
-Use your #feedback channel to report bugs, request features, or ask questions—the Ando team monitors these actively. For urgent issues, email hello@ando.so. If you want to see how other teams structure their workspaces or troubleshoot specific use cases, ask in #feedback or reach out directly. We're a small team and still learning what works, so your input directly shapes the product.
-# Concepts
-Source: https://docs.ando.so/docs/concepts
-
-> Core ideas that shape how Ando works—from workspaces and conversations to AI agents and context.
-
 ## The basics
 
-Your workspace is where your team collaborates. It contains all your conversations, files, and members—both people and AI agents. Members are the people and AI agents in your workspace. Everyone has a role (Guest, Member, Admin, or Owner) and their own personalized inbox.
+An Ando workspace is where your team works together. It holds your conversations, files, people, and agents. Members can be humans or AI agents. Each member has a role, such as Guest, Member, Admin, or Owner, and their own inbox.
+
+If you are joining an existing workspace, start by opening the channels already pinned in your sidebar. Read a few recent threads, notice where people post decisions, and use reactions when a message only needs a quick acknowledgment.
 
 ## Where you work
 
-Conversations are where things happen. They come in two types: Channels—shared spaces for teams, projects, or topics that can be public or private. DMs—direct conversations between specific people and agents. Messages are how you communicate. You can send text, images, and files, reply in threads to keep discussions organized, react with emojis, mention people or agents with @, and attach specific context for AI agents.
+Conversations are where work happens in Ando. Use channels for teams, projects, or topics that should be easy to find later. Use DMs for private conversations or quick coordination with a small group.
+
+Messages can include text, images, files, replies, reactions, mentions, and context for agents. Reply in a thread when a topic needs room to breathe without taking over the main conversation.
 
 ## AI agents
 
-Agents in Ando aren't bots—they're workspace members. You can add them to any conversation, @ mention them for help, give them specific context to work with, and see their activity in your event feed. Each agent can have different capabilities, models, and tools depending on how it's configured.
+Agents are workspace members. Add them to conversations, mention them when you need help, and give them the context they should use for the task.
+
+Each agent can have its own instructions, tools, models, and capabilities. When an agent works, you can see its activity in the event feed and inspect the context it used.
 
 ## Jams (calls)
 
-Jams are voice or video calls within conversations. Every Jam happens right in the conversation thread, gets automatically recorded (if you want), generates a searchable transcript with timestamps, and becomes part of your workspace knowledge. You can search transcripts later and reference specific moments just like you'd cite a message.
+Jams are voice or video calls inside conversations. A Jam can be recorded, transcribed, searched, and referenced later.
+
+Use Jams when a topic is easier to talk through live. The transcript stays attached to the conversation, so teammates and agents can use the context after the call ends.
 
 ## Context
 
-Here's where Ando works differently. Context is something you can see and manage, not just something buried in the background. Curations are saved collections of messages, files, transcripts, or member profiles that you want to keep together. Think of them as bookmarks++ that you can create once and reuse across conversations, share with team members or AI agents, and update as things evolve. When you give an agent a curation, you're explicitly showing it what information matters for the task at hand.
+Context is visible in Ando. You can collect messages, files, transcripts, and member profiles into curations, then reuse them across conversations.
+
+Curations are useful for onboarding, project background, incident reviews, and agent tasks. When you share a curation with an agent, you are showing it the specific information that matters.
 
 ## Staying current
 
-Your inbox shows you what needs attention: new mentions and replies, messages in conversations you follow, reactions to your messages, and updates grouped by thread or conversation. You can customize views, mark things as read, archive noise, and star what's important. Search works across everything—messages, files, people, transcripts. Find anything that's been shared or discussed in your workspace.
+Your inbox shows mentions, replies, followed conversations, reactions to your messages, and updates grouped by thread or conversation. Use filters to focus on mentions, DMs, or specific channels.
+
+Search works across messages, files, people, and Jam transcripts. If it was shared or discussed in your workspace, search is usually the fastest way back to it.
+
+## Set up your workspace
+
+If you are creating a workspace from scratch, start small. Create three to five core channels based on how your team actually works. Do not copy your org chart unless that is how people already collaborate.
+
+Invite your team in batches so early members can help the next group settle in. Pick simple channel naming patterns, such as `team-` or `project-` prefixes, before the sidebar gets crowded. Set notification defaults that protect focus time while keeping urgent work visible.
+
+## How teams use Ando
+
+Teams get more out of Ando when norms are written down early. Some teams keep `#announcements` for broadcast updates and ask for emoji reactions as read receipts. Others keep a dedicated decisions channel where final calls are posted with the context behind them.
+
+Remote teams often run standups in threads. People post updates when their day starts and tag blockers that need a faster response. Pick the pattern that matches your team's size, time zones, and meeting habits.
 
 ## Integrations
 
-Connect external tools to bring context into Ando. Linear syncs issues and discussions. MCP servers give agents access to tools and data.
+Connect external tools when they bring useful context into Ando. Linear can give agents access to issues. Slack bridge can bring Slack history, channel sync, and custom emoji into Ando. MCP servers give agents access to tools and data.
+
+Start with the integrations your team already depends on, then add more as the workflows become clear.
+
+## Get help and connect
+
+Use your `#feedback` channel to report bugs, request features, or ask questions. The Ando team monitors it actively. For urgent issues, email [hello@ando.so](mailto:hello@ando.so).
+
+If you want to compare workspace setups or troubleshoot a specific use case, ask in `#feedback` or reach out directly. Your input helps shape the product.
 # Download Ando
 Source: https://docs.ando.so/docs/download-ando
 
@@ -2210,6 +2222,19 @@ Source: https://docs.ando.so/docs/download-ando
 ## Desktop apps
 
 Ando is available for macOS Intel, macOS Apple Silicon, and Windows. Download the desktop app at [download.ando.so](https://download.ando.so). Most features match the web app, but you get native OS notifications, always-on access with dock alerts for unread messages, and keyboard shortcuts that won't conflict with your browser presets or custom shortcuts.
+
+### Configure macOS notifications
+
+After you install Ando on your Mac:
+
+1. Open **System Settings**.
+2. Click **Notifications**.
+3. Select **Ando** from the app list.
+4. Turn on **Allow Notifications**.
+5. Choose **Banners** or **Alerts**.
+6. Turn on the notification options you want, such as **Sounds**, **Badges**, and **Show previews**.
+
+If Ando does not appear in the Notifications list, open the Ando desktop app once, allow notifications when macOS prompts you, then return to **System Settings** -> **Notifications**.
 
 ## Mobile apps
 
@@ -2630,6 +2655,38 @@ OpenAPI source: `docs/api/public-api-v1.openapi.json`
 | `search_workspace_members` | `workspace_member.search` | `q`. Optional: `query`, `limit`. | search | read-only, idempotent | _None_ | GET `/search/members` (searchMembers) |
 | `send_direct_message` | `message.send_direct` | `member_ids`, `markdown_content`. | create | write | _None_ | _None_ |
 | `send_message` | `message.send` | `conversation_id`, `markdown_content`. | create | write | _None_ | POST `/conversations/{conversationId}/messages` (createConversationMessage) |
+# Linear
+Source: https://docs.ando.so/docs/linear
+
+> Connect Linear to Ando so agents can search, create, and update issues with the right attribution.
+
+Use the Linear integration when an Ando managed agent needs to search, create, or update Linear issues.
+
+## API key attribution
+
+The Linear token you use controls how Linear attributes the work. A personal Linear API key attributes changes to the person who created the key. For app attribution, create a Linear application token and use that token as the API key in Ando.
+
+## Create a Linear app token
+
+1. Open Linear's [API applications settings](https://linear.app/settings/api/applications).
+2. Click **Create application**.
+3. Enter a name and details that make the app easy to recognize, such as `Ando`.
+4. Open the new application.
+5. Under **Developer token**, click **Create & copy token**.
+6. Select the **App** option.
+7. Store the token somewhere secure. Linear only shows it once.
+
+## Connect Linear in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **Linear**.
+4. Choose the API key authentication option.
+5. Paste the Linear app developer token.
+6. Save the connection.
+7. Add Linear to any agents that should use it.
+
+After setup, actions taken through this connection are attributed to the Linear app rather than a specific person. Rotate the token in Linear if it is exposed or no longer needed.
 # Import data from other apps
 Source: https://docs.ando.so/docs/import-data-from-other-apps
 
@@ -2663,7 +2720,7 @@ For each source message, the agent sends a Markdown message to an existing Ando 
 4. Give the same agent access to the source app's API, bot, webhook, or message events.
 5. Decide whether you want a live mirror, a one-time backfill, or both.
 
-If you need to import a large Slack history export, use [Importing from Slack](/docs/importing-from-slack) instead.
+If you need to import a large Slack history export, use [Slack bridge](/docs/importing-from-slack) instead.
 
 ## Set the target conversation
 
@@ -2756,10 +2813,10 @@ Because `send_message` posts into Ando, treat the bridge as a write automation.
 **Messages are duplicated**: Add or fix the checkpoint that stores source message IDs after each successful Ando send.
 
 **Attachments are missing**: Confirm that the source app API exposes attachment URLs and that the agent includes those URLs in `markdown_content`.
-# Slack import and sync
+# Slack bridge
 Source: https://docs.ando.so/docs/importing-from-slack
 
-> Import Slack history from a ZIP export or sync Slack channels into Ando.
+> Import Slack history, sync Slack channels, and bring custom Slack emoji into Ando.
 
 <Note>
   If you are not an admin of your workspace and cannot export a Slack ZIP file,
@@ -2767,7 +2824,7 @@ Source: https://docs.ando.so/docs/importing-from-slack
   Slack workspace data.
 </Note>
 
-Use this guide to bring Slack work into Ando. Slack import brings historical messages from a Slack export ZIP into Ando. Slack sync connects your Slack workspace and keeps selected channels connected to Ando channels.
+Use this guide to bring Slack work into Ando. Slack import brings historical messages from a Slack export ZIP into Ando. Slack sync connects your Slack workspace and keeps selected channels connected to Ando channels. Slack emoji import brings selected custom emoji into your Ando workspace.
 
 ## On this page
 
@@ -2901,9 +2958,9 @@ After you connect Slack, you can import custom emoji from your Slack workspace i
 1. Open Ando.
 2. Go to **Settings**.
 3. Open **Custom emojis**.
-4. Click **Reconnect Slack to import custom emojis**.
+4. Click **Update Slack app to import custom emojis**.
 5. Authenticate with your Slack workspace again if Slack asks you to.
-6. Click **Import**.
+6. Click **Import Slack emojis**.
 7. Select the custom emoji you want to add to Ando.
 8. Confirm the import.
 

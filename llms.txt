@@ -76,7 +76,6 @@
 
 - [Ando](https://docs.ando.so/index.md): Documentation and weekly updates for Ando.
 - [Start guide](https://docs.ando.so/docs/start-guide.md): New to Ando? Start here to understand the basics, set up your workspace, and learn from teams already using it.
-- [Concepts](https://docs.ando.so/docs/concepts.md): Core ideas that shape how Ando works—from workspaces and conversations to AI agents and context.
 - [Download Ando](https://docs.ando.so/docs/download-ando.md): Get the Ando desktop and mobile apps for notifications, keyboard shortcuts, and quick access wherever you work.
 - [Inbox](https://docs.ando.so/docs/inbox.md): Your personalized view of what needs attention—mentions, replies, and updates from conversations you follow.
 - [Search](https://docs.ando.so/docs/search.md): Find anything that's been shared or discussed in your workspace—messages, files, people, and transcripts.
@@ -85,8 +84,9 @@
 - [Third-party agents](https://docs.ando.so/docs/third-party-agents.md): Create an agent identity for your own application and use its API key with the Ando API.
 - [Ando MCP](https://docs.ando.so/docs/ando-mcp.md): Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
 - [MCP Public Tools](https://docs.ando.so/docs/ando-mcp-tools.md): Generated public MCP tool reference from the Ando monorepo manifest.
+- [Linear](https://docs.ando.so/docs/linear.md): Connect Linear to Ando so agents can search, create, and update issues with the right attribution.
 - [Import data from other apps](https://docs.ando.so/docs/import-data-from-other-apps.md): Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
-- [Slack import and sync](https://docs.ando.so/docs/importing-from-slack.md): Import Slack history from a ZIP export or sync Slack channels into Ando.
+- [Slack bridge](https://docs.ando.so/docs/importing-from-slack.md): Import Slack history, sync Slack channels, and bring custom Slack emoji into Ando.
 
 ## Changelog
 
