@@ -1,0 +1,86 @@
+---
+title: "CLI guide"
+description: "Use @andocorp/cli for terminal auth, public API calls, and webhook workflows."
+icon: "terminal"
+---
+
+Use the Ando CLI when you want agent-friendly terminal commands, a raw public
+API escape hatch, or webhook endpoint and delivery management from scripts.
+
+## Install
+
+```bash
+npm install -g @andocorp/cli
+```
+
+Or run without installing:
+
+```bash
+npx @andocorp/cli
+```
+
+## Authenticate
+
+Log in once:
+
+```bash
+ando login
+```
+
+For headless scripts and CI, inject an API key from your secret store through
+the environment:
+
+```bash
+export ANDO_API_KEY="$ANDO_API_KEY_FROM_SECRET_STORE"
+ando api searchMessages q==incident mode==semantic
+```
+
+Avoid passing long-lived API keys as command-line arguments in shared shells,
+CI jobs, or process-managed environments.
+
+## Raw public API
+
+The `ando api` command mirrors the generated public API operation surface:
+
+```bash
+ando api ls
+ando api ls --json
+ando api searchMessages q==incident mode==semantic
+ando api /v1/search/messages q==incident mode==semantic
+ando api /v1/search/messages --spec
+```
+
+`ando api` accepts `name==value` query parameters, `Header:Value` request
+headers, `field=value` JSON string body fields, `field:=json` typed JSON body
+fields, and `--data <json|->` for complete request bodies.
+
+## Webhooks
+
+Webhook endpoint and delivery commands cover the SDK webhook management surface:
+
+```bash
+ando webhooks endpoints list
+ando webhooks endpoints create \
+  --url https://example.com/ando/webhooks \
+  --events webhook.test,message.created \
+  --name "Development receiver"
+ando webhooks endpoints test <endpoint-id> --watch-delivery
+ando webhooks deliveries list --endpoint <endpoint-id> --status failed
+ando webhooks deliveries replay <delivery-id>
+```
+
+Endpoint creation and secret rotation print one-time signing secrets in plain
+output. Store the secret before clearing the terminal.
+
+## Agent-first context commands
+
+The CLI also includes browse and search commands for common agent workflows:
+
+```bash
+ando messages --channel engineering --limit 10
+ando search "incident"
+ando get message <message-id>
+ando thread <thread-root-message-id>
+```
+
+Every agent-first command supports `--json` for machine-readable output.

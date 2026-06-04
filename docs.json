@@ -87,10 +87,22 @@
         "icon": "braces",
         "groups": [
           {
+            "group": "Developer guides",
+            "pages": [
+              "developers/overview",
+              "developers/quickstart",
+              "developers/sdk",
+              "developers/cli",
+              "developers/realtime",
+              "developers/webhooks"
+            ]
+          },
+          {
             "group": "Start here",
             "pages": [
               "api-reference/overview",
-              "api-reference/authorization"
+              "api-reference/authorization",
+              "api-reference/snippets"
             ]
           },
           {
@@ -99,6 +111,12 @@
               "api-reference/messaging-quickstart",
               "api-reference/search-quickstart",
               "api-reference/http-api"
+            ]
+          },
+          {
+            "group": "Realtime workflows",
+            "pages": [
+              "api-reference/realtime-quickstart"
             ]
           },
           {
@@ -129,7 +147,7 @@
               },
               {
                 "group": "Realtime",
-                "tag": "Beta",
+                "tag": "Preview",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
                   "POST /realtime/connections"
@@ -137,7 +155,7 @@
               },
               {
                 "group": "Webhook endpoints",
-                "tag": "Beta",
+                "tag": "Preview",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
                   "POST /webhook-endpoints",
@@ -150,7 +168,7 @@
               },
               {
                 "group": "Webhook deliveries",
-                "tag": "Beta",
+                "tag": "Preview",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
                   "GET /webhook-deliveries",

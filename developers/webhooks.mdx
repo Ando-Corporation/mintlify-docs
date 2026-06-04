@@ -1,0 +1,17 @@
+---
+title: "Webhooks guide"
+description: "Use webhooks when an integration needs durable signed ProductEvent delivery."
+icon: "webhook"
+---
+
+Use webhooks when an integration needs durable signed HTTP delivery, delivery
+logs, and replay. Use realtime instead when an online client needs live
+websocket ProductEvent delivery.
+
+Use generated references for exact webhook endpoint and delivery schemas:
+
+- [Endpoint reference](/api-reference/endpoint-reference)
+
+Webhook receivers must verify the raw request body with `Ando-Signature`,
+persist or enqueue the event quickly, return a 2xx response, and deduplicate
+business side effects by `Ando-Event-Id`.
