@@ -18,7 +18,7 @@ const usage = () => {
   node scripts/verify-api-docs-release.mjs [--local] [--production] [--all] [--monorepo <path>] [--toolkit <path>] [--artifact-dir <path>] [--openapi <path>] [--archive-date YYYY-MM-DD]
 
 Modes:
-  --local       Check generated docs sync when a source is provided, rebuild llms artifacts, validate Mintlify, check links, and run diff hygiene.
+  --local       Check generated docs sync when a source is provided, rebuild llms artifacts, validate Mintlify, check links/a11y, and run diff hygiene.
   --production  Probe live docs. Uses ANDO_DOCS_URL when set, otherwise https://docs.ando.so.
   --all         Run local and production checks.
   --monorepo    Also run public OpenAPI contract checks in the Ando monorepo and compare specs.
@@ -273,6 +273,7 @@ const checkLocalDocs = () => {
   checkLocalArtifacts();
   run("npx", ["--yes", "mint@4.2.566", "validate"]);
   run("npx", ["--yes", "mint@4.2.566", "broken-links"]);
+  run("npx", ["--yes", "mint@4.2.566", "a11y"]);
   run("git", ["diff", "--check"]);
 };
 
