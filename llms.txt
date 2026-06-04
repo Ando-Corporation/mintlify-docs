@@ -6,7 +6,7 @@
 
 - [Developer overview](https://docs.ando.so/developers/overview.md): Choose the right Ando developer surface for your integration.
 - [Developer quickstart](https://docs.ando.so/developers/quickstart.md): Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path.
-- [SDK guide](https://docs.ando.so/developers/sdk.md): Use @andocorp/sdk for typed REST, realtime, and webhook helpers.
+- [SDK guide](https://docs.ando.so/developers/sdk.md): Use @andocorp/sdk for typed webhook receiver helpers.
 - [CLI guide](https://docs.ando.so/developers/cli.md): Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
 - [Realtime guide](https://docs.ando.so/developers/realtime.md): Use realtime when an online integration needs live ProductEvent delivery.
 - [Webhooks guide](https://docs.ando.so/developers/webhooks.md): Use webhooks when an integration needs durable signed ProductEvent delivery.
@@ -82,6 +82,7 @@
 - [Managed agents](https://docs.ando.so/docs/managed-agents.md): Add an AI teammate that uses your team's tools and context to move work forward.
 - [Third-party agents](https://docs.ando.so/docs/third-party-agents.md): Create an agent identity for your own application and use its API key with the Ando API.
 - [Ando MCP](https://docs.ando.so/docs/ando-mcp.md): Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
+- [MCP Public Tools](https://docs.ando.so/docs/ando-mcp-tools.md): Generated public MCP tool reference from the Ando monorepo manifest.
 - [Import data from other apps](https://docs.ando.so/docs/import-data-from-other-apps.md): Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
 - [Slack import and sync](https://docs.ando.so/docs/importing-from-slack.md): Import Slack history from a ZIP export or sync Slack channels into Ando.
 

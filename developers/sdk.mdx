@@ -1,12 +1,14 @@
 ---
 title: "SDK guide"
-description: "Use @andocorp/sdk for typed REST, realtime, and webhook helpers."
+description: "Use @andocorp/sdk for typed webhook receiver helpers."
 icon: "package"
 ---
 
-Use the TypeScript SDK when you want typed helpers around Ando's public REST
-API, realtime subscriptions, webhook endpoint management, and webhook signature
-verification.
+Use the TypeScript SDK when you want typed webhook event payloads and signature
+verification helpers. REST, realtime, and webhook endpoint management currently
+use the public API directly; start with the [API overview](/api-reference/overview)
+and generated [endpoint reference](/api-reference/endpoint-reference) for those
+routes.
 
 ## Install
 
@@ -14,87 +16,50 @@ verification.
 pnpm add @andocorp/sdk
 ```
 
-## Configure a client
-
-```ts
-import { AndoClient } from "@andocorp/sdk";
-
-const client = new AndoClient({
-  auth: {
-    apiKey: process.env.ANDO_API_KEY ?? "",
-  },
-});
-```
-
-REST requests use `https://api.ando.so` by default. Public API helpers target
-the `/v1` routes under that host.
-
-## REST helpers
-
-Public API helpers follow the generated operation surface:
-
-```ts
-await client.searchMessages({ q: "incident", mode: "semantic" });
-await client.listConversationMessages({ conversationId: "conv_123", limit: 20 });
-await client.createConversationMessage({
-  conversationId: "conv_123",
-  markdownContent: "hello",
-});
-```
-
-Use the [endpoint reference](/api-reference/endpoint-reference) for exact
-schemas and route status.
-
-## Realtime
-
-The SDK can open a public realtime subscription and connect to the returned
-`realtime.ando.so` websocket URL with the `ando.realtime.v1` protocol:
-
-```ts
-const subscription = await client.realtime.on("message.created", {
-  onEvent(event) {
-    console.log(event.message.id, event.message.content);
-  },
-});
-```
-
-Read [Realtime guide](/developers/realtime) before rolling out realtime
-integrations.
-
-## Webhook endpoint management
-
-Webhook endpoint and delivery helpers follow the public API surface:
-
-```ts
-const endpoint = await client.webhooks.createEndpoint({
-  name: "Production receiver",
-  url: "https://example.com/ando/webhooks",
-  enabledEvents: ["webhook.test", "message.created"],
-  deliveryScope: {
-    type: "workspace_member",
-    directMessageDeliveryEnabled: false,
-  },
-});
-
-await secrets.write("ando/webhook-signing-secret", endpoint.data.signing_secret);
-
-await client.webhooks.sendTestEvent(endpoint.data.id);
-await client.webhooks.listDeliveries({ endpointId: endpoint.data.id, limit: 20 });
-```
-
-Endpoint creation and secret rotation return one-time signing secrets. Store
-them in a secret manager before discarding the response, and avoid writing them
-to application logs.
-
 ## Webhook receivers
-
-Use `@andocorp/sdk/webhooks` to verify raw webhook payloads:
 
 ```ts
 import {
+  ANDO_WEBHOOK_SIGNATURE_HEADER,
   type AndoWebhookEvent,
   verifyAndoWebhookSignature,
 } from "@andocorp/sdk/webhooks";
+```
+
+Verify the raw request body before parsing or trusting event content:
+
+```ts
+const payload = await request.text();
+const secret = process.env.ANDO_WEBHOOK_SECRET;
+
+if (secret == null || secret.trim().length === 0) {
+  throw new Error("ANDO_WEBHOOK_SECRET is required.");
+}
+
+const verification = await verifyAndoWebhookSignature({
+  payload,
+  signatureHeader: request.headers.get(ANDO_WEBHOOK_SIGNATURE_HEADER),
+  secret,
+});
+
+if (!verification.ok) {
+  return new Response("invalid signature", { status: 400 });
+}
+
+const event = JSON.parse(payload) as AndoWebhookEvent;
+```
+
+Use the event `type` field to narrow payloads:
+
+```ts
+switch (event.type) {
+  case "message.created":
+    console.log(event.data.object.id, event.data.object.content);
+    break;
+  case "webhook.test":
+    console.log(event.data.object.message);
+    break;
+}
 ```
 
 Read [Webhook guide](/developers/webhooks) for receiver behavior and signature
