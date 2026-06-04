@@ -46,9 +46,11 @@
           {
             "group": "Your Sidebar",
             "pages": [
+              "docs/chat",
               "docs/inbox",
               "docs/search",
-              "docs/messages"
+              "docs/command-k",
+              "docs/invite"
             ]
           },
           {
@@ -266,6 +268,10 @@
     {
       "source": "/docs/concepts",
       "destination": "/docs/start-guide"
+    },
+    {
+      "source": "/docs/messages",
+      "destination": "/docs/chat"
     },
     {
       "source": "/docs/api",

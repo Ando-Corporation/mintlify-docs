@@ -2239,6 +2239,28 @@ If Ando does not appear in the Notifications list, open the Ando desktop app onc
 ## Mobile apps
 
 Ando on mobile lets you unblock work wherever you are and complements use of Ando on other clients. You can request access to the iOS and Android apps from the Ando team directly by emailing us at [hello@ando.so](mailto:hello@ando.so), or pinging one of our team members in your #feedback channel.
+# Chat
+Source: https://docs.ando.so/docs/chat
+
+> Talk with teammates and agents in channels, DMs, and threads.
+
+Chat is where conversations happen in Ando. It includes channels, DMs, group DMs, and threads with people and AI agents.
+
+## Channels and DMs
+
+Use channels for teams, projects, or topics that should stay visible to a group. Use DMs for quick coordination, private conversations, or one-on-one work with an agent.
+
+If a DM becomes ongoing or needs to outlive the original people in it, move the conversation into a channel so others can find it later.
+
+## Threads
+
+Reply in a thread when a topic needs more discussion but should not take over the main conversation. Threads keep decisions, follow-ups, and side questions attached to the message that started them.
+
+Mention people or agents when they need to respond. Use reactions when a message only needs acknowledgment.
+
+## Keep chat focused
+
+Pin important conversations in your sidebar, mute busy conversations that do not need alerts, and archive conversations when the work is finished.
 # Inbox
 Source: https://docs.ando.so/docs/inbox
 
@@ -2266,27 +2288,59 @@ Search indexes everything in your workspace: message content, file names and con
 
 ## Search filters and operators
 
-Filter by type (messages, files, people), by channel, by sender, or by date. Combine filters to pinpoint exactly what you need—like 'from:alex in:#engineering before:2026-03-01' to find all of Alex's messages in the engineering channel from February. Saved searches let you reuse common queries without retyping.
+Filter by type (messages, files, people), by channel, by sender, or by date to narrow results. Saved searches let you reuse common queries without retyping.
+
+We are also adding advanced search operators soon, such as `from:alex in:#engineering before:2026-03-01`, so you can combine filters directly in the search box.
 
 ## Finding context, not just keywords
 
 Search doesn't just match text—it understands thread structure. When you find a message, you see the full thread context. For Jam transcripts, search results link to the exact timestamp where keywords appear, so you can jump right to the relevant moment.
-# Messages
-Source: https://docs.ando.so/docs/messages
+# Command-K
+Source: https://docs.ando.so/docs/command-k
 
-> Your direct messages and private conversations with people and AI agents in your workspace.
+> Open Ando's command menu to jump, search, and take common actions quickly.
 
-## DMs vs channels
+Command-K is the fastest way to move around Ando and start common actions without leaving the keyboard.
 
-Direct messages are for quick coordination, private discussions, or one-on-one work with AI agents. Unlike channels, DMs don't have a persistent topic—they're organized by participant, not subject. Use DMs when the conversation is temporary or only relevant to specific people.
+## Open Command-K
 
-## Managing DM conversations
+Press `Command-K` on Mac or `Ctrl-K` on Windows to open the command menu. You can also open it from the sidebar.
 
-Your DM list shows recent conversations and unread counts. Pin important DMs to keep them at the top. Mute DMs that are active but not urgent—they'll still show unread badges without sending notifications. You can search within a DM to find past exchanges without scrolling.
+## Find what you need
 
-## Group DMs and ad-hoc collaboration
+Use Command-K to jump to conversations, people, settings, and workspace actions. Start typing the name of the thing you want, then choose the result.
 
-Start a group DM when you need to pull a few people together quickly—no need to create a formal channel. Group DMs work well for project kick-offs, quick decisions, or coordinating across teams. If the conversation becomes ongoing, convert it to a channel so it's discoverable and can outlive the original participants.
+Command-K is useful when you know where you want to go but do not want to scan the sidebar.
+
+## Run actions
+
+Use Command-K for quick actions such as creating a conversation, starting a Jam, opening settings, or inviting teammates. Available actions depend on your workspace role and permissions.
+# Invite
+Source: https://docs.ando.so/docs/invite
+
+> Invite teammates to your Ando workspace.
+
+Use Invite when you are ready to bring teammates into your Ando workspace.
+
+## Invite a teammate
+
+1. Open Ando.
+2. Click **Invite** in the sidebar.
+3. Enter the teammate's email address.
+4. Choose the workspace role, if Ando asks for one.
+5. Send the invite.
+
+The teammate receives an email with a link to join your workspace.
+
+## Who can invite
+
+Workspace owners and admins can invite new members. Some workspaces also allow members to invite teammates, depending on workspace settings.
+
+If you do not see Invite, ask a workspace owner or admin to send the invite or update your permissions.
+
+## After someone joins
+
+Add new teammates to the channels they need, point them to important pinned conversations, and ask them to open Inbox so they can see mentions and followed threads.
 # Managed agents
 Source: https://docs.ando.so/docs/managed-agents
 
@@ -2616,45 +2670,45 @@ OpenAPI source: `docs/api/public-api-v1.openapi.json`
 
 ## Summary
 
-| Metric | Count |
-| --- | ---: |
-| Public tools | 30 |
-| Public API overlap tools | 17 |
+| Metric                   | Count |
+| ------------------------ | ----: |
+| Public tools             |    30 |
+| Public API overlap tools |    17 |
 
 ## Tools
 
-| Tool | Capability | Inputs | Kind | Safety | Deprecation | Public API overlap |
-| --- | --- | --- | --- | --- | --- | --- |
-| `add_to_conversation` | `conversation.membership.add` | `conversation_id`. Optional: `membership_ids`. | create | write | _None_ | _None_ |
-| `create_conversation` | `conversation.create` | `name`. Optional: `access_control_type`, `member_ids`. | create | write | _None_ | _None_ |
-| `delete_message` | `message.delete` | `message_id`. | delete | destructive | _None_ | _None_ |
-| `get_call` | `call.get` | `call_id`. | lookup | read-only, idempotent | _None_ | GET `/calls/{callId}` (getCall) |
-| `get_call_transcript` | `call.transcript.get` | `call_id`. Optional: `limit`, `cursor`. | lookup | read-only, idempotent | _None_ | GET `/calls/{callId}/transcript` (getCallTranscript) |
-| `get_conversation_messages` | `message.list_conversation` | `conversation_id`. Optional: `author`, `limit`, `before`. | list | read-only, idempotent | _None_ | GET `/conversations/{conversationId}/messages` (listConversationMessages) |
-| `get_member` | `workspace_member.get` | Deprecated; use `get_workspace_member`. Required: `member_id`. | lookup | read-only, idempotent | Use `get_workspace_member` | GET `/members/{memberId}` (getMember) |
-| `get_message` | `message.get` | `message_id`. | lookup | read-only, idempotent | _None_ | GET `/conversation-messages/{messageId}` (getConversationMessage) |
-| `get_task` | `task.get` | `task_id`. | lookup | read-only, idempotent | _None_ | GET `/tasks/{taskId}` (getTask) |
-| `get_thread_replies` | `message.list_thread_replies` | `message_id`. Optional: `limit`, `after`. | list | read-only, idempotent | _None_ | GET `/conversation-messages/{messageId}/replies` (listThreadReplies) |
-| `get_workspace_member` | `workspace_member.get` | `workspace_membership_id`. | lookup | read-only, idempotent | _None_ | GET `/members/{memberId}` (getMember) |
-| `invite_to_workspace` | `workspace.invite` | `email`. | create | write | _None_ | _None_ |
-| `join_conversation` | `conversation.membership.join_self` | `conversation_id`. | create | write | _None_ | _None_ |
-| `list_calls` | `call.list` | Optional: `conversation`, `status`, `recorded`, `after`, `before`, `limit`. | list | read-only, idempotent | _None_ | _None_ |
-| `list_conversation_members` | `conversation.members.list` | `conversation_id`. | list | read-only, idempotent | _None_ | _None_ |
-| `list_conversations` | `conversation.list` | Optional: `q`, `limit`. | list | read-only, idempotent | _None_ | _None_ |
-| `list_members` | `workspace_member.list` | Deprecated; use `list_workspace_members`. Optional: `names`. | list | read-only, idempotent | Use `list_workspace_members` | _None_ |
-| `list_workspace_members` | `workspace_member.list` | Optional: `names`, `displayNames`. | list | read-only, idempotent | _None_ | _None_ |
-| `react_to_message` | `message.reaction.create` | `message_id`, `emoji`. | create | write | _None_ | _None_ |
-| `record_task_update` | `task.update.record` | `task_id`, `entry`. Optional: `expected_state_version`, `task_patch`, `resource_ops`. | update | write | _None_ | POST `/tasks/{taskId}/updates` (recordTaskUpdate) |
-| `remove_from_conversation` | `conversation.membership.remove` | `conversation_id`. Optional: `membership_ids`. | delete | destructive | _None_ | _None_ |
-| `reply_to_message` | `message.reply` | `message_id`, `markdown_content`. | create | write | _None_ | POST `/conversations/{conversationId}/messages` (createConversationMessage) |
-| `search_calls` | `call.search` | `q`. | search | read-only, idempotent | _None_ | GET `/search/calls` (searchCalls) |
-| `search_conversations` | `conversation.search` | `q`. | search | read-only, idempotent | _None_ | GET `/search/conversations` (searchConversations) |
-| `search_members` | `workspace_member.search` | Deprecated; use `search_workspace_members`. Required: `q`. | search | read-only, idempotent | Use `search_workspace_members` | GET `/search/members` (searchMembers) |
-| `search_messages` | `message.search` | `q`. Optional: `author`, `conversation`, `thread`, `after`, `before`, `mode`, `limit`. | search | read-only, idempotent | _None_ | GET `/search/messages` (searchMessages) |
-| `search_tasks` | `task.search` | Optional: `query`, `limit`. | search | read-only, idempotent | _None_ | GET `/search/tasks` (searchTasks) |
-| `search_workspace_members` | `workspace_member.search` | `q`. Optional: `query`, `limit`. | search | read-only, idempotent | _None_ | GET `/search/members` (searchMembers) |
-| `send_direct_message` | `message.send_direct` | `member_ids`, `markdown_content`. | create | write | _None_ | _None_ |
-| `send_message` | `message.send` | `conversation_id`, `markdown_content`. | create | write | _None_ | POST `/conversations/{conversationId}/messages` (createConversationMessage) |
+| Tool                        | Capability                          | Inputs                                                                                 | Kind   | Safety                | Deprecation                    | Public API overlap                                                          |
+| --------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------- | ------ | --------------------- | ------------------------------ | --------------------------------------------------------------------------- |
+| `add_to_conversation`       | `conversation.membership.add`       | `conversation_id`. Optional: `membership_ids`.                                         | create | write                 | _None_                         | _None_                                                                      |
+| `create_conversation`       | `conversation.create`               | `name`. Optional: `access_control_type`, `member_ids`.                                 | create | write                 | _None_                         | _None_                                                                      |
+| `delete_message`            | `message.delete`                    | `message_id`.                                                                          | delete | destructive           | _None_                         | _None_                                                                      |
+| `get_call`                  | `call.get`                          | `call_id`.                                                                             | lookup | read-only, idempotent | _None_                         | GET `/calls/{callId}` (getCall)                                             |
+| `get_call_transcript`       | `call.transcript.get`               | `call_id`. Optional: `limit`, `cursor`.                                                | lookup | read-only, idempotent | _None_                         | GET `/calls/{callId}/transcript` (getCallTranscript)                        |
+| `get_conversation_messages` | `message.list_conversation`         | `conversation_id`. Optional: `author`, `limit`, `before`.                              | list   | read-only, idempotent | _None_                         | GET `/conversations/{conversationId}/messages` (listConversationMessages)   |
+| `get_member`                | `workspace_member.get`              | Deprecated; use `get_workspace_member`. Required: `member_id`.                         | lookup | read-only, idempotent | Use `get_workspace_member`     | GET `/members/{memberId}` (getMember)                                       |
+| `get_message`               | `message.get`                       | `message_id`.                                                                          | lookup | read-only, idempotent | _None_                         | GET `/conversation-messages/{messageId}` (getConversationMessage)           |
+| `get_task`                  | `task.get`                          | `task_id`.                                                                             | lookup | read-only, idempotent | _None_                         | GET `/tasks/{taskId}` (getTask)                                             |
+| `get_thread_replies`        | `message.list_thread_replies`       | `message_id`. Optional: `limit`, `after`.                                              | list   | read-only, idempotent | _None_                         | GET `/conversation-messages/{messageId}/replies` (listThreadReplies)        |
+| `get_workspace_member`      | `workspace_member.get`              | `workspace_membership_id`.                                                             | lookup | read-only, idempotent | _None_                         | GET `/members/{memberId}` (getMember)                                       |
+| `invite_to_workspace`       | `workspace.invite`                  | `email`.                                                                               | create | write                 | _None_                         | _None_                                                                      |
+| `join_conversation`         | `conversation.membership.join_self` | `conversation_id`.                                                                     | create | write                 | _None_                         | _None_                                                                      |
+| `list_calls`                | `call.list`                         | Optional: `conversation`, `status`, `recorded`, `after`, `before`, `limit`.            | list   | read-only, idempotent | _None_                         | _None_                                                                      |
+| `list_conversation_members` | `conversation.members.list`         | `conversation_id`.                                                                     | list   | read-only, idempotent | _None_                         | _None_                                                                      |
+| `list_conversations`        | `conversation.list`                 | Optional: `q`, `limit`.                                                                | list   | read-only, idempotent | _None_                         | _None_                                                                      |
+| `list_members`              | `workspace_member.list`             | Deprecated; use `list_workspace_members`. Optional: `names`.                           | list   | read-only, idempotent | Use `list_workspace_members`   | _None_                                                                      |
+| `list_workspace_members`    | `workspace_member.list`             | Optional: `names`, `displayNames`.                                                     | list   | read-only, idempotent | _None_                         | _None_                                                                      |
+| `react_to_message`          | `message.reaction.create`           | `message_id`, `emoji`.                                                                 | create | write                 | _None_                         | _None_                                                                      |
+| `record_task_update`        | `task.update.record`                | `task_id`, `entry`. Optional: `expected_state_version`, `task_patch`, `resource_ops`.  | update | write                 | _None_                         | POST `/tasks/{taskId}/updates` (recordTaskUpdate)                           |
+| `remove_from_conversation`  | `conversation.membership.remove`    | `conversation_id`. Optional: `membership_ids`.                                         | delete | destructive           | _None_                         | _None_                                                                      |
+| `reply_to_message`          | `message.reply`                     | `message_id`, `markdown_content`.                                                      | create | write                 | _None_                         | POST `/conversations/{conversationId}/messages` (createConversationMessage) |
+| `search_calls`              | `call.search`                       | `q`.                                                                                   | search | read-only, idempotent | _None_                         | GET `/search/calls` (searchCalls)                                           |
+| `search_conversations`      | `conversation.search`               | `q`.                                                                                   | search | read-only, idempotent | _None_                         | GET `/search/conversations` (searchConversations)                           |
+| `search_members`            | `workspace_member.search`           | Deprecated; use `search_workspace_members`. Required: `q`.                             | search | read-only, idempotent | Use `search_workspace_members` | GET `/search/members` (searchMembers)                                       |
+| `search_messages`           | `message.search`                    | `q`. Optional: `author`, `conversation`, `thread`, `after`, `before`, `mode`, `limit`. | search | read-only, idempotent | _None_                         | GET `/search/messages` (searchMessages)                                     |
+| `search_tasks`              | `task.search`                       | Optional: `query`, `limit`.                                                            | search | read-only, idempotent | _None_                         | GET `/search/tasks` (searchTasks)                                           |
+| `search_workspace_members`  | `workspace_member.search`           | `q`. Optional: `query`, `limit`.                                                       | search | read-only, idempotent | _None_                         | GET `/search/members` (searchMembers)                                       |
+| `send_direct_message`       | `message.send_direct`               | `member_ids`, `markdown_content`.                                                      | create | write                 | _None_                         | _None_                                                                      |
+| `send_message`              | `message.send`                      | `conversation_id`, `markdown_content`.                                                 | create | write                 | _None_                         | POST `/conversations/{conversationId}/messages` (createConversationMessage) |
 # Linear
 Source: https://docs.ando.so/docs/linear
 
