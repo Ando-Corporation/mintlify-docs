@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": null,
+  "generatedBy": "scripts/generate-webhook-event-docs.mjs",
+  "source": {
+    "files": [
+      {
+        "path": "packages/shared/src/product-events/event-registry.ts",
+        "sha256": "d97634d27b70f6f3c4bddc1d0faa56032330bc7b8778234a4a388023eb6b4a13"
+      },
+      {
+        "path": "packages/shared/src/product-events/event-envelope.ts",
+        "sha256": "20469d9c5587b83eadd8f3e48a02d8a055f15fd61da6fc0b046ddc40db53e70f"
+      },
+      {
+        "path": "packages/shared/src/product-events/webhook-events.ts",
+        "sha256": "654617fda262b1c52d180c858f29276083fe3b105022f5e3b733afe06f434dbb"
+      }
+    ],
+    "fingerprintSha256": "6a37fdf526b253233737185d408e4cc413a7ce5857f00a3eed1d3d760ceaa82d"
+  },
+  "envelope": {
+    "object": "event",
+    "apiVersion": "2026-05-27",
+    "fields": [
+      "id",
+      "object",
+      "type",
+      "api_version",
+      "created_at",
+      "workspace_id",
+      "data.object",
+      "data.previous_attributes",
+      "related.conversation_id",
+      "related.message_id",
+      "related.thread_root_message_id",
+      "related.call_id"
+    ],
+    "previousAttributes": "Present only for event types whose source contract declares previous attributes."
+  },
+  "summary": {
+    "eventCount": 10,
+    "payloadContractTypeNames": [
+      "CallTranscriptUpdatedWebhookObject",
+      "CallWebhookObject",
+      "ConversationMembershipCreatedWebhookObject",
+      "ConversationResult",
+      "MessageResult",
+      "WebhookTestEventObject"
+    ],
+    "byOwner": {
+      "calls": 4,
+      "conversations": 3,
+      "messaging": 2,
+      "platform": 1
+    },
+    "byPiiClass": {
+      "message_content": 2,
+      "none": 1,
+      "workspace_metadata": 7
+    },
+    "byAuthorizationAnchor": {
+      "conversation": 9,
+      "none": 1
+    }
+  },
+  "events": [
+    {
+      "type": "call.ended",
+      "owner": "calls",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "CallWebhookObject",
+        "notes": "Metadata-only."
+      },
+      "relatedWebSocketEventIds": [
+        "call/ended"
+      ]
+    },
+    {
+      "type": "call.started",
+      "owner": "calls",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "CallWebhookObject",
+        "notes": "Metadata-only."
+      },
+      "relatedWebSocketEventIds": [
+        "call/started"
+      ]
+    },
+    {
+      "type": "call.transcript.updated",
+      "owner": "calls",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "CallTranscriptUpdatedWebhookObject",
+        "notes": "Metadata-only."
+      },
+      "relatedWebSocketEventIds": [
+        "call/transcript-updated"
+      ]
+    },
+    {
+      "type": "call.updated",
+      "owner": "calls",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "CallWebhookObject",
+        "notes": "Includes previous public attributes."
+      },
+      "relatedWebSocketEventIds": [
+        "call/updated"
+      ]
+    },
+    {
+      "type": "conversation.archived",
+      "owner": "conversations",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "ConversationResult"
+      },
+      "relatedWebSocketEventIds": [
+        "conversation/archived"
+      ]
+    },
+    {
+      "type": "conversation.membership.created",
+      "owner": "conversations",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "ConversationMembershipCreatedWebhookObject",
+        "notes": "Includes public MemberResult."
+      },
+      "relatedWebSocketEventIds": [
+        "membership/new"
+      ]
+    },
+    {
+      "type": "conversation.unarchived",
+      "owner": "conversations",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "workspace_metadata",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "ConversationResult"
+      },
+      "relatedWebSocketEventIds": [
+        "conversation/unarchived"
+      ]
+    },
+    {
+      "type": "message.created",
+      "owner": "messaging",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "message_content",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "MessageResult"
+      },
+      "relatedWebSocketEventIds": [
+        "member/message-new"
+      ]
+    },
+    {
+      "type": "message.updated",
+      "owner": "messaging",
+      "durability": "durable",
+      "authorizationAnchor": "conversation",
+      "piiClass": "message_content",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "MessageResult",
+        "notes": "Includes previous_attributes.content."
+      },
+      "relatedWebSocketEventIds": [
+        "member/message-update"
+      ]
+    },
+    {
+      "type": "webhook.test",
+      "owner": "platform",
+      "durability": "durable",
+      "authorizationAnchor": "none",
+      "piiClass": "none",
+      "payloadContract": {
+        "status": "typed",
+        "typeName": "WebhookTestEventObject"
+      },
+      "relatedWebSocketEventIds": []
+    }
+  ],
+  "asyncApi": {
+    "generated": false,
+    "reason": "Webhook payload contracts are currently source-backed TypeScript types, not emitted runtime JSON Schemas. Generated JSON/MDX remains the public docs artifact until schema emission exists."
+  }
+}
