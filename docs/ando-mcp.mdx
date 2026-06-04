@@ -43,7 +43,7 @@ The server uses streamable HTTP MCP and API-key authentication.
 
 ## Available Tools
 
-Ando MCP includes public tools for conversations, messages, members, calls/Jams, clipboard items, and workspace actions. Read the generated [MCP public tool reference](/docs/ando-mcp-tools) for the current tool list, maturity level, safety label, and public API overlap for each tool.
+Ando MCP includes public tools for conversations, messages, members, calls/Jams, tasks, and workspace actions. Read the generated [MCP public tool reference](/docs/ando-mcp-tools) for the current tool list, safety label, deprecation status, and public API overlap for each tool.
 
 ## Supported Clients
 
@@ -139,7 +139,7 @@ After saving the file, open Cursor Settings -> MCP and confirm that `ando` is en
 
 ## Common Usage Patterns
 
-**Find a person, then browse their messages**: Call `search_members` with a name or email, or `list_members` when you need active workspace members by exact display name. Take the returned member ID. Call `get_conversation_messages` with `author` to browse recent messages in a known conversation, or call `search_messages` with `author` if you need search instead of browsing.
+**Find a person, then browse their messages**: Call `search_workspace_members` with a name or email, or `list_workspace_members` when you need active workspace members by exact display name. Take the returned member ID. Call `get_conversation_messages` with `author` to browse recent messages in a known conversation, or call `search_messages` with `author` if you need search instead of browsing.
 
 **Inspect a channel or DM roster**: Call `search_conversations` or `list_conversations` to identify the conversation, then call `list_conversation_members` with the conversation ID.
 
@@ -149,19 +149,19 @@ After saving the file, open Cursor Settings -> MCP and confirm that `ando` is en
 
 **Find or update a task**: Call `search_tasks` to discover visible tasks, then `get_task` for the task summary, recent work log entries, and active task URLs. Use `record_task_update` only when the user explicitly asks you to update a task.
 
-**Send a user-requested DM**: Call `search_members` for each recipient unless IDs are already known. Then call `send_direct_message` with `member_ids` and `markdown_content`. Report the returned `message_id` and `conversation_id`.
+**Send a user-requested DM**: Call `search_workspace_members` for each recipient unless IDs are already known. Then call `send_direct_message` with `member_ids` and `markdown_content`. Report the returned `message_id` and `conversation_id`.
 
 **React to a user-specified message**: Confirm the exact target with `get_message` unless the user already provided a precise message ID, then call `react_to_message` with `message_id` and `emoji`.
 
 **Invite a user to the workspace**: Call `invite_to_workspace` only when the user explicitly asks to invite an email address.
 
-**Start broad, then narrow**: The usual workflow is to search or list conversations, members, messages, clipboards, calls, or tasks, capture the relevant IDs, then use the matching `get_*` or paginated tool for full details.
+**Start broad, then narrow**: The usual workflow is to search or list conversations, members, messages, calls, or tasks, capture the relevant IDs, then use the matching `get_*` or paginated tool for full details.
 
 ## Behavior
 
 Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
 
-`get_conversation_messages` returns messages in reverse chronological order. `get_thread_replies` returns replies in chronological order. `get_call_transcript` is paginated and should be called repeatedly with the returned cursor when needed. Use `list_calls` for recent calls/Jams without a search query, and `search_calls` when searching transcript content. Use `list_conversations`, `list_members`, and `list_conversation_members` for browse-style discovery without a fuzzy search query.
+`get_conversation_messages` returns messages in reverse chronological order. `get_thread_replies` returns replies in chronological order. `get_call_transcript` is paginated and should be called repeatedly with the returned cursor when needed. Use `list_calls` for recent calls/Jams without a search query, and `search_calls` when searching transcript content. Use `list_conversations`, `list_workspace_members`, and `list_conversation_members` for browse-style discovery without a fuzzy search query.
 
 Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
 

@@ -28,7 +28,9 @@ export ANDO_API_KEY="ando_sk_..."
 ```
 
 Create API keys in Ando from **Settings** -> **API keys**. Send API keys with
-`x-api-key` for REST requests. The SDK and CLI can also read `ANDO_API_KEY`.
+`x-api-key` for REST requests. The CLI can also read `ANDO_API_KEY`. SDK webhook
+receivers verify deliveries with `ANDO_WEBHOOK_SECRET` from the webhook endpoint
+signing secret.
 
 ## Stability
 
