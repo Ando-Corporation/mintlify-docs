@@ -12,6 +12,27 @@
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
+  "fonts": {
+    "family": "Geist",
+    "body": {
+      "family": "Geist",
+      "weight": 400
+    },
+    "heading": {
+      "family": "Geist",
+      "weight": 600
+    }
+  },
+  "background": {
+    "color": {
+      "light": "#F7F7F6",
+      "dark": "#1F1F1F"
+    }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": "system"
+  },
   "icons": {
     "library": "lucide"
   },
@@ -54,6 +75,13 @@
             ]
           },
           {
+            "group": "Import Data",
+            "pages": [
+              "docs/importing-from-slack",
+              "docs/other-messaging-bridges"
+            ]
+          },
+          {
             "group": "Agents",
             "pages": [
               "docs/managed-agents",
@@ -65,9 +93,7 @@
             "pages": [
               "docs/ando-mcp",
               "docs/ando-mcp-tools",
-              "docs/linear",
-              "docs/import-data-from-other-apps",
-              "docs/importing-from-slack"
+              "docs/linear"
             ]
           }
         ]
@@ -272,6 +298,10 @@
     {
       "source": "/docs/messages",
       "destination": "/docs/chat"
+    },
+    {
+      "source": "/docs/import-data-from-other-apps",
+      "destination": "/docs/other-messaging-bridges"
     },
     {
       "source": "/docs/api",

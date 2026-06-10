@@ -2132,24 +2132,6 @@ Responses:
 
 ## Product docs
 
-# Ando
-Source: https://docs.ando.so/index
-
-> Documentation and weekly updates for Ando.
-
-Learn how to use Ando, get the latest updates on what we're doing, or learn how to use Ando's developer toolkit to build your own agents.
-
-<Columns cols={2}>
-  <Card title="Docs" icon="book-open" href="/docs/start-guide">
-    Learn how to set up your workspace and get the most out of Ando.
-  </Card>
-  <Card title="Changelog" icon="history" href="/changelog">
-    Read weekly updates on features, improvements, and fixes.
-  </Card>
-    <Card title="API Reference" icon="code" href="/api-reference">
-    Learn how to use the Ando API to build custom agents.
-  </Card>
-</Columns>
 # Start guide
 Source: https://docs.ando.so/docs/start-guide
 
@@ -2341,6 +2323,298 @@ If you do not see Invite, ask a workspace owner or admin to send the invite or u
 ## After someone joins
 
 Add new teammates to the channels they need, point them to important pinned conversations, and ask them to open Inbox so they can see mentions and followed threads.
+# Slack bridge
+Source: https://docs.ando.so/docs/importing-from-slack
+
+> Import Slack history, sync Slack channels, and bring custom Slack emoji into Ando.
+
+<Note>
+  If you are not an admin of your workspace and cannot export a Slack ZIP file,
+  [contact us](mailto:hello@ando.so) for alternative methods to export your
+  Slack workspace data.
+</Note>
+
+Use this guide to bring Slack work into Ando. Slack import brings historical messages from a Slack export ZIP into Ando. Slack sync connects your Slack workspace and keeps selected channels connected to Ando channels. Slack emoji import brings selected custom emoji into your Ando workspace.
+
+## On this page
+
+- [Slack import](#slack-import)
+- [Slack sync](#slack-sync)
+- [Slack emoji import](#slack-emoji-import)
+
+## Slack import {#slack-import}
+
+<iframe
+  src="https://www.loom.com/embed/e59bfcd90bdc4310a3a0dd39bb9ab46b"
+  title="Slack import tutorial video"
+  style={{
+    width: "100%",
+    aspectRatio: "16 / 9",
+    border: 0,
+    borderRadius: "8px",
+  }}
+  allowFullScreen
+/>
+
+### Before you start
+
+Ando imports Slack history from the official Slack export `.zip` file. Export the data from Slack, download the ZIP when Slack emails you, then upload that original ZIP to Ando. Do not unzip, rename, or edit the export before uploading it.
+
+Slack's export rules depend on your Slack plan, your role, and whether your workspace or organization has been approved for broader export tools. Read more in [this article from Slack](https://slack.com/help/articles/201658943-Export-your-workspace-data).
+
+### Who can export from Slack
+
+| Slack plan | Who can export              | What they can usually export                                                                                                                                              |
+| ---------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Free       | Workspace Owners and Admins | Messages and file links from public channels. Free workspaces can only export links to files from the last 90 days.                                                       |
+| Pro        | Workspace Owners and Admins | Messages and file links from public channels.                                                                                                                             |
+| Business+  | Workspace Owners and Admins | Messages and file links from public channels. Workspace Owners can apply for additional export types, including all channels and conversations or a channel audit report. |
+| Enterprise | Org Owners and Admins       | Enterprise export tools, once enabled, can export data by conversation type, member, workspace, all channels and conversations, or channel audit.                         |
+
+Slack also supports an Export Admin system role. If your organization uses that role, members with Export Admin permissions may be able to use export features where configured.
+
+Private channels and DMs are not included in a standard public-channel export. They generally require Business+ or Enterprise export access and approval from Slack. If those conversations are missing from the ZIP, Ando cannot import them from that file.
+
+### Export your Slack ZIP
+
+For Free, Pro, and Business+ workspaces:
+
+1. Open Slack on desktop.
+2. Click **Admin** in the sidebar.
+3. Select **Workspace settings**, then click **Security**.
+4. Click **Import & export data**.
+5. Open the **Export** tab.
+6. Choose the export date range and, if Slack shows more than one option, the export type you want to use.
+7. Click **Start Export**.
+8. Wait for Slack to email you when the export file is ready.
+9. Open the email and click **Visit your workspace's export page**.
+10. Click **Ready for download** to download the ZIP file.
+
+For Enterprise organizations:
+
+1. Open Slack on desktop.
+2. Click your organization name in the sidebar.
+3. Select **Tools & settings**, then click **Organization settings**.
+4. In the left sidebar, click **Security**, then select **Exports**.
+5. Click **Export** next to the export option you want to use.
+6. Select the scope, parameters, and format if Slack asks for them.
+7. Start the export.
+8. Wait for Slack to email you when the export file is ready.
+9. Open the email and click **Visit your workspace's export page**.
+10. Open the **Downloads** tab and click **Download** next to your export to download the ZIP file.
+
+### Import the ZIP into Ando
+
+Once you have the Slack export ZIP:
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Slack bridge**.
+4. Click **Begin import** and upload the original `.zip` file from Slack.
+5. Select the Slack users you want to import as Ando members. You can attribute messages sent by Slack users to equivalent Ando members.
+6. Select the Slack channels you want to import.
+7. Choose whether each Slack channel should import as a new Ando channel or into an existing Ando channel.
+8. Choose whether to import all messages, or only messages sent before the first existing message in the Ando channel.
+9. Confirm and begin the import. Large imports may take longer.
+10. When the import finishes, the channels appear in your sidebar.
+
+Large workspaces can take longer to upload and process.
+
+### What gets imported
+
+Ando imports the channels you select from the Slack export file and brings the historical message context into your Ando workspace so your team can search and reference prior work. What Ando can import depends on what Slack included in the ZIP. If the export only contains public channels, only those channels will be available to select.
+
+The ZIP may include Slack metadata, message JSON files, and file links. Ando reads the export directly, so upload the ZIP exactly as Slack provided it.
+
+## Slack sync {#slack-sync}
+
+Use Slack sync when you want selected Slack channels to stay connected to Ando.
+
+### Connect your Slack workspace
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Slack bridge**.
+4. Click **Connect**.
+5. Authenticate with your Slack workspace and approve the requested access.
+
+If Slack says you cannot install the app, ask a Slack Workspace Owner or Admin to approve it.
+
+### Select people to import
+
+After Slack connects, Ando asks which Slack users you want to import.
+
+1. Select the Slack users you want to import as Ando members.
+2. Map Slack users to existing Ando members when Ando shows a match.
+3. Click **Continue**.
+
+If you already completed a Slack import, click **Continue** to keep your existing mappings and move to channel selection.
+
+### Select channels to sync
+
+Choose the Slack channels you want to sync. For each channel, choose where synced messages should go.
+
+| Option               | What happens                                        |
+| -------------------- | --------------------------------------------------- |
+| **New channel**      | Ando creates a new channel for the Slack channel.   |
+| **Existing channel** | Ando syncs messages into a channel you already use. |
+
+Review your choices, then confirm them to start syncing. Synced channels appear in your Ando sidebar after setup completes.
+
+## Slack emoji import {#slack-emoji-import}
+
+After you connect Slack, you can import custom emoji from your Slack workspace into Ando.
+
+1. Open Ando.
+2. Go to **Settings**.
+3. Open **Custom emojis**.
+4. Click **Update Slack app to import custom emojis**.
+5. Authenticate with your Slack workspace again if Slack asks you to.
+6. Click **Import Slack emojis**.
+7. Select the custom emoji you want to add to Ando.
+8. Confirm the import.
+
+Imported emoji become available in your Ando workspace after the import finishes.
+
+## Troubleshooting
+
+**I do not see export settings in Slack**: Ask a Workspace Owner or Admin on Free, Pro, or Business+, or an Org Owner or Admin on Enterprise, to export the data for you. Your Slack workspace may also restrict exports to members with the Export Admin system role. If you cannot export the data, [contact us](mailto:hello@ando.so) for alternative methods to export your Slack workspace data.
+
+**Private channels or DMs are missing**: Your Slack export probably did not include them. Standard Free, Pro, and Business+ public-channel exports do not include private channels or DMs.
+
+**Slack says the export is not ready**: Wait for Slack's email. Slack creates the ZIP asynchronously and sends a link when it is ready to download.
+
+**The Ando upload fails**: Make sure you are uploading the original `.zip` file from Slack. If the file was unzipped, renamed, recompressed, or edited, download a fresh copy from Slack and try again. Contact us if you continue to encounter errors.
+
+**Slack will not let me connect**: Your Slack workspace may restrict app installs. Ask a Slack Workspace Owner or Admin to approve the Ando connection.
+
+**I already imported Slack users**: Click **Continue** on the user selection step to move to channel selection.
+# Other messaging bridges
+Source: https://docs.ando.so/docs/other-messaging-bridges
+
+> Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
+
+You can bring messages from another app into Ando by giving an agent access to the source app and [Ando MCP](/docs/ando-mcp). The agent reads messages from Discord, Microsoft Teams, Telegram, or another service, then calls Ando MCP's `send_message` tool to post each message into an Ando conversation.
+
+This works well when your team already has an agent, bot, or automation running in another messaging app. Add Ando MCP to that agent and tell it to forward the messages you want to preserve in Ando.
+
+## How it works
+
+The bridge has two sides:
+
+| Side | What the agent needs |
+| --- | --- |
+| Source app | API, bot, webhook, or agent access that can read the messages you want to import. |
+| Ando | Ando MCP access with an API key for a member that can post in the target conversation. |
+
+For each source message, the agent sends a Markdown message to an existing Ando conversation with:
+
+| `send_message` input | Value |
+| --- | --- |
+| `conversation_id` | The Ando conversation where imported messages should appear. |
+| `markdown_content` | The source message body and any attribution you want to include. |
+
+## Before you start
+
+1. Create or choose the target conversation in Ando.
+2. Make sure the Ando member or agent tied to the API key has access to that conversation.
+3. Set up [Ando MCP](/docs/ando-mcp) in the agent that will run the import.
+4. Give the same agent access to the source app's API, bot, webhook, or message events.
+5. Decide whether you want a live mirror, a one-time backfill, or both.
+
+If you need to import a large Slack history export, use [Slack bridge](/docs/importing-from-slack) instead.
+
+## Set the target conversation
+
+Ask the agent to find the Ando conversation before it starts forwarding messages:
+
+```text
+Use Ando MCP to find the Ando conversation named "discord-general".
+Save its conversation_id.
+Do not send any messages until I confirm the target conversation.
+```
+
+After you confirm the target, the agent can use that `conversation_id` for each `send_message` call.
+
+## Forward live messages
+
+Use a live bridge when you want new messages from another app to appear in Ando as they happen.
+
+```text
+You are mirroring Discord #general into Ando.
+
+For every new Discord message in #general:
+1. Ignore messages from bots unless I explicitly allow them.
+2. Format the message as:
+   **Discord #general - <author display name>**
+   <message text>
+
+   Source: <message permalink>
+3. Call Ando MCP `send_message` with:
+   - conversation_id: <ANDO_CONVERSATION_ID>
+   - markdown_content: the formatted message
+4. Keep a local record of forwarded source message IDs so you do not send duplicates.
+```
+
+The same pattern works for Teams channels, Telegram groups, support tools, or any other service where your agent can read message events.
+
+## Backfill past messages
+
+Use a backfill when you want to copy existing messages into Ando.
+
+```text
+Backfill messages from Discord #general into Ando.
+
+Import messages from 2026-05-01 through 2026-05-14.
+Process messages oldest to newest.
+For each message, include the original author, timestamp, message text, and source permalink.
+Call Ando MCP `send_message` for each message using conversation_id <ANDO_CONVERSATION_ID>.
+Stop and report errors instead of retrying indefinitely.
+Keep a checkpoint after each successful send so the import can resume without duplicates.
+```
+
+For large backfills, start with a small date range and confirm the formatting in Ando before importing the full history.
+
+## Formatting tips
+
+Use Markdown to keep imported messages readable:
+
+```md
+**Discord #general - Maya Chen**
+Can someone review the launch checklist before 3pm?
+
+Source: https://discord.com/channels/...
+Sent: 2026-05-14 09:12 PT
+```
+
+Include enough source metadata to make the message useful later:
+
+- Original author display name
+- Source channel or group name
+- Original timestamp
+- Source permalink, if the app provides one
+- Attachment or file links, if the agent can access them
+
+## Safety checks
+
+Because `send_message` posts into Ando, treat the bridge as a write automation.
+
+- Confirm the target Ando conversation before the first send.
+- Use a dedicated Ando conversation for early tests.
+- Keep a forwarded-message checkpoint keyed by the source message ID.
+- Filter bot messages unless you intentionally want bot output in Ando.
+- Preserve source links so people can inspect the original context.
+- Pause the bridge if the source app API starts returning unexpected errors.
+
+## Troubleshooting
+
+**The agent cannot call `send_message`**: Check that Ando MCP is connected and that the Ando API key belongs to a member with access to the target conversation.
+
+**Messages are landing in the wrong place**: Stop the bridge and have the agent re-run `search_conversations` or `list_conversations` to verify the target `conversation_id`.
+
+**Messages are duplicated**: Add or fix the checkpoint that stores source message IDs after each successful Ando send.
+
+**Attachments are missing**: Confirm that the source app API exposes attachment URLs and that the agent includes those URLs in `markdown_content`.
 # Managed agents
 Source: https://docs.ando.so/docs/managed-agents
 
@@ -2741,298 +3015,6 @@ The Linear token you use controls how Linear attributes the work. A personal Lin
 7. Add Linear to any agents that should use it.
 
 After setup, actions taken through this connection are attributed to the Linear app rather than a specific person. Rotate the token in Linear if it is exposed or no longer needed.
-# Import data from other apps
-Source: https://docs.ando.so/docs/import-data-from-other-apps
-
-> Forward messages from Discord, Teams, Telegram, and other chat apps into Ando with Ando MCP.
-
-You can bring messages from another app into Ando by giving an agent access to the source app and [Ando MCP](/docs/ando-mcp). The agent reads messages from Discord, Microsoft Teams, Telegram, or another service, then calls Ando MCP's `send_message` tool to post each message into an Ando conversation.
-
-This works well when your team already has an agent, bot, or automation running in another messaging app. Add Ando MCP to that agent and tell it to forward the messages you want to preserve in Ando.
-
-## How it works
-
-The bridge has two sides:
-
-| Side | What the agent needs |
-| --- | --- |
-| Source app | API, bot, webhook, or agent access that can read the messages you want to import. |
-| Ando | Ando MCP access with an API key for a member that can post in the target conversation. |
-
-For each source message, the agent sends a Markdown message to an existing Ando conversation with:
-
-| `send_message` input | Value |
-| --- | --- |
-| `conversation_id` | The Ando conversation where imported messages should appear. |
-| `markdown_content` | The source message body and any attribution you want to include. |
-
-## Before you start
-
-1. Create or choose the target conversation in Ando.
-2. Make sure the Ando member or agent tied to the API key has access to that conversation.
-3. Set up [Ando MCP](/docs/ando-mcp) in the agent that will run the import.
-4. Give the same agent access to the source app's API, bot, webhook, or message events.
-5. Decide whether you want a live mirror, a one-time backfill, or both.
-
-If you need to import a large Slack history export, use [Slack bridge](/docs/importing-from-slack) instead.
-
-## Set the target conversation
-
-Ask the agent to find the Ando conversation before it starts forwarding messages:
-
-```text
-Use Ando MCP to find the Ando conversation named "discord-general".
-Save its conversation_id.
-Do not send any messages until I confirm the target conversation.
-```
-
-After you confirm the target, the agent can use that `conversation_id` for each `send_message` call.
-
-## Forward live messages
-
-Use a live bridge when you want new messages from another app to appear in Ando as they happen.
-
-```text
-You are mirroring Discord #general into Ando.
-
-For every new Discord message in #general:
-1. Ignore messages from bots unless I explicitly allow them.
-2. Format the message as:
-   **Discord #general - <author display name>**
-   <message text>
-
-   Source: <message permalink>
-3. Call Ando MCP `send_message` with:
-   - conversation_id: <ANDO_CONVERSATION_ID>
-   - markdown_content: the formatted message
-4. Keep a local record of forwarded source message IDs so you do not send duplicates.
-```
-
-The same pattern works for Teams channels, Telegram groups, support tools, or any other service where your agent can read message events.
-
-## Backfill past messages
-
-Use a backfill when you want to copy existing messages into Ando.
-
-```text
-Backfill messages from Discord #general into Ando.
-
-Import messages from 2026-05-01 through 2026-05-14.
-Process messages oldest to newest.
-For each message, include the original author, timestamp, message text, and source permalink.
-Call Ando MCP `send_message` for each message using conversation_id <ANDO_CONVERSATION_ID>.
-Stop and report errors instead of retrying indefinitely.
-Keep a checkpoint after each successful send so the import can resume without duplicates.
-```
-
-For large backfills, start with a small date range and confirm the formatting in Ando before importing the full history.
-
-## Formatting tips
-
-Use Markdown to keep imported messages readable:
-
-```md
-**Discord #general - Maya Chen**
-Can someone review the launch checklist before 3pm?
-
-Source: https://discord.com/channels/...
-Sent: 2026-05-14 09:12 PT
-```
-
-Include enough source metadata to make the message useful later:
-
-- Original author display name
-- Source channel or group name
-- Original timestamp
-- Source permalink, if the app provides one
-- Attachment or file links, if the agent can access them
-
-## Safety checks
-
-Because `send_message` posts into Ando, treat the bridge as a write automation.
-
-- Confirm the target Ando conversation before the first send.
-- Use a dedicated Ando conversation for early tests.
-- Keep a forwarded-message checkpoint keyed by the source message ID.
-- Filter bot messages unless you intentionally want bot output in Ando.
-- Preserve source links so people can inspect the original context.
-- Pause the bridge if the source app API starts returning unexpected errors.
-
-## Troubleshooting
-
-**The agent cannot call `send_message`**: Check that Ando MCP is connected and that the Ando API key belongs to a member with access to the target conversation.
-
-**Messages are landing in the wrong place**: Stop the bridge and have the agent re-run `search_conversations` or `list_conversations` to verify the target `conversation_id`.
-
-**Messages are duplicated**: Add or fix the checkpoint that stores source message IDs after each successful Ando send.
-
-**Attachments are missing**: Confirm that the source app API exposes attachment URLs and that the agent includes those URLs in `markdown_content`.
-# Slack bridge
-Source: https://docs.ando.so/docs/importing-from-slack
-
-> Import Slack history, sync Slack channels, and bring custom Slack emoji into Ando.
-
-<Note>
-  If you are not an admin of your workspace and cannot export a Slack ZIP file,
-  [contact us](mailto:hello@ando.so) for alternative methods to export your
-  Slack workspace data.
-</Note>
-
-Use this guide to bring Slack work into Ando. Slack import brings historical messages from a Slack export ZIP into Ando. Slack sync connects your Slack workspace and keeps selected channels connected to Ando channels. Slack emoji import brings selected custom emoji into your Ando workspace.
-
-## On this page
-
-- [Slack import](#slack-import)
-- [Slack sync](#slack-sync)
-- [Slack emoji import](#slack-emoji-import)
-
-## Slack import {#slack-import}
-
-<iframe
-  src="https://www.loom.com/embed/e59bfcd90bdc4310a3a0dd39bb9ab46b"
-  title="Slack import tutorial video"
-  style={{
-    width: "100%",
-    aspectRatio: "16 / 9",
-    border: 0,
-    borderRadius: "8px",
-  }}
-  allowFullScreen
-/>
-
-### Before you start
-
-Ando imports Slack history from the official Slack export `.zip` file. Export the data from Slack, download the ZIP when Slack emails you, then upload that original ZIP to Ando. Do not unzip, rename, or edit the export before uploading it.
-
-Slack's export rules depend on your Slack plan, your role, and whether your workspace or organization has been approved for broader export tools. Read more in [this article from Slack](https://slack.com/help/articles/201658943-Export-your-workspace-data).
-
-### Who can export from Slack
-
-| Slack plan | Who can export              | What they can usually export                                                                                                                                              |
-| ---------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Free       | Workspace Owners and Admins | Messages and file links from public channels. Free workspaces can only export links to files from the last 90 days.                                                       |
-| Pro        | Workspace Owners and Admins | Messages and file links from public channels.                                                                                                                             |
-| Business+  | Workspace Owners and Admins | Messages and file links from public channels. Workspace Owners can apply for additional export types, including all channels and conversations or a channel audit report. |
-| Enterprise | Org Owners and Admins       | Enterprise export tools, once enabled, can export data by conversation type, member, workspace, all channels and conversations, or channel audit.                         |
-
-Slack also supports an Export Admin system role. If your organization uses that role, members with Export Admin permissions may be able to use export features where configured.
-
-Private channels and DMs are not included in a standard public-channel export. They generally require Business+ or Enterprise export access and approval from Slack. If those conversations are missing from the ZIP, Ando cannot import them from that file.
-
-### Export your Slack ZIP
-
-For Free, Pro, and Business+ workspaces:
-
-1. Open Slack on desktop.
-2. Click **Admin** in the sidebar.
-3. Select **Workspace settings**, then click **Security**.
-4. Click **Import & export data**.
-5. Open the **Export** tab.
-6. Choose the export date range and, if Slack shows more than one option, the export type you want to use.
-7. Click **Start Export**.
-8. Wait for Slack to email you when the export file is ready.
-9. Open the email and click **Visit your workspace's export page**.
-10. Click **Ready for download** to download the ZIP file.
-
-For Enterprise organizations:
-
-1. Open Slack on desktop.
-2. Click your organization name in the sidebar.
-3. Select **Tools & settings**, then click **Organization settings**.
-4. In the left sidebar, click **Security**, then select **Exports**.
-5. Click **Export** next to the export option you want to use.
-6. Select the scope, parameters, and format if Slack asks for them.
-7. Start the export.
-8. Wait for Slack to email you when the export file is ready.
-9. Open the email and click **Visit your workspace's export page**.
-10. Open the **Downloads** tab and click **Download** next to your export to download the ZIP file.
-
-### Import the ZIP into Ando
-
-Once you have the Slack export ZIP:
-
-1. Open Ando.
-2. Go to **Settings**.
-3. Open **Slack bridge**.
-4. Click **Begin import** and upload the original `.zip` file from Slack.
-5. Select the Slack users you want to import as Ando members. You can attribute messages sent by Slack users to equivalent Ando members.
-6. Select the Slack channels you want to import.
-7. Choose whether each Slack channel should import as a new Ando channel or into an existing Ando channel.
-8. Choose whether to import all messages, or only messages sent before the first existing message in the Ando channel.
-9. Confirm and begin the import. Large imports may take longer.
-10. When the import finishes, the channels appear in your sidebar.
-
-Large workspaces can take longer to upload and process.
-
-### What gets imported
-
-Ando imports the channels you select from the Slack export file and brings the historical message context into your Ando workspace so your team can search and reference prior work. What Ando can import depends on what Slack included in the ZIP. If the export only contains public channels, only those channels will be available to select.
-
-The ZIP may include Slack metadata, message JSON files, and file links. Ando reads the export directly, so upload the ZIP exactly as Slack provided it.
-
-## Slack sync {#slack-sync}
-
-Use Slack sync when you want selected Slack channels to stay connected to Ando.
-
-### Connect your Slack workspace
-
-1. Open Ando.
-2. Go to **Settings**.
-3. Open **Slack bridge**.
-4. Click **Connect**.
-5. Authenticate with your Slack workspace and approve the requested access.
-
-If Slack says you cannot install the app, ask a Slack Workspace Owner or Admin to approve it.
-
-### Select people to import
-
-After Slack connects, Ando asks which Slack users you want to import.
-
-1. Select the Slack users you want to import as Ando members.
-2. Map Slack users to existing Ando members when Ando shows a match.
-3. Click **Continue**.
-
-If you already completed a Slack import, click **Continue** to keep your existing mappings and move to channel selection.
-
-### Select channels to sync
-
-Choose the Slack channels you want to sync. For each channel, choose where synced messages should go.
-
-| Option               | What happens                                        |
-| -------------------- | --------------------------------------------------- |
-| **New channel**      | Ando creates a new channel for the Slack channel.   |
-| **Existing channel** | Ando syncs messages into a channel you already use. |
-
-Review your choices, then confirm them to start syncing. Synced channels appear in your Ando sidebar after setup completes.
-
-## Slack emoji import {#slack-emoji-import}
-
-After you connect Slack, you can import custom emoji from your Slack workspace into Ando.
-
-1. Open Ando.
-2. Go to **Settings**.
-3. Open **Custom emojis**.
-4. Click **Update Slack app to import custom emojis**.
-5. Authenticate with your Slack workspace again if Slack asks you to.
-6. Click **Import Slack emojis**.
-7. Select the custom emoji you want to add to Ando.
-8. Confirm the import.
-
-Imported emoji become available in your Ando workspace after the import finishes.
-
-## Troubleshooting
-
-**I do not see export settings in Slack**: Ask a Workspace Owner or Admin on Free, Pro, or Business+, or an Org Owner or Admin on Enterprise, to export the data for you. Your Slack workspace may also restrict exports to members with the Export Admin system role. If you cannot export the data, [contact us](mailto:hello@ando.so) for alternative methods to export your Slack workspace data.
-
-**Private channels or DMs are missing**: Your Slack export probably did not include them. Standard Free, Pro, and Business+ public-channel exports do not include private channels or DMs.
-
-**Slack says the export is not ready**: Wait for Slack's email. Slack creates the ZIP asynchronously and sends a link when it is ready to download.
-
-**The Ando upload fails**: Make sure you are uploading the original `.zip` file from Slack. If the file was unzipped, renamed, recompressed, or edited, download a fresh copy from Slack and try again. Contact us if you continue to encounter errors.
-
-**Slack will not let me connect**: Your Slack workspace may restrict app installs. Ask a Slack Workspace Owner or Admin to approve the Ando connection.
-
-**I already imported Slack users**: Click **Continue** on the user selection step to move to channel selection.
 
 ## Changelog
 

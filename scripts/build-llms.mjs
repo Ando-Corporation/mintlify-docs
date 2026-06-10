@@ -132,7 +132,14 @@ const openApiSource = readText(datedOpenApiFile);
 const openApi = JSON.parse(openApiSource);
 const tabs = docsConfig.navigation?.tabs ?? [];
 
-const allPages = [{ page: "index", sectionTrail: ["Home"] }];
+const indexFrontmatter = fs.existsSync(path.join(rootDir, "index.mdx"))
+  ? parseFrontmatter("index.mdx").frontmatter
+  : {};
+const omitIndexFromLlms =
+  fs.existsSync(path.join(rootDir, "index.mdx")) &&
+  indexFrontmatter.llms === "false";
+const allPages =
+  omitIndexFromLlms ? [] : [{ page: "index", sectionTrail: ["Home"] }];
 const endpointRefs = [];
 
 for (const tab of tabs) {
