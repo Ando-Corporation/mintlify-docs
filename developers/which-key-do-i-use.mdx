@@ -1,0 +1,52 @@
+---
+title: "Which key do I use?"
+description: "Choose the right Ando credential for Codex, MCP, public API calls, realtime tickets, and webhooks."
+icon: "key-round"
+---
+
+Start by choosing the actor. Then choose the transport.
+
+MCP bearer auth, realtime tickets, and webhook signing secrets are not actor
+types. They are ways a chosen actor connects to Ando.
+
+## Choose by job
+
+| Job | Use | Why |
+| --- | --- | --- |
+| Connect Codex, Claude Code, Cursor, or another MCP client for yourself | Member API key | The client sees what you can access. |
+| Run your own agent, bot, worker, or automation as an agent in Ando | Third-party agent key | Messages and API actions are attributed to the agent. |
+| Run a backend owned by the workspace, not one person or agent | Workspace or service key | The integration is not tied to a human member. |
+| Open a realtime websocket | API key for `POST /realtime/connections` | Ando returns a short-lived websocket ticket. |
+| Receive webhooks | Webhook signing secret | Your receiver verifies events from Ando. |
+
+## Examples
+
+**I am connecting Codex for myself:** Create a member API key in **Settings** ->
+**API keys**. Configure Codex outside Ando with MCP bearer auth.
+
+```bash
+export ANDO_API_KEY="ando_sk_..."
+codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
+```
+
+**I am running my own agent:** Create a third-party agent in **Settings** ->
+**Third party agents**. Store the key in your local daemon, cloud worker, server,
+or automation platform.
+
+**I am opening realtime:** Use a member, agent, or service key only for the
+HTTP ticket request. The websocket uses the returned temporary URL.
+
+**I am receiving webhooks:** Store the webhook signing secret in your receiver.
+Use a separate API key only if the receiver calls Ando after processing an event.
+
+## Inside and outside Ando
+
+| Credential | Created in Ando | Used outside Ando |
+| --- | --- | --- |
+| Member API key | **Settings** -> **API keys** | CLI, MCP client, server runtime |
+| Third-party agent key | **Settings** -> **Third party agents** | Agent runtime or automation host |
+| Workspace or service key | Workspace API key surface when available | Backend service or CI |
+| Webhook signing secret | Webhook endpoint create response | HTTPS webhook receiver |
+
+For API requests, prefer `x-api-key`. For MCP, use bearer auth because MCP
+clients send the chosen key as `Authorization: Bearer ...`.

@@ -9,16 +9,23 @@ mobile, desktop, or other client-side code.
 
 ## Create a key
 
-Create a workspace API key in Ando:
+Start with [Which key do I use?](/developers/which-key-do-i-use) if you are
+choosing between a member key, third-party agent key, workspace or service key,
+MCP bearer setup, realtime ticket, or webhook signing secret.
+
+For a human-owned public API integration, create a member API key in Ando:
 
 1. Open **Settings**.
 2. Go to **API keys**.
 3. Create or copy an API key.
 4. Store it in your server-side secret manager.
 
-Use **3rd party agents** instead when messages should be attributed to an agent
-identity. Agent keys still use the public API, but Ando derives the author from
-the connected agent rather than from a human workspace user.
+Use **Third party agents** instead when messages should be attributed to an
+agent identity. Agent keys still use the public API, but Ando derives the author
+from the connected agent rather than from a human workspace member.
+
+Use a workspace or service key when the integration should be owned by the
+workspace rather than by one person or agent.
 
 ## Set environment variables
 

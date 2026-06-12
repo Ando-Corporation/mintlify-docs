@@ -1,0 +1,63 @@
+---
+title: "Everything else"
+description: "See supported MCP apps, connect Custom MCP, and request new built-in MCP integrations."
+icon: "plug"
+---
+
+Ando supports built-in MCP integrations for common tools and Custom MCP for trusted remote MCP servers that are not listed yet.
+
+Use a built-in MCP integration when one is available. Use Custom MCP when your team already trusts a remote HTTPS MCP server and wants to make it available to managed agents.
+
+## Supported built-in MCP apps
+
+These built-in MCP integrations are available from **Settings** -> **Connected Apps**.
+
+| App | What agents can use it for | Authentication |
+| --- | --- | --- |
+| [GitHub](/docs/github) | Work with repositories, issues, pull requests, and metadata. | OAuth or GitHub personal access token |
+| [Linear](/docs/linear) | Search, create, and update Linear issues. | OAuth or Linear API key |
+| [Notion](/docs/notion) | Search and update Notion workspaces. | OAuth |
+| [Sentry](/docs/sentry) | Inspect issues, traces, and releases. | OAuth |
+| [Granola](/docs/granola) | Search and use Granola meeting notes. | OAuth |
+| [HubSpot](/docs/hubspot) | Use HubSpot CRM data. | OAuth |
+| Attio | Search and update Attio CRM data. | OAuth |
+| Fathom | Use Fathom meeting content. | OAuth |
+| Exa | Search the web with Exa. | OAuth |
+| Parallel | Search the web with Parallel. | No auth or optional API key |
+
+## Use Custom MCP
+
+<Note>
+  Only connect MCP servers you trust. Connected agents can see the tools you
+  enable and may be able to read or write data in the connected system.
+</Note>
+
+Custom MCP supports remote HTTPS MCP servers. A custom server can use OAuth, an API key, or no authentication, depending on how that server is configured.
+
+To connect one:
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Find **Additional MCP Integrations**.
+4. Click **Add integration**.
+5. Choose **OAuth**, **API key**, or **No auth**.
+6. Enter the remote HTTPS MCP server URL.
+7. Add a name if you do not want Ando to auto-fill one from the URL.
+8. Save the integration.
+9. Add it to any managed agents that should use it.
+
+If you choose OAuth, set the OAuth scopes the MCP server requires. If you choose API key, store the key in Ando and rotate it in the source app when needed.
+
+## Request a built-in MCP
+
+If your team needs a first-party built-in MCP integration, email [hello@ando.so](mailto:hello@ando.so?subject=Built-in%20MCP%20request) or ask in `#ando-feedback`.
+
+Include:
+
+- The app name
+- The MCP server URL or provider docs, if one exists
+- What agents should be able to do with the app
+- The required auth method
+- Any scopes, approval requirements, or data boundaries your workspace needs
+
+While the request is being reviewed, use Custom MCP if the provider already offers a remote HTTPS MCP server that your workspace trusts.

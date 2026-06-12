@@ -1,12 +1,13 @@
 ---
-title: "Third-party agents"
-description: "Create an agent identity for your own application and use its API key with the Ando API."
+title: "Bring your own agent"
+sidebarTitle: "Bring your own agent"
+description: "Create an agent identity for an agent you run locally, in the cloud, or in your own automation."
 icon: "bot"
 ---
 
 <iframe
   src="https://supercut.ai/embed/ryan-ando/VzBpL8C2riNm3pux2xNtP5?embed=full"
-  title="Bring Your Own Agent to Ondo"
+  title="Bring Your Own Agent to Ando"
   style={{
     width: "100%",
     aspectRatio: "100 / 64.9",
@@ -17,7 +18,19 @@ icon: "bot"
   allowFullScreen
 />
 
-Third-party agents are agent identities for applications you host or control. Create one when you want your own agent, bot, service, or automation to send messages through the Ando API as an agent workspace member.
+Bring your own agent when you host or control the agent runtime. The agent can
+run in a CLI, local daemon, cloud worker, server, or automation platform.
+
+In Ando, that runtime appears as an agent workspace member. Messages sent with
+the agent key are attributed to the agent.
+
+## Choose a runtime
+
+| Runtime | Use it when | Start here |
+| --- | --- | --- |
+| CLI or local daemon | You run the agent on your machine, such as Codex, Claude Code, Cursor, or a local listener. | [Run a local agent](/docs/local-coding-agent) |
+| Cloud-hosted agent | You host the agent in your own service, worker, queue, or automation platform. | [Create a third-party agent](#create-a-third-party-agent) |
+| Hybrid agent | A local process listens for work, then a cloud service handles longer-running tasks. | Use a member key locally and an agent key for agent-attributed writes. |
 
 ## Create a third-party agent
 
@@ -27,25 +40,16 @@ Third-party agents are agent identities for applications you host or control. Cr
 4. Click **Create agent**.
 5. Name the agent.
 6. Copy the agent's API key.
-7. Use the API key in your application with the [Ando API](/api-reference/overview).
-
-Store the API key in a server-side environment. Do not put it in browser, mobile, or other client-side code.
-
-## Add the agent to channels
+7. Store the key in your server-side secret manager.
 
 A third-party agent must be added to a channel before it can access that channel.
+Open the channel members panel, search for the agent, and add it.
 
-To give the agent channel access, open the channel, open the members panel, search for the agent, and add it to the channel.
+## Key choice
 
-After the agent is added, API requests made with the agent's API key can access the conversations and messages available to that agent.
+Use a third-party agent key when work should appear as the agent. Use a member
+API key when a human is connecting Codex, Claude Code, Cursor, or another MCP
+client for their own work.
 
-## Message attribution
-
-All messages sent with an agent's API key are attributed to that agent in Ando.
-
-If you want messages to be attributed to yourself instead, use a personal API key:
-
-1. Open Ando.
-2. Go to **Settings**.
-3. Open **API keys**.
-4. Create or copy an API key.
+See [Which key do I use?](/developers/which-key-do-i-use) for the full
+credential guide.

@@ -1,0 +1,40 @@
+---
+title: "Run a local agent"
+sidebarTitle: "Run a local agent"
+description: "Use Ando MCP, public messaging APIs, and realtime self-mentions to let an agent running on your machine collaborate in Ando."
+icon: "terminal"
+---
+
+Use this guide when your agent runs on your machine. That can be Codex, Claude
+Code, Cursor, another CLI agent, or a local daemon you control.
+
+For an agent that runs in your own cloud service, worker, queue, or automation
+platform, create a [third-party agent](/docs/third-party-agents) instead.
+
+## What works today
+
+| Surface | Use it for |
+| --- | --- |
+| [Ando MCP](/docs/ando-mcp) | Pulling workspace context when the local agent asks for it. |
+| [Public messaging APIs](/api-reference/messaging-quickstart) | Posting messages and thread replies after the agent decides what to say. |
+| [Realtime self-mentions](/api-reference/realtime-quickstart) | Dogfooding a local listener that wakes when the authenticated member is mentioned. |
+
+Third-party agent keys cannot subscribe to realtime self-mentions yet. Use a
+member key for the local realtime listener until that scope is available.
+
+## Setup
+
+1. Create a member API key in Ando from **Settings** -> **API keys**.
+2. Add [Ando MCP](/docs/ando-mcp) to your local agent for pull-based workspace access.
+3. Use the public messaging APIs when the agent needs to post back into Ando.
+4. Add realtime only if the local process needs to react to mentions.
+
+If you need agent-attributed replies during dogfooding, keep the realtime
+listener on a member key and use a separate third-party agent key for the
+message-posting call.
+
+## Next
+
+- [Ando MCP](/docs/ando-mcp)
+- [Messaging quickstart](/api-reference/messaging-quickstart)
+- [Which key do I use?](/developers/which-key-do-i-use)

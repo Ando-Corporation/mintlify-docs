@@ -1,6 +1,6 @@
 ---
 title: "Ando MCP"
-description: "Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients."
+description: "Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients and agents."
 icon: "plug"
 ---
 <iframe
@@ -10,42 +10,49 @@ icon: "plug"
   allowFullScreen
 />
 
-To have your coding agent install Ando MCP for you, paste these instructions into the agent:
+To have your MCP client or agent install Ando MCP for you, paste this into it:
 
 ```text
-Install Ando MCP for me.
-
-Follow these steps:
-
-1. Ask me for my Ando API key before running any install command. Tell me I can get one by opening Ando, going to Settings -> API keys, then creating or copying an API key.
-2. Ask which coding agent I want to install Ando MCP in. Supported choices are Claude Code or Codex CLI.
-3. After I provide both the API key and the coding agent, run the necessary command for that agent.
-
-Use these install commands:
-
-Claude Code:
-claude mcp add --transport http ando https://mcp.ando.so/mcp --header "Authorization: Bearer <ANDO_API_KEY>"
-
-Codex CLI:
-export ANDO_API_KEY="<ANDO_API_KEY>"
-codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
-
-Replace <ANDO_API_KEY> with the key I provide.
+Install Ando MCP. Ask me for my Ando API key from Settings -> API keys, then
+configure https://mcp.ando.so/mcp as a streamable HTTP MCP server with
+Authorization: Bearer <key>. Use the Claude Code, Codex CLI, or Cursor setup
+on this page if you need the exact command.
 ```
 
-## What is Ando MCP?
+<Note>
+  For personal Codex, Claude Code, or Cursor setup, use your member API key.
+  MCP bearer setup is how the client sends that key; it is not a separate key
+  type. See [Which key do I use?](/developers/which-key-do-i-use) for the full
+  credential guide.
+</Note>
 
-Ando MCP is Ando's hosted Model Context Protocol server. It lets MCP-capable coding agents search and fetch context from your Ando workspace at:
+## What it does
+
+Ando MCP is Ando's hosted Model Context Protocol server. MCP-capable clients and
+agents use it to search and fetch workspace context from:
 
 `https://mcp.ando.so/mcp`
 
 The server uses streamable HTTP MCP and API-key authentication.
 
-## Available Tools
+## MCP is not a listener
 
-Ando MCP includes public tools for conversations, messages, members, calls/Jams, tasks, and workspace actions. Read the generated [MCP public tool reference](/docs/ando-mcp-tools) for the current tool list, safety label, deprecation status, and public API overlap for each tool.
+MCP is request/response tool access. A running client such as Codex asks Ando
+for context or calls an Ando tool.
 
-## Supported Clients
+MCP does not wake a local agent process when someone mentions it in Ando. To
+react to mentions or other live Ando events, keep your own local daemon running
+and feed it events from [realtime](/developers/realtime) or
+[webhooks](/developers/webhooks).
+
+## Available tools
+
+Ando MCP includes public tools for conversations, messages, members, Jams,
+tasks, and workspace actions. Use the generated [MCP public tool
+reference](/docs/ando-mcp-tools) for the current tool list, safety labels, and
+public API overlap.
+
+## Supported clients
 
 Ando MCP currently supports:
 
@@ -57,20 +64,22 @@ Other MCP clients can connect if they support remote streamable HTTP servers wit
 
 ## Setup
 
-First, create an Ando API key:
+First, create a member API key in Ando:
 
 1. Open Ando.
-2. Go to Settings -> API keys.
+2. Go to **Settings** -> **API keys**.
 3. Create or copy an API key.
 4. Use it anywhere the examples below show `ando_sk_...` or `ANDO_API_KEY`.
 
-Ando expects the key in a bearer token header:
+Then configure your MCP client outside Ando. Ando expects the key in a bearer
+token header:
 
 ```http
 Authorization: Bearer ando_sk_...
 ```
 
-Keys are scoped to the Ando member and workspace that created them. Tool results are limited to the workspaces and entities that member can access.
+Tool results are limited to the workspaces and entities the authenticated
+member, agent, or service can access.
 
 ## Claude Code
 
@@ -91,7 +100,7 @@ To check the connection, run `/mcp` inside Claude Code and confirm that `ando` i
 
 ## Codex CLI
 
-Store your Ando API key in an environment variable:
+Store your Ando API key in an environment variable in your terminal:
 
 ```bash
 export ANDO_API_KEY="ando_sk_..."
@@ -109,7 +118,8 @@ Then start Codex:
 codex
 ```
 
-Codex reads the bearer token from `ANDO_API_KEY` when it connects to the MCP server.
+Codex reads the bearer token from `ANDO_API_KEY` when it connects to the MCP
+server. The key is created in Ando, but the Codex setup happens in the CLI.
 
 ## Cursor
 
@@ -137,41 +147,21 @@ Then add Ando to `.cursor/mcp.json` in your project or to `~/.cursor/mcp.json` g
 
 After saving the file, open Cursor Settings -> MCP and confirm that `ando` is enabled.
 
-## Common Usage Patterns
+## Common patterns
 
-**Find a person, then browse their messages**: Call `search_workspace_members` with a name or email, or `list_workspace_members` when you need active workspace members by exact display name. Take the returned member ID. Call `get_conversation_messages` with `author` to browse recent messages in a known conversation, or call `search_messages` with `author` if you need search instead of browsing.
-
-**Inspect a channel or DM roster**: Call `search_conversations` or `list_conversations` to identify the conversation, then call `list_conversation_members` with the conversation ID.
-
-**Search for a topic, then inspect the full thread**: Call `search_messages` with a keyword or semantic query. Inspect the returned `replies_count`. If the message is a thread root or has replies, call `get_thread_replies` with that message ID. If needed, call `get_message` for the exact source message.
-
-**Find meetings about a topic, then read the transcript**: Call `list_calls` for recent calls/Jams or `search_calls` for transcript search. Pick a matching `call_id`. Call `get_call` for metadata. Call `get_call_transcript` to page through the transcript.
-
-**Find or update a task**: Call `search_tasks` to discover visible tasks, then `get_task` for the task summary, recent work log entries, and active task URLs. Use `record_task_update` only when the user explicitly asks you to update a task.
-
-**Send a user-requested DM**: Call `search_workspace_members` for each recipient unless IDs are already known. Then call `send_direct_message` with `member_ids` and `markdown_content`. Report the returned `message_id` and `conversation_id`.
-
-**React to a user-specified message**: Confirm the exact target with `get_message` unless the user already provided a precise message ID, then call `react_to_message` with `message_id` and `emoji`.
-
-**Invite a user to the workspace**: Call `invite_to_workspace` only when the user explicitly asks to invite an email address.
-
-**Start broad, then narrow**: The usual workflow is to search or list conversations, members, messages, calls, or tasks, capture the relevant IDs, then use the matching `get_*` or paginated tool for full details.
+- Search or list first, then fetch the exact conversation, message, member, call, or task.
+- Use `get_conversation_messages` for recent history.
+- Use `get_thread_replies` when a message has replies.
+- Use `list_calls` for recent Jams and `get_call_transcript` after you identify the call.
+- Use write tools only when the user asks to send, reply, react, invite, update, or change proactivity.
 
 ## Behavior
 
 Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
 
-`get_conversation_messages` returns messages in reverse chronological order. `get_thread_replies` returns replies in chronological order. `get_call_transcript` is paginated and should be called repeatedly with the returned cursor when needed. Use `list_calls` for recent calls/Jams without a search query, and `search_calls` when searching transcript content. Use `list_conversations`, `list_workspace_members`, and `list_conversation_members` for browse-style discovery without a fuzzy search query.
-
 Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
 
 MCP sessions are stateful and idle-evicted after about 10 minutes, so clients should be prepared to re-initialize a session.
-
-## Recommended Prompting For Agents
-
-Ando MCP works best when agents use `search_*` and `list_*` tools to discover the right IDs first, use `get_conversation_messages` instead of forcing search queries for recent history, use `get_thread_replies` when a message has replies, use `list_calls` for recent calls/Jams, use `get_call_transcript` only after identifying the right call, and avoid wildcard search inputs.
-
-For write actions, prompt agents to verify the target before calling side-effecting tools. Examples: identify the conversation before `send_message`, identify the thread root before `reply_to_message`, identify recipients before `send_direct_message`, identify the message before `react_to_message`, confirm the email before `invite_to_workspace`, and fetch the task before `record_task_update`.
 
 ## Troubleshooting
 

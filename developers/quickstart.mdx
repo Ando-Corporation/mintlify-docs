@@ -1,17 +1,18 @@
 ---
 title: "Developer quickstart"
-description: "Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path."
+description: "Create a member API key and make your first public API request."
 icon: "rocket"
 ---
 
-This quickstart gets the shared credentials in place, then points you to the
-right workflow guide.
+Use this quickstart to make your first server-side public API request.
 
-## 1. Create an API key
+For MCP, agents, realtime, and webhooks, start with the [developer overview](/developers/overview).
 
-1. Open Ando.
-2. Go to **Settings** -> **API keys**.
-3. Create or copy an API key.
+## 1. Create a member API key
+
+1. Open **Settings** in Ando.
+2. Go to **API keys**.
+3. Create or copy a member API key.
 4. Store it as a server-side secret.
 
 ```bash
@@ -19,19 +20,42 @@ export ANDO_API_BASE="https://api.ando.so/v1"
 export ANDO_API_KEY="ando_sk_..."
 ```
 
-## 2. Pick a workflow
+Use [Which key do I use?](/developers/which-key-do-i-use) if the request should
+run as an agent or workspace-owned service.
 
-| Goal | Start here |
-| --- | --- |
-| Search and create messages over REST | [Messaging quickstart](/api-reference/messaging-quickstart) |
-| Use typed TypeScript helpers | [SDK guide](/developers/sdk) |
-| Use terminal commands or scripts | [CLI guide](/developers/cli) |
-| Connect a coding agent through MCP | [Ando MCP](/docs/ando-mcp) |
-| Subscribe to live ProductEvents | [Realtime guide](/developers/realtime) |
-| Receive durable signed events | [Webhook guide](/developers/webhooks) |
+## 2. Search messages
 
-## 3. Use generated references
+```bash
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=release" \
+  --data-urlencode "limit=5"
+```
 
-Use the generated endpoint reference for request parameters, response schemas,
-and route status. Link those pages from your integration notes instead of
-copying tables that can drift as the public API evolves.
+## 3. Post a message
+
+Choose a conversation the key can access, then send a message:
+
+```bash
+export CONVERSATION_ID="conv_..."
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Hello from the Ando API.",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
+```
+
+Ando derives the author from the API key. Do not send `author_id`.
+
+## Next
+
+- [Messaging quickstart](/api-reference/messaging-quickstart)
+- [Search quickstart](/api-reference/search-quickstart)
+- [Endpoint reference](/api-reference/endpoint-reference)

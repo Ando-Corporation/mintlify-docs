@@ -4,9 +4,15 @@ description: "Use webhooks when an integration needs durable signed ProductEvent
 icon: "webhook"
 ---
 
-Use webhooks when an integration needs durable signed HTTP delivery, delivery
-logs, and replay. Use realtime instead when an online client needs live
-websocket ProductEvent delivery.
+Webhooks are durable HTTP delivery for backend receivers. They are not a live
+WebSocket stream. Use webhooks when an integration needs signed ProductEvent
+delivery with delivery logs and replay. Use realtime instead when an online
+client needs live events while connected.
+
+Webhook signing secrets are for verifying inbound events from Ando. They are
+not API keys. Use an API key only when you create, update, test, or replay
+webhook endpoints through the API or CLI. See [Which key do I use?](/developers/which-key-do-i-use)
+for the credential model.
 
 Use generated references for exact webhook endpoint and delivery schemas:
 

@@ -1,13 +1,28 @@
 ---
 title: "Realtime quickstart"
-description: "Open a realtime connection ticket from public API v1."
+description: "Open a realtime connection, listen for events, ack delivery, and resume after reconnect."
 icon: "radio"
 ---
 
-The realtime route opens a temporary, pre-authorized websocket connection
-URL for ProductEvent delivery. API keys are validated on the HTTP request. The
-websocket connection uses the returned ticket URL and the `ando.realtime.v1`
-subprotocol.
+The realtime route opens a temporary, pre-authorized WebSocket connection URL
+for live ProductEvent delivery. It does not create a durable webhook feed. API
+keys are validated on the HTTP request. The WebSocket connection uses the
+returned ticket URL and the `ando.realtime.v1` subprotocol.
+
+Use [Which key do I use?](/developers/which-key-do-i-use) if you are deciding
+whether the HTTP ticket request should use a member, third-party agent, or
+workspace service key.
+
+Use the [Webhook guide](/api-reference/webhooks) instead when you need durable
+HTTP delivery, delivery logs, retries, and replay.
+
+The initial realtime release supports one subscription per connection:
+
+| Field | Supported value |
+| --- | --- |
+| `target` | `"self"` or the authenticated `workspace_membership` target |
+| `delivery` | `"mentions"` |
+| `events` | `["message.created"]` |
 
 ```bash
 export ANDO_API_BASE="https://api.ando.so/v1"
@@ -59,8 +74,8 @@ export ANDO_REALTIME_PROTOCOL="$(
 
 ## 3. Connect with the returned URL
 
-Use the returned websocket URL before `expires_at`. The URL already contains the
-temporary ticket; do not add the API key to the websocket request or write the
+Use the returned WebSocket URL before `expires_at`. The URL already contains a
+temporary ticket. Do not add the API key to the WebSocket request or write the
 ticket URL to shared logs.
 
 ```bash
@@ -72,13 +87,472 @@ test -n "$ANDO_REALTIME_URL" || {
 echo "Realtime ticket loaded; connect before it expires with subprotocol $ANDO_REALTIME_PROTOCOL"
 ```
 
+## 4. Install the WebSocket client
+
+This listener uses Node.js 18 or newer and the `ws` package. It uses the ticket
+request from step 1, opens a fresh ticket on each reconnect, and stores the last
+acked cursor in the quickstart directory.
+
+```bash
+npm --prefix "$ANDO_REALTIME_DIR" install ws
+```
+
+## 5. Write the listener
+
+```bash
+cat > "$ANDO_REALTIME_DIR/listener.mjs" <<'EOF'
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import WebSocket from "ws";
+
+const apiBase = requiredEnv("ANDO_API_BASE").replace(/\/$/, "");
+const apiKey = requiredEnv("ANDO_API_KEY");
+const workingDir = requiredEnv("ANDO_REALTIME_DIR");
+const connectionRequestPath = path.join(workingDir, "open-connection.json");
+const cursorPath = path.join(workingDir, "cursor.txt");
+
+const reconnectableDisconnectReasons = new Set([
+  "server_restart",
+  "deploy_draining",
+  "connection_max_age",
+  "backpressure",
+  "temporary_unavailable",
+  "refresh_requested",
+]);
+const nonReconnectableCloseCodes = new Set([4401, 4403, 4406, 4409, 4410]);
+
+let shouldStop = false;
+let activeSocket = null;
+
+process.on("SIGINT", () => {
+  shouldStop = true;
+  activeSocket?.close(1000, "client_shutdown");
+});
+
+await run();
+
+async function run() {
+  let reconnectAttempt = 0;
+
+  while (!shouldStop) {
+    const cursor = await readCursor();
+    const ticket = await openConnection(cursor);
+    const result = await connectOnce(ticket);
+
+    if (shouldStop || !result.reconnect) {
+      break;
+    }
+
+    const waitSeconds =
+      result.retryAfterSeconds ?? Math.min(30, 2 ** reconnectAttempt);
+    reconnectAttempt = Math.min(reconnectAttempt + 1, 5);
+    console.log(`reconnecting in ${waitSeconds}s`);
+    await sleep(waitSeconds * 1000);
+  }
+}
+
+async function openConnection(cursor) {
+  const requestBody = await buildConnectionRequest(cursor);
+  const response = await fetch(`${apiBase}/realtime/connections`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": apiKey,
+    },
+    body: JSON.stringify(requestBody),
+  });
+  const text = await response.text();
+  const body = parseJson(text);
+
+  if (!response.ok) {
+    console.error("ticket request failed", response.status, body ?? text);
+    throw new Error(`POST /realtime/connections returned ${response.status}`);
+  }
+
+  logWarnings(body.warnings);
+  return body;
+}
+
+async function buildConnectionRequest(cursor) {
+  const request = JSON.parse(await readFile(connectionRequestPath, "utf8"));
+  if (cursor == null) {
+    delete request.resume_from;
+    return request;
+  }
+
+  request.resume_from = { cursor };
+  return request;
+}
+
+async function connectOnce(ticket) {
+  return new Promise((resolve) => {
+    const socket = new WebSocket(ticket.url, ticket.protocol);
+    activeSocket = socket;
+
+    let settled = false;
+    let reconnect = true;
+    let retryAfterSeconds = null;
+
+    function settle() {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (activeSocket === socket) {
+        activeSocket = null;
+      }
+      resolve({ reconnect, retryAfterSeconds });
+    }
+
+    socket.on("open", () => {
+      console.log("connected", {
+        connection_id: ticket.connection_id,
+        protocol: ticket.protocol,
+      });
+    });
+
+    socket.on("message", (data) => {
+      void handleServerFrame(socket, data).catch((error) => {
+        console.error("frame handler failed", error);
+        reconnect = true;
+        socket.close(1011, "client_error");
+      });
+    });
+
+    socket.on("error", (error) => {
+      console.error("socket error", error.message);
+    });
+
+    socket.on("close", (code, reason) => {
+      const closeReason = reason.toString();
+      if (nonReconnectableCloseCodes.has(code)) {
+        reconnect = false;
+      }
+      console.log("socket closed", {
+        code,
+        reason: closeReason || null,
+        reconnect,
+      });
+      settle();
+    });
+
+    async function handleServerFrame(openSocket, data) {
+      const frame = JSON.parse(data.toString());
+
+      if (frame.type === "hello") {
+        console.log("hello", {
+          connection_id: frame.connection_id,
+          heartbeat_interval_seconds: frame.heartbeat_interval_seconds,
+          resume_supported: frame.resume_supported,
+          subscriptions: frame.subscriptions,
+        });
+        logWarnings(frame.warnings);
+        return;
+      }
+
+      if (frame.type === "warning") {
+        logWarnings(frame.warnings);
+        return;
+      }
+
+      if (frame.type === "disconnect") {
+        console.warn("server requested disconnect", frame);
+        retryAfterSeconds = frame.retry_after_seconds ?? null;
+        reconnect = reconnectableDisconnectReasons.has(frame.reason);
+        openSocket.close(1000, frame.reason);
+        return;
+      }
+
+      if (frame.type === "event") {
+        try {
+          await handleProductEvent(frame.payload);
+          await sendJson(openSocket, {
+            envelope_id: frame.envelope_id,
+          });
+          await writeCursor(frame.cursor);
+          console.log("acked", {
+            envelope_id: frame.envelope_id,
+            cursor: frame.cursor,
+          });
+        } catch (error) {
+          await sendJson(openSocket, {
+            envelope_id: frame.envelope_id,
+            error: {
+              code: "handler_failed",
+              message: getErrorMessage(error),
+            },
+          });
+          console.error(
+            "event handler failed; sent error ack without advancing cursor",
+            error
+          );
+        }
+        return;
+      }
+
+      console.warn("unknown realtime frame", frame);
+    }
+  });
+}
+
+async function handleProductEvent(event) {
+  console.log("product event", {
+    id: event.id,
+    type: event.type,
+    created_at: event.created_at,
+    related: event.related,
+  });
+}
+
+function sendJson(socket, value) {
+  return new Promise((resolve, reject) => {
+    socket.send(JSON.stringify(value), (error) => {
+      if (error != null) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+async function readCursor() {
+  try {
+    const cursor = (await readFile(cursorPath, "utf8")).trim();
+    return cursor.length > 0 ? cursor : null;
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function writeCursor(cursor) {
+  await writeFile(cursorPath, `${cursor}\n`, { mode: 0o600 });
+}
+
+function logWarnings(warnings) {
+  for (const warning of warnings ?? []) {
+    console.warn("realtime warning", warning);
+  }
+}
+
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function getErrorMessage(error) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "Unknown handler error.";
+}
+
+function requiredEnv(name) {
+  const value = process.env[name];
+  if (value == null || value.trim() === "") {
+    throw new Error(`${name} is required`);
+  }
+  return value;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+EOF
+```
+
+## 6. Run the listener
+
+```bash
+node "$ANDO_REALTIME_DIR/listener.mjs"
+```
+
+Leave the process running. When a visible message mentions the authenticated
+principal, Ando sends a `message.created` event. The listener prints the event,
+sends an ack frame, and writes the latest cursor to `cursor.txt`.
+
+If the socket closes, the listener calls `POST /realtime/connections` again. It
+does not reuse the old ticket URL. If `cursor.txt` exists, the listener sends
+`resume_from.cursor` in the next ticket request.
+
+## Server frames
+
+The first server frame is `hello`:
+
+```json
+{
+  "type": "hello",
+  "connection_id": "rtconn_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "heartbeat_interval_seconds": 30,
+  "resume_supported": true,
+  "subscriptions": [
+    {
+      "id": "rtsub_01jzn7e61x3a7v9h2r7t2m3q4p",
+      "target": {
+        "type": "workspace_membership",
+        "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
+      },
+      "delivery": "mentions",
+      "events": ["message.created"]
+    }
+  ]
+}
+```
+
+Each event frame includes WebSocket delivery metadata and a ProductEvent
+payload:
+
+```json
+{
+  "type": "event",
+  "envelope_id": "rtenv_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "accepts_response_payload": false,
+  "subscription_id": "rtsub_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "cursor": "rtcur_v1_...",
+  "payload": {
+    "id": "whe_message_created_hex_6d73675f30316a7a",
+    "object": "event",
+    "type": "message.created",
+    "api_version": "2026-05-27",
+    "created_at": "2026-05-29T01:00:00.000Z",
+    "workspace_id": "wrk_01jzn7e61x3a7v9h2r7t2m3q4p",
+    "data": {
+      "object": {
+        "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+        "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+        "conversation_name": "Launch planning",
+        "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4r",
+        "author_name": "Alex Kim",
+        "content": "Can you review this?",
+        "image_urls": [],
+        "reactions": [],
+        "replies_count": 0,
+        "created_at": "2026-05-29T01:00:00.000Z"
+      }
+    },
+    "related": {
+      "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+      "message_id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+      "thread_root_message_id": null,
+      "call_id": null
+    }
+  }
+}
+```
+
+Ack each event after your handler finishes. The client ack frame does not have a
+`type` field:
+
+```json
+{
+  "envelope_id": "rtenv_01jzn7e61x3a7v9h2r7t2m3q4p"
+}
+```
+
+If the handler fails, you can ack with an error and leave your stored resume
+cursor unchanged:
+
+```json
+{
+  "envelope_id": "rtenv_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "error": {
+    "code": "handler_failed",
+    "message": "The downstream queue is unavailable."
+  }
+}
+```
+
+## Reconnect and resume
+
+Open a new ticket after every disconnect. Ticket URLs are short-lived and
+single use.
+
+When you have a saved cursor, include it in the next connection request:
+
+```json
+{
+  "subscriptions": [
+    {
+      "target": "self",
+      "delivery": "mentions",
+      "events": ["message.created"]
+    }
+  ],
+  "resume_from": {
+    "cursor": "rtcur_v1_..."
+  }
+}
+```
+
+Resume is bounded and best effort. If Ando cannot replay from the cursor, the
+connection still opens and includes a warning in the ticket response, the
+`hello` frame, or a later `warning` frame:
+
+```json
+{
+  "type": "warning",
+  "warnings": [
+    {
+      "code": "resume_failed",
+      "message": "Realtime resume cursor is outside the replay window; connection will start from live events."
+    }
+  ]
+}
+```
+
+If the server plans to close the socket, it sends a `disconnect` frame when
+possible:
+
+```json
+{
+  "type": "disconnect",
+  "reason": "deploy_draining",
+  "retry_after_seconds": 1
+}
+```
+
+Reconnect for `server_restart`, `deploy_draining`, `connection_max_age`,
+`backpressure`, `temporary_unavailable`, and `refresh_requested`. Stop and fix
+configuration for `invalid_ticket`, `expired_ticket`, `revoked_api_key`,
+`missing_scope`, `unsupported_subscription`, and `policy_violation`.
+
 ## Expected errors
+
+HTTP errors from `POST /realtime/connections` can use the legacy public API
+error envelope or the newer nested `error` envelope. For example, a key without
+the required realtime scope returns:
+
+```json
+{
+  "error": "Unauthorized",
+  "error_code": "missing_scope",
+  "missing_scopes": ["realtime:read"]
+}
+```
+
+If realtime connection opening is not configured in the deployment, the route
+returns:
+
+```json
+{
+  "error": {
+    "code": "realtime_unavailable",
+    "message": "Public realtime connection opening is not available yet."
+  }
+}
+```
 
 | Status | Meaning |
 | --- | --- |
 | `400` | Request shape failed validation. |
 | `401` | The API key is missing or invalid. |
-| `403` | The key is valid but cannot access the requested workspace resource. |
+| `403` | The key is valid but cannot access the requested workspace resource, or it is missing a required scope such as `realtime:read` or `messages:read`. |
 | `404` | A requested subscription target was not found or is not visible to the key. |
 | `409` | The request conflicts with existing connection state. |
 | `429` | The key hit a public API rate limit. |

@@ -9,62 +9,103 @@ Public API v1 uses `https://api.ando.so/v1` as the base URL. New integrations sh
 # Developer overview
 Source: https://docs.ando.so/developers/overview
 
-> Choose the right Ando developer surface for your integration.
+> Choose the right Ando developer path for agents, MCP, API workflows, realtime, and webhooks.
 
-Ando developer surfaces share the same workspace API-key model, but they solve
-different jobs. Start with the surface that matches the integration you are
-building, then use the generated references for exact request and response
-schemas.
+Start with the job you want Ando to do. Then choose the surface and key that
+match that job.
 
-| Surface | Use it when |
-| --- | --- |
-| REST API | You need direct server-side access to search, messaging, realtime tickets, webhook endpoint management, or delivery logs. |
-| TypeScript SDK | You want typed webhook event payloads and signature verification helpers for webhook receivers. |
-| CLI | You want agent-friendly terminal workflows, auth setup, raw public API calls, or webhook endpoint/delivery commands. |
-| MCP | You want an MCP-capable coding agent to search and fetch Ando workspace context. |
-| Realtime | Your integration is online and needs live ProductEvent delivery over websocket. |
-| Webhooks | Your integration needs durable signed HTTP delivery, delivery logs, and replay. |
+| Goal | Start here | Key |
+| --- | --- | --- |
+| Connect Codex, Claude Code, Cursor, or another MCP client | [Ando MCP](/docs/ando-mcp) | Member API key |
+| Run your own local or cloud agent | [Bring your own agent](/docs/third-party-agents) | Third-party agent key |
+| Search, read, post, or reply over HTTP | [Developer quickstart](/developers/quickstart) | Member, agent, or service key |
+| Receive durable event delivery | [Webhooks guide](/developers/webhooks) | Webhook signing secret, plus API key for management |
+| Stream live events to an online process | [Realtime guide](/developers/realtime) | API key for the ticket request |
+| Use terminal helpers or typed webhook helpers | [CLI guide](/developers/cli) or [SDK guide](/developers/sdk) | Depends on the workflow |
 
-## Shared setup
+Use [Which key do I use?](/developers/which-key-do-i-use) when you need to
+choose between member, agent, service, MCP bearer, realtime, and webhook
+credentials.
 
-Use Ando API keys from a server-side environment:
+## Common choices
 
-```bash
-export ANDO_API_BASE="https://api.ando.so/v1"
-export ANDO_API_KEY="ando_sk_..."
-```
+- Use **MCP** when an active client or agent asks Ando for context.
+- Use the **public API** when your server needs to read or write Ando data.
+- Use **webhooks** when your backend needs durable events, retries, logs, and replay.
+- Use **realtime** when an online process needs low-latency events while it is connected.
 
-Create API keys in Ando from **Settings** -> **API keys**. Send API keys with
-`x-api-key` for REST requests. The CLI can also read `ANDO_API_KEY`. SDK webhook
-receivers verify deliveries with `ANDO_WEBHOOK_SECRET` from the webhook endpoint
-signing secret.
+## Reference
 
-## Stability
-
-Stable public API routes are ready for production integrations. The generated
-endpoint reference carries the current status for each operation and should be
-the source of truth for rollout planning.
-
-## Generated references
-
-Use generated references for the exact contract:
+Use generated references for exact parameters and response schemas:
 
 - [Endpoint reference](/api-reference/endpoint-reference)
+- [MCP tool reference](/docs/ando-mcp-tools)
+- [Webhook events](/api-reference/webhook-events)
+# Which key do I use?
+Source: https://docs.ando.so/developers/which-key-do-i-use
 
-For help, contact [hello@ando.so](mailto:hello@ando.so).
+> Choose the right Ando credential for Codex, MCP, public API calls, realtime tickets, and webhooks.
+
+Start by choosing the actor. Then choose the transport.
+
+MCP bearer auth, realtime tickets, and webhook signing secrets are not actor
+types. They are ways a chosen actor connects to Ando.
+
+## Choose by job
+
+| Job | Use | Why |
+| --- | --- | --- |
+| Connect Codex, Claude Code, Cursor, or another MCP client for yourself | Member API key | The client sees what you can access. |
+| Run your own agent, bot, worker, or automation as an agent in Ando | Third-party agent key | Messages and API actions are attributed to the agent. |
+| Run a backend owned by the workspace, not one person or agent | Workspace or service key | The integration is not tied to a human member. |
+| Open a realtime websocket | API key for `POST /realtime/connections` | Ando returns a short-lived websocket ticket. |
+| Receive webhooks | Webhook signing secret | Your receiver verifies events from Ando. |
+
+## Examples
+
+**I am connecting Codex for myself:** Create a member API key in **Settings** ->
+**API keys**. Configure Codex outside Ando with MCP bearer auth.
+
+```bash
+export ANDO_API_KEY="ando_sk_..."
+codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
+```
+
+**I am running my own agent:** Create a third-party agent in **Settings** ->
+**Third party agents**. Store the key in your local daemon, cloud worker, server,
+or automation platform.
+
+**I am opening realtime:** Use a member, agent, or service key only for the
+HTTP ticket request. The websocket uses the returned temporary URL.
+
+**I am receiving webhooks:** Store the webhook signing secret in your receiver.
+Use a separate API key only if the receiver calls Ando after processing an event.
+
+## Inside and outside Ando
+
+| Credential | Created in Ando | Used outside Ando |
+| --- | --- | --- |
+| Member API key | **Settings** -> **API keys** | CLI, MCP client, server runtime |
+| Third-party agent key | **Settings** -> **Third party agents** | Agent runtime or automation host |
+| Workspace or service key | Workspace API key surface when available | Backend service or CI |
+| Webhook signing secret | Webhook endpoint create response | HTTPS webhook receiver |
+
+For API requests, prefer `x-api-key`. For MCP, use bearer auth because MCP
+clients send the chosen key as `Authorization: Bearer ...`.
 # Developer quickstart
 Source: https://docs.ando.so/developers/quickstart
 
-> Set up an API key and choose a REST, SDK, CLI, MCP, realtime, or webhook path.
+> Create a member API key and make your first public API request.
 
-This quickstart gets the shared credentials in place, then points you to the
-right workflow guide.
+Use this quickstart to make your first server-side public API request.
 
-## 1. Create an API key
+For MCP, agents, realtime, and webhooks, start with the [developer overview](/developers/overview).
 
-1. Open Ando.
-2. Go to **Settings** -> **API keys**.
-3. Create or copy an API key.
+## 1. Create a member API key
+
+1. Open **Settings** in Ando.
+2. Go to **API keys**.
+3. Create or copy a member API key.
 4. Store it as a server-side secret.
 
 ```bash
@@ -72,203 +113,45 @@ export ANDO_API_BASE="https://api.ando.so/v1"
 export ANDO_API_KEY="ando_sk_..."
 ```
 
-## 2. Pick a workflow
+Use [Which key do I use?](/developers/which-key-do-i-use) if the request should
+run as an agent or workspace-owned service.
 
-| Goal | Start here |
-| --- | --- |
-| Search and create messages over REST | [Messaging quickstart](/api-reference/messaging-quickstart) |
-| Use typed TypeScript helpers | [SDK guide](/developers/sdk) |
-| Use terminal commands or scripts | [CLI guide](/developers/cli) |
-| Connect a coding agent through MCP | [Ando MCP](/docs/ando-mcp) |
-| Subscribe to live ProductEvents | [Realtime guide](/developers/realtime) |
-| Receive durable signed events | [Webhook guide](/developers/webhooks) |
-
-## 3. Use generated references
-
-Use the generated endpoint reference for request parameters, response schemas,
-and route status. Link those pages from your integration notes instead of
-copying tables that can drift as the public API evolves.
-# SDK guide
-Source: https://docs.ando.so/developers/sdk
-
-> Use @andocorp/sdk for typed webhook receiver helpers.
-
-Use the TypeScript SDK when you want typed webhook event payloads and signature
-verification helpers. REST, realtime, and webhook endpoint management currently
-use the public API directly; start with the [API overview](/api-reference/overview)
-and generated [endpoint reference](/api-reference/endpoint-reference) for those
-routes.
-
-## Install
+## 2. Search messages
 
 ```bash
-pnpm add @andocorp/sdk
+curl -sS -G "$ANDO_API_BASE/search/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  --data-urlencode "q=release" \
+  --data-urlencode "limit=5"
 ```
 
-## Webhook receivers
+## 3. Post a message
 
-```ts
-import {
-  ANDO_WEBHOOK_SIGNATURE_HEADER,
-  type AndoWebhookEvent,
-  verifyAndoWebhookSignature,
-} from "@andocorp/sdk/webhooks";
-```
-
-Verify the raw request body before parsing or trusting event content:
-
-```ts
-const payload = await request.text();
-const secret = process.env.ANDO_WEBHOOK_SECRET;
-
-if (secret == null || secret.trim().length === 0) {
-  throw new Error("ANDO_WEBHOOK_SECRET is required.");
-}
-
-const verification = await verifyAndoWebhookSignature({
-  payload,
-  signatureHeader: request.headers.get(ANDO_WEBHOOK_SIGNATURE_HEADER),
-  secret,
-});
-
-if (!verification.ok) {
-  return new Response("invalid signature", { status: 400 });
-}
-
-const event = JSON.parse(payload) as AndoWebhookEvent;
-```
-
-Use the event `type` field to narrow payloads:
-
-```ts
-switch (event.type) {
-  case "message.created":
-    console.log(event.data.object.id, event.data.object.content);
-    break;
-  case "webhook.test":
-    console.log(event.data.object.message);
-    break;
-}
-```
-
-Read [Webhook guide](/developers/webhooks) for receiver behavior and signature
-verification requirements.
-# CLI guide
-Source: https://docs.ando.so/developers/cli
-
-> Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
-
-Use the Ando CLI when you want agent-friendly terminal commands, a raw public
-API escape hatch, or webhook endpoint and delivery management from scripts.
-
-## Install
+Choose a conversation the key can access, then send a message:
 
 ```bash
-npm install -g @andocorp/cli
+export CONVERSATION_ID="conv_..."
+
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data '{
+    "markdown_content": "Hello from the Ando API.",
+    "explicit_context_message_ids": [],
+    "image_urls": [],
+    "file_ids": [],
+    "suppressed_link_preview_urls": []
+  }'
 ```
 
-Or run without installing:
+Ando derives the author from the API key. Do not send `author_id`.
 
-```bash
-npx @andocorp/cli
-```
+## Next
 
-## Authenticate
-
-Log in once:
-
-```bash
-ando login
-```
-
-For headless scripts and CI, inject an API key from your secret store through
-the environment:
-
-```bash
-export ANDO_API_KEY="$ANDO_API_KEY_FROM_SECRET_STORE"
-ando api searchMessages q==incident mode==semantic
-```
-
-Avoid passing long-lived API keys as command-line arguments in shared shells,
-CI jobs, or process-managed environments.
-
-## Raw public API
-
-The `ando api` command mirrors the generated public API operation surface:
-
-```bash
-ando api ls
-ando api ls --json
-ando api searchMessages q==incident mode==semantic
-ando api /v1/search/messages q==incident mode==semantic
-ando api /v1/search/messages --spec
-```
-
-`ando api` accepts `name==value` query parameters, `Header:Value` request
-headers, `field=value` JSON string body fields, `field:=json` typed JSON body
-fields, and `--data <json|->` for complete request bodies.
-
-## Webhooks
-
-Webhook endpoint and delivery commands cover the SDK webhook management surface:
-
-```bash
-ando webhooks endpoints list
-ando webhooks endpoints create \
-  --url https://example.com/ando/webhooks \
-  --events webhook.test,message.created \
-  --name "Development receiver"
-ando webhooks endpoints test <endpoint-id> --watch-delivery
-ando webhooks deliveries list --endpoint <endpoint-id> --status failed
-ando webhooks deliveries replay <delivery-id>
-```
-
-Endpoint creation and secret rotation print one-time signing secrets in plain
-output. Store the secret before clearing the terminal.
-
-## Agent-first context commands
-
-The CLI also includes browse and search commands for common agent workflows:
-
-```bash
-ando messages --channel engineering --limit 10
-ando search "incident"
-ando get message <message-id>
-ando thread <thread-root-message-id>
-```
-
-Every agent-first command supports `--json` for machine-readable output.
-# Realtime guide
-Source: https://docs.ando.so/developers/realtime
-
-> Use realtime when an online integration needs live ProductEvent delivery.
-
-Use realtime when your integration is online and needs live ProductEvent
-delivery over websocket. Use webhooks instead when you need durable HTTP
-delivery, delivery logs, retries, and replay.
-
-Read the generated endpoint reference for the current request and response
-schema before rollout.
-
-Start with the [Realtime quickstart](/api-reference/realtime-quickstart), then
-use the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
-for exact fields.
-# Webhooks guide
-Source: https://docs.ando.so/developers/webhooks
-
-> Use webhooks when an integration needs durable signed ProductEvent delivery.
-
-Use webhooks when an integration needs durable signed HTTP delivery, delivery
-logs, and replay. Use realtime instead when an online client needs live
-websocket ProductEvent delivery.
-
-Use generated references for exact webhook endpoint and delivery schemas:
-
+- [Messaging quickstart](/api-reference/messaging-quickstart)
+- [Search quickstart](/api-reference/search-quickstart)
 - [Endpoint reference](/api-reference/endpoint-reference)
-
-Webhook receivers must verify the raw request body with `Ando-Signature`,
-persist or enqueue the event quickly, return a 2xx response, and deduplicate
-business side effects by `Ando-Event-Id`.
 # API overview
 Source: https://docs.ando.so/api-reference/overview
 
@@ -288,15 +171,21 @@ first surface new integrations should build on.
 
 ## Get an API key
 
-Create a workspace API key in Ando:
+Start with [Which key do I use?](/developers/which-key-do-i-use) if you are
+choosing between a member key, third-party agent key, workspace or service key,
+MCP bearer setup, realtime ticket, or webhook signing secret.
+
+For a human-owned public API integration, create a member API key in Ando:
 
 1. Open **Settings**.
 2. Go to **API keys**.
 3. Create or copy an API key.
 4. Store it as a secret in your server-side environment.
 
-Use **3rd party agents** instead when you want messages to be attributed to an
-agent identity rather than a human workspace user.
+Use **Third party agents** instead when you want messages to be attributed to an
+agent identity rather than a human workspace member. Use a workspace or service
+key when the integration should be owned by the workspace rather than one
+person.
 
 ## Base URL and authentication
 
@@ -490,16 +379,23 @@ mobile, desktop, or other client-side code.
 
 ## Create a key
 
-Create a workspace API key in Ando:
+Start with [Which key do I use?](/developers/which-key-do-i-use) if you are
+choosing between a member key, third-party agent key, workspace or service key,
+MCP bearer setup, realtime ticket, or webhook signing secret.
+
+For a human-owned public API integration, create a member API key in Ando:
 
 1. Open **Settings**.
 2. Go to **API keys**.
 3. Create or copy an API key.
 4. Store it in your server-side secret manager.
 
-Use **3rd party agents** instead when messages should be attributed to an agent
-identity. Agent keys still use the public API, but Ando derives the author from
-the connected agent rather than from a human workspace user.
+Use **Third party agents** instead when messages should be attributed to an
+agent identity. Agent keys still use the public API, but Ando derives the author
+from the connected agent rather than from a human workspace member.
+
+Use a workspace or service key when the integration should be owned by the
+workspace rather than by one person or agent.
 
 ## Set environment variables
 
@@ -553,100 +449,6 @@ clients should not send `author_id` when creating messages.
 
 Treat generated keys as secrets. Do not commit them, paste them into support
 tickets, add them to screenshots, or include them in validation logs.
-# Reusable API snippets
-Source: https://docs.ando.so/api-reference/snippets
-
-> Copy small public API v1 snippets into server-side integrations.
-
-Use these snippets as building blocks for public API v1 clients. They keep the
-base URL, authentication header, idempotency behavior, and response envelope
-consistent across guides.
-
-## Environment
-
-```bash
-export ANDO_API_BASE="https://api.ando.so/v1"
-export ANDO_API_KEY="ando_sk_..."
-```
-
-Send API keys from a server-side environment. Use `x-api-key` as the canonical
-auth header:
-
-```bash
-curl -sS "$ANDO_API_BASE/search/messages?q=release" \
-  -H "x-api-key: $ANDO_API_KEY"
-```
-
-Bearer transport is accepted for compatibility with older clients:
-
-```http
-Authorization: Bearer ando_sk_...
-```
-
-## JSON request body
-
-```bash
-jq -n \
-  --arg markdown_content "Hello from the public API." \
-  '{
-    markdown_content: $markdown_content,
-    explicit_context_message_ids: [],
-    image_urls: [],
-    file_ids: [],
-    suppressed_link_preview_urls: []
-  }' > /tmp/ando-message.json
-```
-
-## Idempotent write
-
-Some write endpoints require `Idempotency-Key`; check the endpoint reference
-before sending a write request. Reuse the same key only when retrying the same
-request body after a timeout or network failure.
-
-```bash
-curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
-  -H "x-api-key: $ANDO_API_KEY" \
-  -H "content-type: application/json" \
-  -H "Idempotency-Key: $(uuidgen)" \
-  --data @/tmp/ando-message.json
-```
-
-## Read an object response
-
-Object responses return the resource under `data`:
-
-```bash
-jq -r '.data.id' /tmp/ando-created-message.json
-```
-
-## Read a list response
-
-Search and list responses return items under `data.items`. List endpoints that
-support cursor pagination also return `data.page_info`; check the endpoint
-reference before reading cursor fields.
-
-```bash
-jq -r '.data.items[]?.id' /tmp/ando-search.json
-jq -r '.data.page_info.next_cursor // empty' /tmp/ando-list.json
-```
-
-## Error envelope
-
-Most public v1 errors use a structured `error` object:
-
-```bash
-jq -r '.error.code, .error.message' /tmp/ando-error.json
-```
-
-Compatibility endpoints can still return older error shapes. Check the endpoint
-reference when you handle errors for a specific route.
-
-## Preview endpoints
-
-Preview endpoint shapes are generated from the same OpenAPI source as stable
-routes, but they are not yet part of the stable public API v1 surface. Keep
-preview integrations behind a narrow rollout and read each endpoint's response
-schemas from the generated reference.
 # Messaging quickstart
 Source: https://docs.ando.so/api-reference/messaging-quickstart
 
@@ -1034,12 +836,27 @@ associate a reply list with a thread.
 # Realtime quickstart
 Source: https://docs.ando.so/api-reference/realtime-quickstart
 
-> Open a realtime connection ticket from public API v1.
+> Open a realtime connection, listen for events, ack delivery, and resume after reconnect.
 
-The realtime route opens a temporary, pre-authorized websocket connection
-URL for ProductEvent delivery. API keys are validated on the HTTP request. The
-websocket connection uses the returned ticket URL and the `ando.realtime.v1`
-subprotocol.
+The realtime route opens a temporary, pre-authorized WebSocket connection URL
+for live ProductEvent delivery. It does not create a durable webhook feed. API
+keys are validated on the HTTP request. The WebSocket connection uses the
+returned ticket URL and the `ando.realtime.v1` subprotocol.
+
+Use [Which key do I use?](/developers/which-key-do-i-use) if you are deciding
+whether the HTTP ticket request should use a member, third-party agent, or
+workspace service key.
+
+Use the [Webhook guide](/api-reference/webhooks) instead when you need durable
+HTTP delivery, delivery logs, retries, and replay.
+
+The initial realtime release supports one subscription per connection:
+
+| Field | Supported value |
+| --- | --- |
+| `target` | `"self"` or the authenticated `workspace_membership` target |
+| `delivery` | `"mentions"` |
+| `events` | `["message.created"]` |
 
 ```bash
 export ANDO_API_BASE="https://api.ando.so/v1"
@@ -1091,8 +908,8 @@ export ANDO_REALTIME_PROTOCOL="$(
 
 ## 3. Connect with the returned URL
 
-Use the returned websocket URL before `expires_at`. The URL already contains the
-temporary ticket; do not add the API key to the websocket request or write the
+Use the returned WebSocket URL before `expires_at`. The URL already contains a
+temporary ticket. Do not add the API key to the WebSocket request or write the
 ticket URL to shared logs.
 
 ```bash
@@ -1104,13 +921,472 @@ test -n "$ANDO_REALTIME_URL" || {
 echo "Realtime ticket loaded; connect before it expires with subprotocol $ANDO_REALTIME_PROTOCOL"
 ```
 
+## 4. Install the WebSocket client
+
+This listener uses Node.js 18 or newer and the `ws` package. It uses the ticket
+request from step 1, opens a fresh ticket on each reconnect, and stores the last
+acked cursor in the quickstart directory.
+
+```bash
+npm --prefix "$ANDO_REALTIME_DIR" install ws
+```
+
+## 5. Write the listener
+
+```bash
+cat > "$ANDO_REALTIME_DIR/listener.mjs" <<'EOF'
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import WebSocket from "ws";
+
+const apiBase = requiredEnv("ANDO_API_BASE").replace(/\/$/, "");
+const apiKey = requiredEnv("ANDO_API_KEY");
+const workingDir = requiredEnv("ANDO_REALTIME_DIR");
+const connectionRequestPath = path.join(workingDir, "open-connection.json");
+const cursorPath = path.join(workingDir, "cursor.txt");
+
+const reconnectableDisconnectReasons = new Set([
+  "server_restart",
+  "deploy_draining",
+  "connection_max_age",
+  "backpressure",
+  "temporary_unavailable",
+  "refresh_requested",
+]);
+const nonReconnectableCloseCodes = new Set([4401, 4403, 4406, 4409, 4410]);
+
+let shouldStop = false;
+let activeSocket = null;
+
+process.on("SIGINT", () => {
+  shouldStop = true;
+  activeSocket?.close(1000, "client_shutdown");
+});
+
+await run();
+
+async function run() {
+  let reconnectAttempt = 0;
+
+  while (!shouldStop) {
+    const cursor = await readCursor();
+    const ticket = await openConnection(cursor);
+    const result = await connectOnce(ticket);
+
+    if (shouldStop || !result.reconnect) {
+      break;
+    }
+
+    const waitSeconds =
+      result.retryAfterSeconds ?? Math.min(30, 2 ** reconnectAttempt);
+    reconnectAttempt = Math.min(reconnectAttempt + 1, 5);
+    console.log(`reconnecting in ${waitSeconds}s`);
+    await sleep(waitSeconds * 1000);
+  }
+}
+
+async function openConnection(cursor) {
+  const requestBody = await buildConnectionRequest(cursor);
+  const response = await fetch(`${apiBase}/realtime/connections`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": apiKey,
+    },
+    body: JSON.stringify(requestBody),
+  });
+  const text = await response.text();
+  const body = parseJson(text);
+
+  if (!response.ok) {
+    console.error("ticket request failed", response.status, body ?? text);
+    throw new Error(`POST /realtime/connections returned ${response.status}`);
+  }
+
+  logWarnings(body.warnings);
+  return body;
+}
+
+async function buildConnectionRequest(cursor) {
+  const request = JSON.parse(await readFile(connectionRequestPath, "utf8"));
+  if (cursor == null) {
+    delete request.resume_from;
+    return request;
+  }
+
+  request.resume_from = { cursor };
+  return request;
+}
+
+async function connectOnce(ticket) {
+  return new Promise((resolve) => {
+    const socket = new WebSocket(ticket.url, ticket.protocol);
+    activeSocket = socket;
+
+    let settled = false;
+    let reconnect = true;
+    let retryAfterSeconds = null;
+
+    function settle() {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (activeSocket === socket) {
+        activeSocket = null;
+      }
+      resolve({ reconnect, retryAfterSeconds });
+    }
+
+    socket.on("open", () => {
+      console.log("connected", {
+        connection_id: ticket.connection_id,
+        protocol: ticket.protocol,
+      });
+    });
+
+    socket.on("message", (data) => {
+      void handleServerFrame(socket, data).catch((error) => {
+        console.error("frame handler failed", error);
+        reconnect = true;
+        socket.close(1011, "client_error");
+      });
+    });
+
+    socket.on("error", (error) => {
+      console.error("socket error", error.message);
+    });
+
+    socket.on("close", (code, reason) => {
+      const closeReason = reason.toString();
+      if (nonReconnectableCloseCodes.has(code)) {
+        reconnect = false;
+      }
+      console.log("socket closed", {
+        code,
+        reason: closeReason || null,
+        reconnect,
+      });
+      settle();
+    });
+
+    async function handleServerFrame(openSocket, data) {
+      const frame = JSON.parse(data.toString());
+
+      if (frame.type === "hello") {
+        console.log("hello", {
+          connection_id: frame.connection_id,
+          heartbeat_interval_seconds: frame.heartbeat_interval_seconds,
+          resume_supported: frame.resume_supported,
+          subscriptions: frame.subscriptions,
+        });
+        logWarnings(frame.warnings);
+        return;
+      }
+
+      if (frame.type === "warning") {
+        logWarnings(frame.warnings);
+        return;
+      }
+
+      if (frame.type === "disconnect") {
+        console.warn("server requested disconnect", frame);
+        retryAfterSeconds = frame.retry_after_seconds ?? null;
+        reconnect = reconnectableDisconnectReasons.has(frame.reason);
+        openSocket.close(1000, frame.reason);
+        return;
+      }
+
+      if (frame.type === "event") {
+        try {
+          await handleProductEvent(frame.payload);
+          await sendJson(openSocket, {
+            envelope_id: frame.envelope_id,
+          });
+          await writeCursor(frame.cursor);
+          console.log("acked", {
+            envelope_id: frame.envelope_id,
+            cursor: frame.cursor,
+          });
+        } catch (error) {
+          await sendJson(openSocket, {
+            envelope_id: frame.envelope_id,
+            error: {
+              code: "handler_failed",
+              message: getErrorMessage(error),
+            },
+          });
+          console.error(
+            "event handler failed; sent error ack without advancing cursor",
+            error
+          );
+        }
+        return;
+      }
+
+      console.warn("unknown realtime frame", frame);
+    }
+  });
+}
+
+async function handleProductEvent(event) {
+  console.log("product event", {
+    id: event.id,
+    type: event.type,
+    created_at: event.created_at,
+    related: event.related,
+  });
+}
+
+function sendJson(socket, value) {
+  return new Promise((resolve, reject) => {
+    socket.send(JSON.stringify(value), (error) => {
+      if (error != null) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+async function readCursor() {
+  try {
+    const cursor = (await readFile(cursorPath, "utf8")).trim();
+    return cursor.length > 0 ? cursor : null;
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function writeCursor(cursor) {
+  await writeFile(cursorPath, `${cursor}\n`, { mode: 0o600 });
+}
+
+function logWarnings(warnings) {
+  for (const warning of warnings ?? []) {
+    console.warn("realtime warning", warning);
+  }
+}
+
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function getErrorMessage(error) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "Unknown handler error.";
+}
+
+function requiredEnv(name) {
+  const value = process.env[name];
+  if (value == null || value.trim() === "") {
+    throw new Error(`${name} is required`);
+  }
+  return value;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+EOF
+```
+
+## 6. Run the listener
+
+```bash
+node "$ANDO_REALTIME_DIR/listener.mjs"
+```
+
+Leave the process running. When a visible message mentions the authenticated
+principal, Ando sends a `message.created` event. The listener prints the event,
+sends an ack frame, and writes the latest cursor to `cursor.txt`.
+
+If the socket closes, the listener calls `POST /realtime/connections` again. It
+does not reuse the old ticket URL. If `cursor.txt` exists, the listener sends
+`resume_from.cursor` in the next ticket request.
+
+## Server frames
+
+The first server frame is `hello`:
+
+```json
+{
+  "type": "hello",
+  "connection_id": "rtconn_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "heartbeat_interval_seconds": 30,
+  "resume_supported": true,
+  "subscriptions": [
+    {
+      "id": "rtsub_01jzn7e61x3a7v9h2r7t2m3q4p",
+      "target": {
+        "type": "workspace_membership",
+        "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
+      },
+      "delivery": "mentions",
+      "events": ["message.created"]
+    }
+  ]
+}
+```
+
+Each event frame includes WebSocket delivery metadata and a ProductEvent
+payload:
+
+```json
+{
+  "type": "event",
+  "envelope_id": "rtenv_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "accepts_response_payload": false,
+  "subscription_id": "rtsub_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "cursor": "rtcur_v1_...",
+  "payload": {
+    "id": "whe_message_created_hex_6d73675f30316a7a",
+    "object": "event",
+    "type": "message.created",
+    "api_version": "2026-05-27",
+    "created_at": "2026-05-29T01:00:00.000Z",
+    "workspace_id": "wrk_01jzn7e61x3a7v9h2r7t2m3q4p",
+    "data": {
+      "object": {
+        "id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+        "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+        "conversation_name": "Launch planning",
+        "author_id": "mem_01jzn7e61x3a7v9h2r7t2m3q4r",
+        "author_name": "Alex Kim",
+        "content": "Can you review this?",
+        "image_urls": [],
+        "reactions": [],
+        "replies_count": 0,
+        "created_at": "2026-05-29T01:00:00.000Z"
+      }
+    },
+    "related": {
+      "conversation_id": "conv_01jzn7e61x3a7v9h2r7t2m3q4p",
+      "message_id": "msg_01jzn7e61x3a7v9h2r7t2m3q4p",
+      "thread_root_message_id": null,
+      "call_id": null
+    }
+  }
+}
+```
+
+Ack each event after your handler finishes. The client ack frame does not have a
+`type` field:
+
+```json
+{
+  "envelope_id": "rtenv_01jzn7e61x3a7v9h2r7t2m3q4p"
+}
+```
+
+If the handler fails, you can ack with an error and leave your stored resume
+cursor unchanged:
+
+```json
+{
+  "envelope_id": "rtenv_01jzn7e61x3a7v9h2r7t2m3q4p",
+  "error": {
+    "code": "handler_failed",
+    "message": "The downstream queue is unavailable."
+  }
+}
+```
+
+## Reconnect and resume
+
+Open a new ticket after every disconnect. Ticket URLs are short-lived and
+single use.
+
+When you have a saved cursor, include it in the next connection request:
+
+```json
+{
+  "subscriptions": [
+    {
+      "target": "self",
+      "delivery": "mentions",
+      "events": ["message.created"]
+    }
+  ],
+  "resume_from": {
+    "cursor": "rtcur_v1_..."
+  }
+}
+```
+
+Resume is bounded and best effort. If Ando cannot replay from the cursor, the
+connection still opens and includes a warning in the ticket response, the
+`hello` frame, or a later `warning` frame:
+
+```json
+{
+  "type": "warning",
+  "warnings": [
+    {
+      "code": "resume_failed",
+      "message": "Realtime resume cursor is outside the replay window; connection will start from live events."
+    }
+  ]
+}
+```
+
+If the server plans to close the socket, it sends a `disconnect` frame when
+possible:
+
+```json
+{
+  "type": "disconnect",
+  "reason": "deploy_draining",
+  "retry_after_seconds": 1
+}
+```
+
+Reconnect for `server_restart`, `deploy_draining`, `connection_max_age`,
+`backpressure`, `temporary_unavailable`, and `refresh_requested`. Stop and fix
+configuration for `invalid_ticket`, `expired_ticket`, `revoked_api_key`,
+`missing_scope`, `unsupported_subscription`, and `policy_violation`.
+
 ## Expected errors
+
+HTTP errors from `POST /realtime/connections` can use the legacy public API
+error envelope or the newer nested `error` envelope. For example, a key without
+the required realtime scope returns:
+
+```json
+{
+  "error": "Unauthorized",
+  "error_code": "missing_scope",
+  "missing_scopes": ["realtime:read"]
+}
+```
+
+If realtime connection opening is not configured in the deployment, the route
+returns:
+
+```json
+{
+  "error": {
+    "code": "realtime_unavailable",
+    "message": "Public realtime connection opening is not available yet."
+  }
+}
+```
 
 | Status | Meaning |
 | --- | --- |
 | `400` | Request shape failed validation. |
 | `401` | The API key is missing or invalid. |
-| `403` | The key is valid but cannot access the requested workspace resource. |
+| `403` | The key is valid but cannot access the requested workspace resource, or it is missing a required scope such as `realtime:read` or `messages:read`. |
 | `404` | A requested subscription target was not found or is not visible to the key. |
 | `409` | The request conflicts with existing connection state. |
 | `429` | The key hit a public API rate limit. |
@@ -1128,11 +1404,19 @@ Outbound webhooks let an external system receive durable Ando product events by
 HTTP POST. Webhook delivery is at least once after the event row is created.
 Ordering is not guaranteed across events, endpoints, or retries.
 
+Use realtime for live WebSocket delivery to an online client. Use webhooks when
+a backend receiver needs durable delivery, logs, retries, or replay.
+
+Webhook signing secrets verify inbound events from Ando. They are not API keys.
+Use a member, agent, or service API key only when managing webhook endpoints or
+calling Ando back from your receiver. See [Which key do I use?](/developers/which-key-do-i-use)
+for the credential model.
+
 Use the generated references beside this guide:
 
 | Reference | Use it for |
 | --- | --- |
-| [Webhook events](/api-reference/webhook-events) | Event names, owners, payload contract types, API version, envelope fields, and related websocket event IDs. |
+| [Webhook events](/api-reference/webhook-events) | Event names, owners, payload contract types, API version, envelope fields, and related WebSocket event IDs. |
 | [Webhook endpoint routes](/api-reference/webhooks/create-a-webhook-endpoint) | Endpoint creation, updates, secret rotation, and test event routes. |
 | [Webhook delivery routes](/api-reference/webhooks/list-webhook-deliveries) | Delivery log listing and replay. |
 
@@ -1271,6 +1555,250 @@ Replay creates a new delivery id for the same event id:
 curl -sS -X POST "$ANDO_API_BASE/webhook-deliveries/$WEBHOOK_DELIVERY_ID/replay" \
   -H "x-api-key: $ANDO_API_KEY"
 ```
+# SDK guide
+Source: https://docs.ando.so/developers/sdk
+
+> Use @andocorp/sdk for typed webhook receiver helpers.
+
+Use the TypeScript SDK when you want typed webhook event payloads and signature
+verification helpers. REST, realtime, and webhook endpoint management currently
+use the public API directly; start with the [API overview](/api-reference/overview)
+and generated [endpoint reference](/api-reference/endpoint-reference) for those
+routes.
+
+## Install
+
+```bash
+pnpm add @andocorp/sdk
+```
+
+## Webhook receivers
+
+```ts
+import {
+  ANDO_WEBHOOK_SIGNATURE_HEADER,
+  type AndoWebhookEvent,
+  verifyAndoWebhookSignature,
+} from "@andocorp/sdk/webhooks";
+```
+
+Verify the raw request body before parsing or trusting event content:
+
+```ts
+const payload = await request.text();
+const secret = process.env.ANDO_WEBHOOK_SECRET;
+
+if (secret == null || secret.trim().length === 0) {
+  throw new Error("ANDO_WEBHOOK_SECRET is required.");
+}
+
+const verification = await verifyAndoWebhookSignature({
+  payload,
+  signatureHeader: request.headers.get(ANDO_WEBHOOK_SIGNATURE_HEADER),
+  secret,
+});
+
+if (!verification.ok) {
+  return new Response("invalid signature", { status: 400 });
+}
+
+const event = JSON.parse(payload) as AndoWebhookEvent;
+```
+
+Use the event `type` field to narrow payloads:
+
+```ts
+switch (event.type) {
+  case "message.created":
+    console.log(event.data.object.id, event.data.object.content);
+    break;
+  case "webhook.test":
+    console.log(event.data.object.message);
+    break;
+}
+```
+
+Read [Webhook guide](/developers/webhooks) for receiver behavior and signature
+verification requirements.
+# CLI guide
+Source: https://docs.ando.so/developers/cli
+
+> Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
+
+Use the Ando CLI when you want agent-friendly terminal commands, a raw public
+API escape hatch, or webhook endpoint and delivery management from scripts.
+
+## Install
+
+```bash
+npm install -g @andocorp/cli
+```
+
+Or run without installing:
+
+```bash
+npx @andocorp/cli
+```
+
+## Authenticate
+
+Log in once:
+
+```bash
+ando login
+```
+
+For headless scripts and CI, inject an API key from your secret store through
+the environment:
+
+```bash
+export ANDO_API_KEY="$ANDO_API_KEY_FROM_SECRET_STORE"
+ando api searchMessages q==incident mode==semantic
+```
+
+Avoid passing long-lived API keys as command-line arguments in shared shells,
+CI jobs, or process-managed environments.
+
+## Raw public API
+
+The `ando api` command mirrors the generated public API operation surface:
+
+```bash
+ando api ls
+ando api ls --json
+ando api searchMessages q==incident mode==semantic
+ando api /v1/search/messages q==incident mode==semantic
+ando api /v1/search/messages --spec
+```
+
+`ando api` accepts `name==value` query parameters, `Header:Value` request
+headers, `field=value` JSON string body fields, `field:=json` typed JSON body
+fields, and `--data <json|->` for complete request bodies.
+
+## Webhooks
+
+Webhook endpoint and delivery commands cover the SDK webhook management surface:
+
+```bash
+ando webhooks endpoints list
+ando webhooks endpoints create \
+  --url https://example.com/ando/webhooks \
+  --events webhook.test,message.created \
+  --name "Development receiver"
+ando webhooks endpoints test <endpoint-id> --watch-delivery
+ando webhooks deliveries list --endpoint <endpoint-id> --status failed
+ando webhooks deliveries replay <delivery-id>
+```
+
+Endpoint creation and secret rotation print one-time signing secrets in plain
+output. Store the secret before clearing the terminal.
+
+## Agent-first context commands
+
+The CLI also includes browse and search commands for common agent workflows:
+
+```bash
+ando messages --channel engineering --limit 10
+ando search "incident"
+ando get message <message-id>
+ando thread <thread-root-message-id>
+```
+
+Every agent-first command supports `--json` for machine-readable output.
+# Reusable API snippets
+Source: https://docs.ando.so/api-reference/snippets
+
+> Copy small public API v1 snippets into server-side integrations.
+
+Use these snippets as building blocks for public API v1 clients. They keep the
+base URL, authentication header, idempotency behavior, and response envelope
+consistent across guides.
+
+## Environment
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Send API keys from a server-side environment. Use `x-api-key` as the canonical
+auth header:
+
+```bash
+curl -sS "$ANDO_API_BASE/search/messages?q=release" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Bearer transport is accepted for compatibility with older clients:
+
+```http
+Authorization: Bearer ando_sk_...
+```
+
+## JSON request body
+
+```bash
+jq -n \
+  --arg markdown_content "Hello from the public API." \
+  '{
+    markdown_content: $markdown_content,
+    explicit_context_message_ids: [],
+    image_urls: [],
+    file_ids: [],
+    suppressed_link_preview_urls: []
+  }' > /tmp/ando-message.json
+```
+
+## Idempotent write
+
+Some write endpoints require `Idempotency-Key`; check the endpoint reference
+before sending a write request. Reuse the same key only when retrying the same
+request body after a timeout or network failure.
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  --data @/tmp/ando-message.json
+```
+
+## Read an object response
+
+Object responses return the resource under `data`:
+
+```bash
+jq -r '.data.id' /tmp/ando-created-message.json
+```
+
+## Read a list response
+
+Search and list responses return items under `data.items`. List endpoints that
+support cursor pagination also return `data.page_info`; check the endpoint
+reference before reading cursor fields.
+
+```bash
+jq -r '.data.items[]?.id' /tmp/ando-search.json
+jq -r '.data.page_info.next_cursor // empty' /tmp/ando-list.json
+```
+
+## Error envelope
+
+Most public v1 errors use a structured `error` object:
+
+```bash
+jq -r '.error.code, .error.message' /tmp/ando-error.json
+```
+
+Compatibility endpoints can still return older error shapes. Check the endpoint
+reference when you handle errors for a specific route.
+
+## Preview endpoints
+
+Preview endpoint shapes are generated from the same OpenAPI source as stable
+routes, but they are not yet part of the stable public API v1 surface. Keep
+preview integrations behind a narrow rollout and read each endpoint's response
+schemas from the generated reference.
 # Endpoint reference map
 Source: https://docs.ando.so/api-reference/endpoint-reference
 
@@ -2639,7 +3167,7 @@ Before you create the agent, connect the tools it should be allowed to use.
 
 Open Ando, then go to **Settings** -> **Connected Apps**. From there, you can connect:
 
-- **Official integrations:** Ando-managed connections for popular providers like GitHub, Linear, Notion, Sentry, Granola, Attio, Fathom, Exa, and Parallel. See the [supported integrations](#supported-official-integrations) table below.
+- **Official integrations:** Ando-managed connections for popular providers like GitHub, Linear, Notion, Sentry, Granola, HubSpot, Attio, Fathom, Exa, and Parallel. See the [supported integrations](#supported-official-integrations) table below.
 - **Custom MCP integrations:** Remote MCP servers that expose an HTTPS MCP server URL. Custom MCP integrations can use OAuth, an API key, or no authentication, depending on the server.
 - **Ando MCP:** Ando's own MCP tools, which let an agent create conversations, send messages, reply in threads, send DMs, and update channel proactivity from inside Ando.
 
@@ -2694,18 +3222,261 @@ These are the official Connected Apps that managed agents can use today. If you 
 | Notion | Search and update Notion workspaces through Notion MCP. | OAuth |
 | Sentry | Inspect Sentry issues, traces, and releases. | OAuth |
 | Granola | Search and use Granola meeting notes. | OAuth |
+| HubSpot | Use HubSpot CRM data. | OAuth |
 | Attio | Search and update Attio CRM data. | OAuth |
 | Fathom | Use Fathom meeting content. | OAuth |
 | Exa | Search the web with Exa. | OAuth |
 | Parallel | Search the web with Parallel. | No auth or optional API key |
-# Third-party agents
+# GitHub
+Source: https://docs.ando.so/docs/github
+
+> Connect GitHub to Ando so agents can work with repositories, issues, pull requests, and metadata.
+
+Use the GitHub integration when a managed agent needs to inspect or update GitHub work from Ando. Agents can use GitHub tools with the repositories you allow.
+
+## When to use it
+
+Connect GitHub when an agent should help with engineering workflows such as:
+
+- Looking up repository context
+- Reading issues and pull requests
+- Drafting or updating GitHub work
+- Connecting code review context to Ando conversations
+
+Only give GitHub access to agents that need it. Repository access is part of the agent's tool configuration.
+
+## Connect GitHub in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **GitHub**.
+4. Click **Connect** and approve access with your GitHub account.
+5. If you prefer token setup, create a GitHub personal access token and paste it instead.
+6. Choose the repositories agents should be allowed to use.
+7. Add GitHub to any managed agents that should use it.
+
+## Token setup
+
+OAuth is the default path. Use a GitHub personal access token only when your workspace needs token-based setup.
+
+If you use a token, create it in GitHub, copy it once, then store it in Ando through **Connected Apps**. Rotate the token in GitHub if it is exposed or no longer needed.
+
+## Agent access
+
+Connecting GitHub makes the integration available to the workspace. An agent can only use GitHub after you add the integration to that agent in **Settings** -> **Agents**.
+
+Review the agent's enabled tools and repository access before saving.
+# Linear
+Source: https://docs.ando.so/docs/linear
+
+> Connect Linear to Ando so agents can search, create, and update issues with the right attribution.
+
+Use the Linear integration when an Ando managed agent needs to search, create, or update Linear issues.
+
+## API key attribution
+
+The Linear token you use controls how Linear attributes the work. A personal Linear API key attributes changes to the person who created the key. For app attribution, create a Linear application token and use that token as the API key in Ando.
+
+## Create a Linear app token
+
+1. Open Linear's [API applications settings](https://linear.app/settings/api/applications).
+2. Click **Create application**.
+3. Enter a name and details that make the app easy to recognize, such as `Ando`.
+4. Open the new application.
+5. Under **Developer token**, click **Create & copy token**.
+6. Select the **App** option.
+7. Store the token somewhere secure. Linear only shows it once.
+
+## Connect Linear in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **Linear**.
+4. Choose the API key authentication option.
+5. Paste the Linear app developer token.
+6. Save the connection.
+7. Add Linear to any agents that should use it.
+
+After setup, actions taken through this connection are attributed to the Linear app rather than a specific person. Rotate the token in Linear if it is exposed or no longer needed.
+# Notion
+Source: https://docs.ando.so/docs/notion
+
+> Connect Notion to Ando so agents can search and update Notion workspace context.
+
+Use the Notion integration when a managed agent needs to search or update Notion content while working in Ando.
+
+## When to use it
+
+Connect Notion when an agent should help with work stored in Notion, such as project notes, specs, meeting notes, or team docs.
+
+Notion access is controlled during the OAuth flow. Only approve the workspace and pages the agent should be able to reach.
+
+## Connect Notion in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **Notion**.
+4. Click **Connect**.
+5. Sign in to Notion.
+6. Approve the Notion workspace and pages Ando should be able to access.
+7. Add Notion to any managed agents that should use it.
+
+## Agent access
+
+Connecting Notion makes the integration available to the workspace. An agent can only use Notion after you add the integration to that agent in **Settings** -> **Agents**.
+
+Review the agent's enabled tools before saving. Give write-capable tools only to agents that should update Notion.
+# Granola
+Source: https://docs.ando.so/docs/granola
+
+> Connect Granola to Ando so agents can search and use meeting notes.
+
+Use the Granola integration when a managed agent needs meeting context from Granola notes.
+
+## When to use it
+
+Connect Granola when agents need to answer questions or move work forward using meeting notes that live outside Ando.
+
+Granola notes can include sensitive meeting context. Add this integration only to agents that should be allowed to use those notes.
+
+## Connect Granola in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **Granola**.
+4. Click **Connect**.
+5. Sign in to Granola and approve access.
+6. Add Granola to any managed agents that should use it.
+
+## Agent access
+
+Connecting Granola makes the integration available to the workspace. An agent can only use Granola after you add the integration to that agent in **Settings** -> **Agents**.
+
+Review the agent's enabled tools before saving.
+# HubSpot
+Source: https://docs.ando.so/docs/hubspot
+
+> Connect HubSpot to Ando so agents can use CRM context from HubSpot.
+
+Use the HubSpot integration when a managed agent needs CRM context from HubSpot.
+
+## When to use it
+
+Connect HubSpot when agents need customer, company, deal, or sales context while working in Ando.
+
+HubSpot access can include sensitive CRM data. Add this integration only to agents that should use that data.
+
+## Connect HubSpot in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **HubSpot**.
+4. Click **Connect**.
+5. Sign in to HubSpot and approve access.
+6. Add HubSpot to any managed agents that should use it.
+
+## Agent access
+
+Connecting HubSpot makes the integration available to the workspace. An agent can only use HubSpot after you add the integration to that agent in **Settings** -> **Agents**.
+
+Review the agent's enabled tools before saving.
+# Sentry
+Source: https://docs.ando.so/docs/sentry
+
+> Connect Sentry to Ando so agents can inspect issues, traces, and releases.
+
+Use the Sentry integration when a managed agent needs production error or release context from Sentry.
+
+## When to use it
+
+Connect Sentry when agents should help with incident response, bug triage, release follow-up, or debugging work.
+
+Sentry access can include issue, trace, project, team, and release context. Add this integration only to agents that need operational access.
+
+## Connect Sentry in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **Sentry**.
+4. Click **Connect**.
+5. Sign in to Sentry and approve access.
+6. Add Sentry to any managed agents that should use it.
+
+## Agent access
+
+Connecting Sentry makes the integration available to the workspace. An agent can only use Sentry after you add the integration to that agent in **Settings** -> **Agents**.
+
+Review the agent's enabled tools before saving. Give write-capable tools only to agents that should change Sentry data.
+# Everything else
+Source: https://docs.ando.so/docs/everything-else
+
+> See supported MCP apps, connect Custom MCP, and request new built-in MCP integrations.
+
+Ando supports built-in MCP integrations for common tools and Custom MCP for trusted remote MCP servers that are not listed yet.
+
+Use a built-in MCP integration when one is available. Use Custom MCP when your team already trusts a remote HTTPS MCP server and wants to make it available to managed agents.
+
+## Supported built-in MCP apps
+
+These built-in MCP integrations are available from **Settings** -> **Connected Apps**.
+
+| App | What agents can use it for | Authentication |
+| --- | --- | --- |
+| [GitHub](/docs/github) | Work with repositories, issues, pull requests, and metadata. | OAuth or GitHub personal access token |
+| [Linear](/docs/linear) | Search, create, and update Linear issues. | OAuth or Linear API key |
+| [Notion](/docs/notion) | Search and update Notion workspaces. | OAuth |
+| [Sentry](/docs/sentry) | Inspect issues, traces, and releases. | OAuth |
+| [Granola](/docs/granola) | Search and use Granola meeting notes. | OAuth |
+| [HubSpot](/docs/hubspot) | Use HubSpot CRM data. | OAuth |
+| Attio | Search and update Attio CRM data. | OAuth |
+| Fathom | Use Fathom meeting content. | OAuth |
+| Exa | Search the web with Exa. | OAuth |
+| Parallel | Search the web with Parallel. | No auth or optional API key |
+
+## Use Custom MCP
+
+<Note>
+  Only connect MCP servers you trust. Connected agents can see the tools you
+  enable and may be able to read or write data in the connected system.
+</Note>
+
+Custom MCP supports remote HTTPS MCP servers. A custom server can use OAuth, an API key, or no authentication, depending on how that server is configured.
+
+To connect one:
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Find **Additional MCP Integrations**.
+4. Click **Add integration**.
+5. Choose **OAuth**, **API key**, or **No auth**.
+6. Enter the remote HTTPS MCP server URL.
+7. Add a name if you do not want Ando to auto-fill one from the URL.
+8. Save the integration.
+9. Add it to any managed agents that should use it.
+
+If you choose OAuth, set the OAuth scopes the MCP server requires. If you choose API key, store the key in Ando and rotate it in the source app when needed.
+
+## Request a built-in MCP
+
+If your team needs a first-party built-in MCP integration, email [hello@ando.so](mailto:hello@ando.so?subject=Built-in%20MCP%20request) or ask in `#ando-feedback`.
+
+Include:
+
+- The app name
+- The MCP server URL or provider docs, if one exists
+- What agents should be able to do with the app
+- The required auth method
+- Any scopes, approval requirements, or data boundaries your workspace needs
+
+While the request is being reviewed, use Custom MCP if the provider already offers a remote HTTPS MCP server that your workspace trusts.
+# Bring your own agent
 Source: https://docs.ando.so/docs/third-party-agents
 
-> Create an agent identity for your own application and use its API key with the Ando API.
+> Create an agent identity for an agent you run locally, in the cloud, or in your own automation.
 
 <iframe
   src="https://supercut.ai/embed/ryan-ando/VzBpL8C2riNm3pux2xNtP5?embed=full"
-  title="Bring Your Own Agent to Ondo"
+  title="Bring Your Own Agent to Ando"
   style={{
     width: "100%",
     aspectRatio: "100 / 64.9",
@@ -2716,7 +3487,19 @@ Source: https://docs.ando.so/docs/third-party-agents
   allowFullScreen
 />
 
-Third-party agents are agent identities for applications you host or control. Create one when you want your own agent, bot, service, or automation to send messages through the Ando API as an agent workspace member.
+Bring your own agent when you host or control the agent runtime. The agent can
+run in a CLI, local daemon, cloud worker, server, or automation platform.
+
+In Ando, that runtime appears as an agent workspace member. Messages sent with
+the agent key are attributed to the agent.
+
+## Choose a runtime
+
+| Runtime | Use it when | Start here |
+| --- | --- | --- |
+| CLI or local daemon | You run the agent on your machine, such as Codex, Claude Code, Cursor, or a local listener. | [Run a local agent](/docs/local-coding-agent) |
+| Cloud-hosted agent | You host the agent in your own service, worker, queue, or automation platform. | [Create a third-party agent](#create-a-third-party-agent) |
+| Hybrid agent | A local process listens for work, then a cloud service handles longer-running tasks. | Use a member key locally and an agent key for agent-attributed writes. |
 
 ## Create a third-party agent
 
@@ -2726,32 +3509,61 @@ Third-party agents are agent identities for applications you host or control. Cr
 4. Click **Create agent**.
 5. Name the agent.
 6. Copy the agent's API key.
-7. Use the API key in your application with the [Ando API](/api-reference/overview).
-
-Store the API key in a server-side environment. Do not put it in browser, mobile, or other client-side code.
-
-## Add the agent to channels
+7. Store the key in your server-side secret manager.
 
 A third-party agent must be added to a channel before it can access that channel.
+Open the channel members panel, search for the agent, and add it.
 
-To give the agent channel access, open the channel, open the members panel, search for the agent, and add it to the channel.
+## Key choice
 
-After the agent is added, API requests made with the agent's API key can access the conversations and messages available to that agent.
+Use a third-party agent key when work should appear as the agent. Use a member
+API key when a human is connecting Codex, Claude Code, Cursor, or another MCP
+client for their own work.
 
-## Message attribution
+See [Which key do I use?](/developers/which-key-do-i-use) for the full
+credential guide.
+# Run a local agent
+Source: https://docs.ando.so/docs/local-coding-agent
 
-All messages sent with an agent's API key are attributed to that agent in Ando.
+> Use Ando MCP, public messaging APIs, and realtime self-mentions to let an agent running on your machine collaborate in Ando.
 
-If you want messages to be attributed to yourself instead, use a personal API key:
+Use this guide when your agent runs on your machine. That can be Codex, Claude
+Code, Cursor, another CLI agent, or a local daemon you control.
 
-1. Open Ando.
-2. Go to **Settings**.
-3. Open **API keys**.
-4. Create or copy an API key.
+For an agent that runs in your own cloud service, worker, queue, or automation
+platform, create a [third-party agent](/docs/third-party-agents) instead.
+
+## What works today
+
+| Surface | Use it for |
+| --- | --- |
+| [Ando MCP](/docs/ando-mcp) | Pulling workspace context when the local agent asks for it. |
+| [Public messaging APIs](/api-reference/messaging-quickstart) | Posting messages and thread replies after the agent decides what to say. |
+| [Realtime self-mentions](/api-reference/realtime-quickstart) | Dogfooding a local listener that wakes when the authenticated member is mentioned. |
+
+Third-party agent keys cannot subscribe to realtime self-mentions yet. Use a
+member key for the local realtime listener until that scope is available.
+
+## Setup
+
+1. Create a member API key in Ando from **Settings** -> **API keys**.
+2. Add [Ando MCP](/docs/ando-mcp) to your local agent for pull-based workspace access.
+3. Use the public messaging APIs when the agent needs to post back into Ando.
+4. Add realtime only if the local process needs to react to mentions.
+
+If you need agent-attributed replies during dogfooding, keep the realtime
+listener on a member key and use a separate third-party agent key for the
+message-posting call.
+
+## Next
+
+- [Ando MCP](/docs/ando-mcp)
+- [Messaging quickstart](/api-reference/messaging-quickstart)
+- [Which key do I use?](/developers/which-key-do-i-use)
 # Ando MCP
 Source: https://docs.ando.so/docs/ando-mcp
 
-> Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients.
+> Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients and agents.
 
 <iframe
   src="https://www.loom.com/embed/735cf66b9da0404ca5aa57176e6ba4de"
@@ -2760,42 +3572,49 @@ Source: https://docs.ando.so/docs/ando-mcp
   allowFullScreen
 />
 
-To have your coding agent install Ando MCP for you, paste these instructions into the agent:
+To have your MCP client or agent install Ando MCP for you, paste this into it:
 
 ```text
-Install Ando MCP for me.
-
-Follow these steps:
-
-1. Ask me for my Ando API key before running any install command. Tell me I can get one by opening Ando, going to Settings -> API keys, then creating or copying an API key.
-2. Ask which coding agent I want to install Ando MCP in. Supported choices are Claude Code or Codex CLI.
-3. After I provide both the API key and the coding agent, run the necessary command for that agent.
-
-Use these install commands:
-
-Claude Code:
-claude mcp add --transport http ando https://mcp.ando.so/mcp --header "Authorization: Bearer <ANDO_API_KEY>"
-
-Codex CLI:
-export ANDO_API_KEY="<ANDO_API_KEY>"
-codex mcp add ando --url https://mcp.ando.so/mcp --bearer-token-env-var ANDO_API_KEY
-
-Replace <ANDO_API_KEY> with the key I provide.
+Install Ando MCP. Ask me for my Ando API key from Settings -> API keys, then
+configure https://mcp.ando.so/mcp as a streamable HTTP MCP server with
+Authorization: Bearer <key>. Use the Claude Code, Codex CLI, or Cursor setup
+on this page if you need the exact command.
 ```
 
-## What is Ando MCP?
+<Note>
+  For personal Codex, Claude Code, or Cursor setup, use your member API key.
+  MCP bearer setup is how the client sends that key; it is not a separate key
+  type. See [Which key do I use?](/developers/which-key-do-i-use) for the full
+  credential guide.
+</Note>
 
-Ando MCP is Ando's hosted Model Context Protocol server. It lets MCP-capable coding agents search and fetch context from your Ando workspace at:
+## What it does
+
+Ando MCP is Ando's hosted Model Context Protocol server. MCP-capable clients and
+agents use it to search and fetch workspace context from:
 
 `https://mcp.ando.so/mcp`
 
 The server uses streamable HTTP MCP and API-key authentication.
 
-## Available Tools
+## MCP is not a listener
 
-Ando MCP includes public tools for conversations, messages, members, calls/Jams, tasks, and workspace actions. Read the generated [MCP public tool reference](/docs/ando-mcp-tools) for the current tool list, safety label, deprecation status, and public API overlap for each tool.
+MCP is request/response tool access. A running client such as Codex asks Ando
+for context or calls an Ando tool.
 
-## Supported Clients
+MCP does not wake a local agent process when someone mentions it in Ando. To
+react to mentions or other live Ando events, keep your own local daemon running
+and feed it events from [realtime](/developers/realtime) or
+[webhooks](/developers/webhooks).
+
+## Available tools
+
+Ando MCP includes public tools for conversations, messages, members, Jams,
+tasks, and workspace actions. Use the generated [MCP public tool
+reference](/docs/ando-mcp-tools) for the current tool list, safety labels, and
+public API overlap.
+
+## Supported clients
 
 Ando MCP currently supports:
 
@@ -2807,20 +3626,22 @@ Other MCP clients can connect if they support remote streamable HTTP servers wit
 
 ## Setup
 
-First, create an Ando API key:
+First, create a member API key in Ando:
 
 1. Open Ando.
-2. Go to Settings -> API keys.
+2. Go to **Settings** -> **API keys**.
 3. Create or copy an API key.
 4. Use it anywhere the examples below show `ando_sk_...` or `ANDO_API_KEY`.
 
-Ando expects the key in a bearer token header:
+Then configure your MCP client outside Ando. Ando expects the key in a bearer
+token header:
 
 ```http
 Authorization: Bearer ando_sk_...
 ```
 
-Keys are scoped to the Ando member and workspace that created them. Tool results are limited to the workspaces and entities that member can access.
+Tool results are limited to the workspaces and entities the authenticated
+member, agent, or service can access.
 
 ## Claude Code
 
@@ -2841,7 +3662,7 @@ To check the connection, run `/mcp` inside Claude Code and confirm that `ando` i
 
 ## Codex CLI
 
-Store your Ando API key in an environment variable:
+Store your Ando API key in an environment variable in your terminal:
 
 ```bash
 export ANDO_API_KEY="ando_sk_..."
@@ -2859,7 +3680,8 @@ Then start Codex:
 codex
 ```
 
-Codex reads the bearer token from `ANDO_API_KEY` when it connects to the MCP server.
+Codex reads the bearer token from `ANDO_API_KEY` when it connects to the MCP
+server. The key is created in Ando, but the Codex setup happens in the CLI.
 
 ## Cursor
 
@@ -2887,41 +3709,21 @@ Then add Ando to `.cursor/mcp.json` in your project or to `~/.cursor/mcp.json` g
 
 After saving the file, open Cursor Settings -> MCP and confirm that `ando` is enabled.
 
-## Common Usage Patterns
+## Common patterns
 
-**Find a person, then browse their messages**: Call `search_workspace_members` with a name or email, or `list_workspace_members` when you need active workspace members by exact display name. Take the returned member ID. Call `get_conversation_messages` with `author` to browse recent messages in a known conversation, or call `search_messages` with `author` if you need search instead of browsing.
-
-**Inspect a channel or DM roster**: Call `search_conversations` or `list_conversations` to identify the conversation, then call `list_conversation_members` with the conversation ID.
-
-**Search for a topic, then inspect the full thread**: Call `search_messages` with a keyword or semantic query. Inspect the returned `replies_count`. If the message is a thread root or has replies, call `get_thread_replies` with that message ID. If needed, call `get_message` for the exact source message.
-
-**Find meetings about a topic, then read the transcript**: Call `list_calls` for recent calls/Jams or `search_calls` for transcript search. Pick a matching `call_id`. Call `get_call` for metadata. Call `get_call_transcript` to page through the transcript.
-
-**Find or update a task**: Call `search_tasks` to discover visible tasks, then `get_task` for the task summary, recent work log entries, and active task URLs. Use `record_task_update` only when the user explicitly asks you to update a task.
-
-**Send a user-requested DM**: Call `search_workspace_members` for each recipient unless IDs are already known. Then call `send_direct_message` with `member_ids` and `markdown_content`. Report the returned `message_id` and `conversation_id`.
-
-**React to a user-specified message**: Confirm the exact target with `get_message` unless the user already provided a precise message ID, then call `react_to_message` with `message_id` and `emoji`.
-
-**Invite a user to the workspace**: Call `invite_to_workspace` only when the user explicitly asks to invite an email address.
-
-**Start broad, then narrow**: The usual workflow is to search or list conversations, members, messages, calls, or tasks, capture the relevant IDs, then use the matching `get_*` or paginated tool for full details.
+- Search or list first, then fetch the exact conversation, message, member, call, or task.
+- Use `get_conversation_messages` for recent history.
+- Use `get_thread_replies` when a message has replies.
+- Use `list_calls` for recent Jams and `get_call_transcript` after you identify the call.
+- Use write tools only when the user asks to send, reply, react, invite, update, or change proactivity.
 
 ## Behavior
 
 Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
 
-`get_conversation_messages` returns messages in reverse chronological order. `get_thread_replies` returns replies in chronological order. `get_call_transcript` is paginated and should be called repeatedly with the returned cursor when needed. Use `list_calls` for recent calls/Jams without a search query, and `search_calls` when searching transcript content. Use `list_conversations`, `list_workspace_members`, and `list_conversation_members` for browse-style discovery without a fuzzy search query.
-
 Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
 
 MCP sessions are stateful and idle-evicted after about 10 minutes, so clients should be prepared to re-initialize a session.
-
-## Recommended Prompting For Agents
-
-Ando MCP works best when agents use `search_*` and `list_*` tools to discover the right IDs first, use `get_conversation_messages` instead of forcing search queries for recent history, use `get_thread_replies` when a message has replies, use `list_calls` for recent calls/Jams, use `get_call_transcript` only after identifying the right call, and avoid wildcard search inputs.
-
-For write actions, prompt agents to verify the target before calling side-effecting tools. Examples: identify the conversation before `send_message`, identify the thread root before `reply_to_message`, identify recipients before `send_direct_message`, identify the message before `react_to_message`, confirm the email before `invite_to_workspace`, and fetch the task before `record_task_update`.
 
 ## Troubleshooting
 
@@ -2983,38 +3785,6 @@ OpenAPI source: `docs/api/public-api-v1.openapi.json`
 | `search_workspace_members`  | `workspace_member.search`           | `q`. Optional: `query`, `limit`.                                                       | search | read-only, idempotent | _None_                         | GET `/search/members` (searchMembers)                                       |
 | `send_direct_message`       | `message.send_direct`               | `member_ids`, `markdown_content`.                                                      | create | write                 | _None_                         | _None_                                                                      |
 | `send_message`              | `message.send`                      | `conversation_id`, `markdown_content`.                                                 | create | write                 | _None_                         | POST `/conversations/{conversationId}/messages` (createConversationMessage) |
-# Linear
-Source: https://docs.ando.so/docs/linear
-
-> Connect Linear to Ando so agents can search, create, and update issues with the right attribution.
-
-Use the Linear integration when an Ando managed agent needs to search, create, or update Linear issues.
-
-## API key attribution
-
-The Linear token you use controls how Linear attributes the work. A personal Linear API key attributes changes to the person who created the key. For app attribution, create a Linear application token and use that token as the API key in Ando.
-
-## Create a Linear app token
-
-1. Open Linear's [API applications settings](https://linear.app/settings/api/applications).
-2. Click **Create application**.
-3. Enter a name and details that make the app easy to recognize, such as `Ando`.
-4. Open the new application.
-5. Under **Developer token**, click **Create & copy token**.
-6. Select the **App** option.
-7. Store the token somewhere secure. Linear only shows it once.
-
-## Connect Linear in Ando
-
-1. Open Ando.
-2. Go to **Settings** -> **Connected Apps**.
-3. Select **Linear**.
-4. Choose the API key authentication option.
-5. Paste the Linear app developer token.
-6. Save the connection.
-7. Add Linear to any agents that should use it.
-
-After setup, actions taken through this connection are attributed to the Linear app rather than a specific person. Rotate the token in Linear if it is exposed or no longer needed.
 
 ## Changelog
 
@@ -3025,7 +3795,51 @@ Source: https://docs.ando.so/changelog
 
 Weekly updates on features, improvements, and fixes.
 
-<span data-ando-changelog-latest data-date="2026-05-10" data-title="Custom MCP Apps" data-description="Connect any third-party MCP server to your workspace." />
+<span data-ando-changelog-latest data-date="2026-06-12" data-title="Slack bridge and scheduled sends" data-description="Backfill Slack history, keep channels synced, schedule messages, and use Ando better on mobile." />
+
+<span id="2026-06-12" aria-hidden="true" />
+
+<Update label="June 12, 2026" description="2026-06-12" tags={["Agent","API","Channels","Composer","Integrations","MCP","Mobile","Onboarding"]} rss={{ title: "June 12, 2026 - Slack Bridge and Scheduled Sends", description: "Ando updates from June 12, 2026." }}>
+
+## Featured
+
+### Slack bridge
+
+**Categories:** Integrations, Onboarding, Channels
+
+Bring Slack history into Ando with a backfill, then keep selected Slack channels
+synced going forward. Teams can move into Ando with past context intact while
+new Slack activity continues to appear in the right Ando conversations.
+
+### Scheduled send
+
+**Categories:** Composer
+
+Schedule a message to send later from the composer. Use it for async updates,
+follow-ups, and notes that should land at a better time for the conversation.
+
+### Mobile improvements
+
+**Categories:** Mobile
+
+Mobile has had a broad polish pass across navigation, conversations, Jams, and
+message actions. Ando should feel more consistent when you are reading,
+replying, or catching up from a phone.
+
+<AccordionGroup>
+<Accordion title="Improvements" description="6 items">
+
+- **Slack bridge:** Added clearer setup for importing Slack history, syncing selected channels, and bringing custom Slack emoji into Ando.
+- **Composer:** Scheduled sends now let you write a message and choose when it should be delivered.
+- **Mobile:** Improved mobile layouts and interaction polish across core workspace flows.
+- **Agent:** Added clearer guidance for bringing your own agents, whether they run in a CLI, local daemon, cloud worker, server, or automation platform.
+- **MCP, API:** Clarified which key to use for Ando MCP, public API workflows, realtime, webhooks, and agent setup.
+- **Integrations:** Added docs for GitHub, Linear, Notion, Granola, HubSpot, Sentry, and Custom MCP options.
+
+</Accordion>
+</AccordionGroup>
+
+</Update>
 
 <span id="2026-05-10" aria-hidden="true" />
 
@@ -4158,7 +4972,3 @@ Memory stores at the workspace, channel, and people level let one Ando agent act
 ## Ando in the App Store
 
 Ando for iOS is heading from TestFlight to the App Store. Launch polish is wrapping up: link previews, emoji search, push reliability, and submission assets.
-
-## Custom MCP Connections
-
-Plug any third-party MCP server into your workspace and expose its tools to Ando agents. If a tool has an MCP, it can live inside Ando without waiting for a native integration.

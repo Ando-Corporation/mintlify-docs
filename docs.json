@@ -84,73 +84,65 @@
           {
             "group": "Agents",
             "pages": [
-              "docs/managed-agents",
-              "docs/third-party-agents"
+              "docs/managed-agents"
             ]
           },
           {
             "group": "Integrations",
             "pages": [
-              "docs/ando-mcp",
-              "docs/ando-mcp-tools",
-              "docs/linear"
+              "docs/github",
+              "docs/linear",
+              "docs/notion",
+              "docs/granola",
+              "docs/hubspot",
+              "docs/sentry",
+              "docs/everything-else"
             ]
           }
         ]
       },
       {
-        "tab": "Changelog",
-        "icon": "history",
+        "tab": "Developers",
+        "icon": "terminal",
         "groups": [
-          {
-            "group": "Updates",
-            "pages": [
-              "changelog",
-              "coming-soon"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API",
-        "icon": "braces",
-        "groups": [
-          {
-            "group": "Developer guides",
-            "pages": [
-              "developers/overview",
-              "developers/quickstart",
-              "developers/sdk",
-              "developers/cli",
-              "developers/realtime",
-              "developers/webhooks"
-            ]
-          },
           {
             "group": "Start here",
             "pages": [
+              "developers/overview",
+              "developers/which-key-do-i-use",
+              "developers/quickstart"
+            ]
+          },
+          {
+            "group": "Bring your own agents",
+            "pages": [
+              "docs/third-party-agents",
+              "docs/local-coding-agent",
+              "docs/ando-mcp"
+            ]
+          },
+          {
+            "group": "API workflows",
+            "pages": [
               "api-reference/overview",
               "api-reference/authorization",
-              "api-reference/snippets"
-            ]
-          },
-          {
-            "group": "Stable workflows",
-            "pages": [
               "api-reference/messaging-quickstart",
               "api-reference/search-quickstart",
-              "api-reference/http-api"
-            ]
-          },
-          {
-            "group": "Realtime workflows",
-            "pages": [
+              "api-reference/http-api",
               "api-reference/realtime-quickstart",
               "api-reference/webhooks"
             ]
           },
           {
-            "group": "Endpoint reference",
+            "group": "Tools",
+            "pages": [
+              "developers/sdk",
+              "developers/cli",
+              "api-reference/snippets"
+            ]
+          },
+          {
+            "group": "Reference",
             "pages": [
               "api-reference/endpoint-reference",
               {
@@ -208,6 +200,7 @@
               {
                 "group": "Generated references",
                 "pages": [
+                  "docs/ando-mcp-tools",
                   "api-reference/webhook-events"
                 ]
               },
@@ -240,6 +233,19 @@
                   "GET /clipboards/{clipboardId}"
                 ]
               }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "icon": "history",
+        "groups": [
+          {
+            "group": "Updates",
+            "pages": [
+              "changelog",
+              "coming-soon"
             ]
           }
         ]
@@ -310,6 +316,10 @@
     {
       "source": "/api-reference",
       "destination": "/api-reference/overview"
+    },
+    {
+      "source": "/developers/which-integration-path-should-i-use",
+      "destination": "/developers/overview"
     },
     {
       "source": "/api-reference/openapi.json",

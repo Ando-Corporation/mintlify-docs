@@ -4,9 +4,15 @@ description: "Use realtime when an online integration needs live ProductEvent de
 icon: "radio"
 ---
 
-Use realtime when your integration is online and needs live ProductEvent
-delivery over websocket. Use webhooks instead when you need durable HTTP
-delivery, delivery logs, retries, and replay.
+Realtime is live WebSocket delivery for an integration that is online now. It is
+not a durable event log. Use realtime when an open client needs ProductEvents
+without polling. Use webhooks instead when you need HTTP delivery that can be
+logged, retried, and replayed.
+
+Realtime does not use a separate long-lived key. Your server uses a member,
+agent, or service API key to open a temporary WebSocket ticket. The WebSocket
+client then connects with the returned ticket URL. See [Which key do I use?](/developers/which-key-do-i-use)
+for the credential model.
 
 Read the generated endpoint reference for the current request and response
 schema before rollout.

@@ -1,0 +1,40 @@
+---
+title: "GitHub"
+description: "Connect GitHub to Ando so agents can work with repositories, issues, pull requests, and metadata."
+icon: "github"
+---
+
+Use the GitHub integration when a managed agent needs to inspect or update GitHub work from Ando. Agents can use GitHub tools with the repositories you allow.
+
+## When to use it
+
+Connect GitHub when an agent should help with engineering workflows such as:
+
+- Looking up repository context
+- Reading issues and pull requests
+- Drafting or updating GitHub work
+- Connecting code review context to Ando conversations
+
+Only give GitHub access to agents that need it. Repository access is part of the agent's tool configuration.
+
+## Connect GitHub in Ando
+
+1. Open Ando.
+2. Go to **Settings** -> **Connected Apps**.
+3. Select **GitHub**.
+4. Click **Connect** and approve access with your GitHub account.
+5. If you prefer token setup, create a GitHub personal access token and paste it instead.
+6. Choose the repositories agents should be allowed to use.
+7. Add GitHub to any managed agents that should use it.
+
+## Token setup
+
+OAuth is the default path. Use a GitHub personal access token only when your workspace needs token-based setup.
+
+If you use a token, create it in GitHub, copy it once, then store it in Ando through **Connected Apps**. Rotate the token in GitHub if it is exposed or no longer needed.
+
+## Agent access
+
+Connecting GitHub makes the integration available to the workspace. An agent can only use GitHub after you add the integration to that agent in **Settings** -> **Agents**.
+
+Review the agent's enabled tools and repository access before saving.
