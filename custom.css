@@ -372,7 +372,7 @@ footer a:hover {
   text-decoration-color: var(--ando-w600);
 }
 
-#content code {
+#content :not(pre) > code {
   border: 1px solid var(--ando-w250);
   border-radius: 4px;
   background: var(--ando-w100);
@@ -380,10 +380,16 @@ footer a:hover {
 }
 
 #content pre {
-  border: 1px solid var(--ando-w250);
-  border-radius: 8px;
-  background: var(--ando-w100);
+  border: 0;
+  background: transparent;
   box-shadow: none;
+}
+
+#content pre code {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
 }
 
 #content blockquote {
@@ -395,13 +401,35 @@ footer a:hover {
   border-color: var(--ando-w250);
 }
 
-#content th {
+#content table th,
+#content table td {
+  padding: 8px 10px;
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+#content table th {
   background: var(--ando-w100);
   color: var(--ando-w900);
 }
 
-#content td {
+#content table td {
   border-color: var(--ando-w250);
+}
+
+#content table:has(tr > :nth-child(3):last-child) {
+  table-layout: fixed;
+}
+
+#content table:has(tr > :nth-child(3):last-child) th:first-child,
+#content table:has(tr > :nth-child(3):last-child) td:first-child {
+  width: 16%;
+  padding-left: 18px;
+}
+
+#content table:has(tr > :nth-child(3):last-child) th:nth-child(2),
+#content table:has(tr > :nth-child(3):last-child) td:nth-child(2) {
+  width: 34%;
 }
 
 #content video,
@@ -462,6 +490,10 @@ html.dark #page-context-menu-button {
 }
 
 @media (max-width: 640px) {
+  #content table:has(tr > :nth-child(3):last-child) {
+    min-width: 680px;
+  }
+
   #footer {
     align-items: flex-start;
     flex-direction: column;
