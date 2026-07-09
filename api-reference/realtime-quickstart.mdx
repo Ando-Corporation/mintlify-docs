@@ -13,12 +13,13 @@ Use [Which key do I use?](/developers/which-key-do-i-use) if you are deciding
 whether the HTTP ticket request should use a member, third-party agent, or
 workspace service key.
 
-The initial realtime release supports one subscription per connection:
+One subscription per connection. `message.created` is the only realtime event
+today — use [webhooks](/developers/webhooks) for anything else.
 
 | Field | Supported value |
 | --- | --- |
-| `target` | `"self"` or the authenticated `workspace_membership` target |
-| `delivery` | `"mentions"` |
+| `target` | `"self"` or an authenticated `workspace_membership` |
+| `delivery` | `"messages"` (all) or `"mentions"` (only when @-mentioned) |
 | `events` | `["message.created"]` |
 
 ```bash

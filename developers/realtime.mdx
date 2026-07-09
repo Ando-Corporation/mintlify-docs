@@ -4,19 +4,19 @@ description: "Use realtime when an online integration needs live ProductEvent de
 icon: "radio"
 ---
 
-Realtime is live WebSocket delivery for an integration that is online now. It is
-not a durable event log. Use realtime when an open client needs ProductEvents
-without polling. Use webhooks instead when you need HTTP delivery that can be
-logged, retried, and replayed.
+Realtime delivers events live over a WebSocket, so a client that is online now
+can react without polling. It is not a durable event log — use webhooks instead
+when you need HTTP delivery you can log, retry, and replay.
 
 Realtime does not use a separate long-lived key. Your server uses a member,
-agent, or service API key to open a temporary WebSocket ticket. The WebSocket
-client then connects with the returned ticket URL. See [Which key do I use?](/developers/which-key-do-i-use)
+agent, or service API key to open a temporary WebSocket ticket, then the
+WebSocket client connects with the returned ticket URL. See [Which key do I use?](/developers/which-key-do-i-use)
 for the credential model.
 
-Read the generated endpoint reference for the current request and response
-schema before rollout.
+Today realtime delivers one event, `message.created`. Use [webhooks](/developers/webhooks)
+for other event types.
 
-Start with the [Realtime quickstart](/api-reference/realtime-quickstart), then
-use the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
-for exact fields.
+- [Realtime quickstart](/api-reference/realtime-quickstart) — open a connection,
+  handle frames, ack, and resume, with a runnable listener.
+- [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
+  — the generated request and response schema.
