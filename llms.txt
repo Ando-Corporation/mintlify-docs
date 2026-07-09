@@ -20,14 +20,14 @@
 
 ## Endpoint reference
 
-### Stable search
+### Search
 
 - [Search messages](https://docs.ando.so/api-reference/search/search-messages.md): Searches messages in conversations accessible to the authenticated API key.
 - [Search conversations](https://docs.ando.so/api-reference/search/search-conversations.md): Searches conversations accessible to the authenticated API key.
 - [Search workspace members](https://docs.ando.so/api-reference/search/search-workspace-members.md): Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling.
 - [Search calls](https://docs.ando.so/api-reference/search/search-calls.md): Searches calls accessible to the authenticated API key.
 
-### Stable messaging
+### Messaging
 
 - [List conversation messages](https://docs.ando.so/api-reference/messages/list-conversation-messages.md): Returns messages in a conversation.
 - [Create a conversation message](https://docs.ando.so/api-reference/messages/create-a-conversation-message.md): Creates a message in a conversation using the authenticated API-key workspace membership as the author.
@@ -37,10 +37,6 @@
 ### Realtime
 
 - [Open a realtime connection](https://docs.ando.so/api-reference/realtime/open-a-realtime-connection.md): Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.
-
-### Nearly stable
-
-- [Search tasks](https://docs.ando.so/api-reference/tasks/search-tasks.md): Searches tasks visible to the authenticated API key.
 
 ### Preview
 
