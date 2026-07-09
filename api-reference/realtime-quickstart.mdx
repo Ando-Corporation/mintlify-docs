@@ -21,8 +21,11 @@ The initial realtime release supports one subscription per connection:
 | Field | Supported value |
 | --- | --- |
 | `target` | `"self"` or the authenticated `workspace_membership` target |
-| `delivery` | `"mentions"` |
+| `delivery` | `"messages"` or `"mentions"` |
 | `events` | `["message.created"]` |
+
+See [Realtime events](/api-reference/realtime-events) for what each event
+delivers and which delivery mode to pick.
 
 ```bash
 export ANDO_API_BASE="https://api.ando.so/v1"

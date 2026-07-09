@@ -13,6 +13,7 @@
 - [Search quickstart](https://docs.ando.so/api-reference/search-quickstart.md): Use stable search endpoints to find messages, conversations, workspace members, and calls.
 - [Messaging API](https://docs.ando.so/api-reference/http-api.md): Search, list, create, fetch, and reply to Ando messages.
 - [Realtime quickstart](https://docs.ando.so/api-reference/realtime-quickstart.md): Open a realtime connection, listen for events, ack delivery, and resume after reconnect.
+- [Realtime events](https://docs.ando.so/api-reference/realtime-events.md): The events you can subscribe to over a realtime WebSocket connection, and what each one delivers.
 - [Webhook guide](https://docs.ando.so/api-reference/webhooks.md): Create a webhook endpoint, verify signed payloads, and inspect generated event docs.
 - [SDK guide](https://docs.ando.so/developers/sdk.md): Use @andocorp/sdk for typed webhook receiver helpers.
 - [CLI guide](https://docs.ando.so/developers/cli.md): Use @andocorp/cli for terminal auth, public API calls, and webhook workflows.
