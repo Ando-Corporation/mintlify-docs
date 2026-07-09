@@ -298,6 +298,14 @@
       "destination": "/developers/overview"
     },
     {
+      "source": "/api-reference/webhooks",
+      "destination": "/developers/webhooks"
+    },
+    {
+      "source": "/api-reference/webhook-events",
+      "destination": "/developers/webhooks"
+    },
+    {
       "source": "/api-reference/openapi.json",
       "destination": "/openapi-public-api-v1-latest.json"
     },
