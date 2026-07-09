@@ -130,7 +130,6 @@
               "api-reference/search-quickstart",
               "api-reference/http-api",
               "api-reference/realtime-quickstart",
-              "api-reference/realtime-events",
               "api-reference/webhooks"
             ]
           },

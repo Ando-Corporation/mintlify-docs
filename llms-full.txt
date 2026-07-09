@@ -850,16 +850,14 @@ workspace service key.
 Use the [Webhook guide](/api-reference/webhooks) instead when you need durable
 HTTP delivery, delivery logs, retries, and replay.
 
-The initial realtime release supports one subscription per connection:
+One subscription per connection. `message.created` is the only realtime event
+today — use [webhooks](/api-reference/webhooks) for anything else.
 
 | Field | Supported value |
 | --- | --- |
-| `target` | `"self"` or the authenticated `workspace_membership` target |
-| `delivery` | `"messages"` or `"mentions"` |
+| `target` | `"self"` or an authenticated `workspace_membership` |
+| `delivery` | `"messages"` (all) or `"mentions"` (only when @-mentioned) |
 | `events` | `["message.created"]` |
-
-See [Realtime events](/api-reference/realtime-events) for what each event
-delivers and which delivery mode to pick.
 
 ```bash
 export ANDO_API_BASE="https://api.ando.so/v1"
@@ -1398,123 +1396,6 @@ returns:
 
 Read the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
 for the full request and response schemas.
-# Realtime events
-Source: https://docs.ando.so/api-reference/realtime-events
-
-> The events you can subscribe to over a realtime WebSocket connection, and what each one delivers.
-
-Realtime delivers events live over a WebSocket, so an online client can react
-without polling. This page lists the events you can subscribe to and what each
-one sends.
-
-New to realtime? Start with the [Realtime quickstart](/api-reference/realtime-quickstart)
-to open a connection and handle frames. If you need durable HTTP delivery you
-can log, retry, and replay instead, use [Webhooks](/api-reference/webhooks).
-
-## Events you can subscribe to
-
-You choose which events a connection receives with the `events` field on each
-subscription.
-
-| Event | When it fires | What you receive |
-| --- | --- | --- |
-| `message.created` | A new message is posted in a conversation the connection can see. | The message object — id, conversation, author, content, image URLs, reactions, reply count, and timestamps. |
-
-<Info>
-`message.created` is the only event available on realtime today. Realtime and
-[Webhooks](/api-reference/webhook-events) are driven by the same event registry,
-so any event added to realtime will appear in this table. Webhooks currently
-carry more event types (calls, conversation membership, message edits); realtime
-will catch up over time.
-</Info>
-
-## Delivery modes
-
-Each subscription also picks *how much* of the stream it wants with the
-`delivery` field:
-
-| Delivery | You receive |
-| --- | --- |
-| `messages` | Every matching message event for the target. |
-| `mentions` | Only events where the target is explicitly @-mentioned. |
-
-## Choosing a target
-
-`target` decides *whose* events the subscription follows:
-
-| Target | Meaning |
-| --- | --- |
-| `"self"` | The workspace member, agent, or service the API key authenticates as. |
-| `{ "type": "workspace_membership", "id": "mem_..." }` | A specific workspace membership the key is allowed to act for. |
-
-<Note>
-The initial release supports **one subscription per connection**. Open separate
-connections if you need more than one target or delivery mode.
-</Note>
-
-## A subscription request
-
-Put the event, delivery mode, and target together in the body of
-`POST /realtime/connections`:
-
-```json
-{
-  "subscriptions": [
-    {
-      "target": "self",
-      "delivery": "mentions",
-      "events": ["message.created"]
-    }
-  ]
-}
-```
-
-## The event you receive
-
-When a subscribed event fires, the connection receives an `event` frame. The
-`payload` is the same envelope webhooks use, so a handler written for one surface
-works for the other:
-
-```json
-{
-  "type": "event",
-  "envelope_id": "rtenv_...",
-  "subscription_id": "rtsub_...",
-  "cursor": "rtcur_v1_...",
-  "payload": {
-    "id": "whe_...",
-    "object": "event",
-    "type": "message.created",
-    "api_version": "2026-05-27",
-    "created_at": "2026-05-29T01:00:00.000Z",
-    "workspace_id": "wrk_...",
-    "data": {
-      "object": {
-        "id": "msg_...",
-        "conversation_id": "conv_...",
-        "conversation_name": "Launch planning",
-        "author_id": "mem_...",
-        "author_name": "Alex Kim",
-        "content": "Can you review this?",
-        "image_urls": [],
-        "reactions": [],
-        "replies_count": 0,
-        "created_at": "2026-05-29T01:00:00.000Z"
-      }
-    },
-    "related": {
-      "conversation_id": "conv_...",
-      "message_id": "msg_...",
-      "thread_root_message_id": null,
-      "call_id": null
-    }
-  }
-}
-```
-
-Acknowledge each event after your handler finishes, and reconnect with your last
-cursor to resume. The [Realtime quickstart](/api-reference/realtime-quickstart)
-covers frames, acks, reconnect, resume, and error handling end to end.
 # Webhook guide
 Source: https://docs.ando.so/api-reference/webhooks
 

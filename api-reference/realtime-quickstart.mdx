@@ -16,16 +16,14 @@ workspace service key.
 Use the [Webhook guide](/api-reference/webhooks) instead when you need durable
 HTTP delivery, delivery logs, retries, and replay.
 
-The initial realtime release supports one subscription per connection:
+One subscription per connection. `message.created` is the only realtime event
+today — use [webhooks](/api-reference/webhooks) for anything else.
 
 | Field | Supported value |
 | --- | --- |
-| `target` | `"self"` or the authenticated `workspace_membership` target |
-| `delivery` | `"messages"` or `"mentions"` |
+| `target` | `"self"` or an authenticated `workspace_membership` |
+| `delivery` | `"messages"` (all) or `"mentions"` (only when @-mentioned) |
 | `events` | `["message.created"]` |
-
-See [Realtime events](/api-reference/realtime-events) for what each event
-delivers and which delivery mode to pick.
 
 ```bash
 export ANDO_API_BASE="https://api.ando.so/v1"

@@ -13,10 +13,9 @@ agent, or service API key to open a temporary WebSocket ticket, then the
 WebSocket client connects with the returned ticket URL. See [Which key do I use?](/developers/which-key-do-i-use)
 for the credential model.
 
-Three references cover it end to end:
+Today realtime delivers one event, `message.created`. Use [webhooks](/api-reference/webhooks)
+for other event types.
 
-- [Realtime events](/api-reference/realtime-events) — which events you can
-  subscribe to and what each one delivers.
 - [Realtime quickstart](/api-reference/realtime-quickstart) — open a connection,
   handle frames, ack, and resume, with a runnable listener.
 - [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
