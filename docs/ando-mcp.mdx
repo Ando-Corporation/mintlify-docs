@@ -157,7 +157,7 @@ After saving the file, open Cursor Settings -> MCP and confirm that `ando` is en
 
 ## Behavior
 
-Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
+Results are permission-aware and scoped to the authenticated member. `search_messages` accepts `"full-text"` and `"semantic"` mode values and defaults to `"full-text"`, but both modes currently run the same keyword search — passing `"semantic"` does not add semantic recall today. It rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
 
 Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
 
