@@ -2281,6 +2281,49 @@
         ],
         "type": "object"
       },
+      "CreatePublicFileBody": {
+        "additionalProperties": false,
+        "description": "Create a public file upload intent. The response returns a storage upload URL; send the file bytes to that URL, then complete the upload before attaching the returned file id to a message.",
+        "properties": {
+          "client_upload_id": {
+            "description": "Optional caller-generated identifier for correlating this file with the integration's local upload.",
+            "type": "string",
+            "nullable": true
+          },
+          "content_type": {
+            "description": "Declared MIME content type.",
+            "type": "string"
+          },
+          "filename": {
+            "description": "Original filename.",
+            "type": "string"
+          },
+          "purpose": {
+            "description": "File purpose.",
+            "enum": [
+              "message_attachment"
+            ],
+            "type": "string"
+          },
+          "sha256": {
+            "description": "Optional lowercase hex-encoded SHA-256 digest of the file bytes. In preview, SHA-256 verification is supported only when size_bytes is less than or equal to 67108864.",
+            "type": "string",
+            "maxLength": 64,
+            "nullable": true
+          },
+          "size_bytes": {
+            "description": "Declared file size in bytes.",
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "filename",
+          "content_type",
+          "size_bytes"
+        ],
+        "type": "object"
+      },
       "ConversationResult": {
         "additionalProperties": false,
         "description": "Search result for a conversation.",
@@ -2381,6 +2424,163 @@
         "required": [
           "hasNextPage",
           "hasPreviousPage"
+        ],
+        "type": "object"
+      },
+      "PublicFileResult": {
+        "additionalProperties": false,
+        "description": "Public file lifecycle state. Ready files can be attached to message creation with file_ids.",
+        "properties": {
+          "content_type": {
+            "description": "Declared MIME content type.",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "File upload intent creation timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "file_id": {
+            "description": "File identifier. Matches id for message file_ids.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "filename": {
+            "description": "Original filename.",
+            "type": "string"
+          },
+          "id": {
+            "description": "File identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "object": {
+            "description": "Object type.",
+            "enum": [
+              "file"
+            ],
+            "type": "string"
+          },
+          "purpose": {
+            "description": "File purpose.",
+            "enum": [
+              "message_attachment"
+            ],
+            "type": "string"
+          },
+          "size_bytes": {
+            "description": "File size in bytes.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "description": "File lifecycle status.",
+            "enum": [
+              "waiting_for_upload",
+              "uploaded",
+              "processing",
+              "ready",
+              "aborted",
+              "expired",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last file lifecycle update timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "upload": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicFileUploadInstructions"
+              }
+            ],
+            "description": "Temporary storage upload instructions returned by create-file responses while the file is waiting for bytes. Metadata-only get-file responses return null; replay create-file with the same Idempotency-Key and body to refresh an upload URL.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "object",
+          "id",
+          "file_id",
+          "status",
+          "purpose",
+          "filename",
+          "content_type",
+          "size_bytes",
+          "created_at",
+          "updated_at",
+          "upload"
+        ],
+        "type": "object"
+      },
+      "PublicFileResponse": {
+        "additionalProperties": false,
+        "description": "Public file response envelope.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicFileResult"
+          },
+          "file_id": {
+            "description": "File identifier. Matches data.id.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          }
+        },
+        "required": [
+          "data",
+          "file_id"
+        ],
+        "type": "object"
+      },
+      "PublicFileUploadInstructions": {
+        "additionalProperties": false,
+        "description": "Temporary storage upload instructions.",
+        "properties": {
+          "expires_at": {
+            "description": "Upload URL expiration timestamp.",
+            "type": "string",
+            "example": "2026-05-14T08:00:00.000Z",
+            "format": "date-time"
+          },
+          "headers": {
+            "additionalProperties": {
+              "description": "Required header value.",
+              "type": "string"
+            },
+            "description": "Headers that must be sent exactly with the direct storage upload.",
+            "type": "object"
+          },
+          "kind": {
+            "description": "Upload strategy.",
+            "enum": [
+              "single_part_presigned_put"
+            ],
+            "type": "string"
+          },
+          "method": {
+            "description": "Upload HTTP method.",
+            "enum": [
+              "PUT"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "description": "Temporary direct upload URL.",
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "kind",
+          "method",
+          "url",
+          "headers",
+          "expires_at"
         ],
         "type": "object"
       },
@@ -4378,6 +4578,477 @@
         "x-ando-rollback-runtime": "express",
         "x-ando-selected-runtime": "convex_http",
         "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/files": {
+      "post": {
+        "description": "Creates a file upload intent for a message attachment. The response returns temporary direct storage upload instructions; send the bytes to that URL, then complete the file before using its id in create-message file_ids. Replay the same request with the same Idempotency-Key and body to refresh an active upload URL.",
+        "operationId": "createFile",
+        "parameters": [
+          {
+            "description": "Required idempotency key for safely retrying this write.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "Idempotency key.",
+              "type": "string",
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "file": {
+                  "summary": "Create a message attachment file upload.",
+                  "value": {
+                    "filename": "report.pdf",
+                    "content_type": "application/pdf",
+                    "size_bytes": 12345,
+                    "purpose": "message_attachment",
+                    "sha256": null,
+                    "client_upload_id": "local-upload-42"
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicFileBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "file": {
+                    "summary": "Existing file upload intent.",
+                    "value": {
+                      "data": {
+                        "object": "file",
+                        "id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "status": "waiting_for_upload",
+                        "purpose": "message_attachment",
+                        "filename": "report.pdf",
+                        "content_type": "application/pdf",
+                        "size_bytes": 12345,
+                        "created_at": "2026-05-14T08:00:00.000Z",
+                        "updated_at": "2026-05-14T08:00:00.000Z",
+                        "upload": {
+                          "kind": "single_part_presigned_put",
+                          "method": "PUT",
+                          "url": "https://storage.example/upload",
+                          "headers": {
+                            "Content-Length": "12345",
+                            "Content-Type": "application/pdf",
+                            "x-amz-meta-ando-file-id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                          },
+                          "expires_at": "2026-05-14T08:15:00.000Z"
+                        }
+                      },
+                      "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicFileResponse"
+                }
+              }
+            },
+            "description": "Existing file upload intent for a matching idempotency key."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "file": {
+                    "summary": "Created file upload intent.",
+                    "value": {
+                      "data": {
+                        "object": "file",
+                        "id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "status": "waiting_for_upload",
+                        "purpose": "message_attachment",
+                        "filename": "report.pdf",
+                        "content_type": "application/pdf",
+                        "size_bytes": 12345,
+                        "created_at": "2026-05-14T08:00:00.000Z",
+                        "updated_at": "2026-05-14T08:00:00.000Z",
+                        "upload": {
+                          "kind": "single_part_presigned_put",
+                          "method": "PUT",
+                          "url": "https://storage.example/upload",
+                          "headers": {
+                            "Content-Length": "12345",
+                            "Content-Type": "application/pdf",
+                            "x-amz-meta-ando-file-id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                          },
+                          "expires_at": "2026-05-14T08:15:00.000Z"
+                        }
+                      },
+                      "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicFileResponse"
+                }
+              }
+            },
+            "description": "Created file upload intent."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Create a file",
+        "tags": [
+          "Files"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_files.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/files",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "express"
+      }
+    },
+    "/files/{fileId}": {
+      "get": {
+        "description": "Returns lifecycle metadata for a file created by this API key. This metadata-only route does not sign storage upload URLs; replay create-file with the same Idempotency-Key and body to refresh an active upload URL.",
+        "operationId": "getFile",
+        "parameters": [
+          {
+            "description": "File identifier.",
+            "in": "path",
+            "name": "fileId",
+            "required": true,
+            "schema": {
+              "description": "File identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "file": {
+                    "summary": "Ready file.",
+                    "value": {
+                      "data": {
+                        "object": "file",
+                        "id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "status": "ready",
+                        "purpose": "message_attachment",
+                        "filename": "report.pdf",
+                        "content_type": "application/pdf",
+                        "size_bytes": 12345,
+                        "created_at": "2026-05-14T08:00:00.000Z",
+                        "updated_at": "2026-05-14T08:03:00.000Z",
+                        "upload": null
+                      },
+                      "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicFileResponse"
+                }
+              }
+            },
+            "description": "File lifecycle state."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Get a file",
+        "tags": [
+          "Files"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_files_by_fileid.get",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-route-class": "public_data",
+        "x-ando-public-path": "/v1/files/:fileId",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "convex_http",
+        "x-ando-target-runtime": "convex_http"
+      }
+    },
+    "/files/{fileId}/complete": {
+      "post": {
+        "description": "Completes a direct storage upload after the client has sent the bytes to the upload URL. The route verifies storage metadata and returns a ready file when the upload is attachable.",
+        "operationId": "completeFileUpload",
+        "parameters": [
+          {
+            "description": "File identifier.",
+            "in": "path",
+            "name": "fileId",
+            "required": true,
+            "schema": {
+              "description": "File identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "file": {
+                    "summary": "Completed file upload.",
+                    "value": {
+                      "data": {
+                        "object": "file",
+                        "id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "status": "ready",
+                        "purpose": "message_attachment",
+                        "filename": "report.pdf",
+                        "content_type": "application/pdf",
+                        "size_bytes": 12345,
+                        "created_at": "2026-05-14T08:00:00.000Z",
+                        "updated_at": "2026-05-14T08:03:00.000Z",
+                        "upload": null
+                      },
+                      "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicFileResponse"
+                }
+              }
+            },
+            "description": "Completed file upload."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Complete a file upload",
+        "tags": [
+          "Files"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_files_by_fileid_complete.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/files/:fileId/complete",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "express"
+      }
+    },
+    "/files/{fileId}/abort": {
+      "post": {
+        "description": "Aborts an active direct storage upload and makes the file id unusable for message attachments.",
+        "operationId": "abortFileUpload",
+        "parameters": [
+          {
+            "description": "File identifier.",
+            "in": "path",
+            "name": "fileId",
+            "required": true,
+            "schema": {
+              "description": "File identifier.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "file": {
+                    "summary": "Aborted file upload.",
+                    "value": {
+                      "data": {
+                        "object": "file",
+                        "id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p",
+                        "status": "aborted",
+                        "purpose": "message_attachment",
+                        "filename": "report.pdf",
+                        "content_type": "application/pdf",
+                        "size_bytes": 12345,
+                        "created_at": "2026-05-14T08:00:00.000Z",
+                        "updated_at": "2026-05-14T08:02:00.000Z",
+                        "upload": null
+                      },
+                      "file_id": "file_01jzn7e61x3a7v9h2r7t2m3q4p"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicFileResponse"
+                }
+              }
+            },
+            "description": "Aborted file upload."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "security": [
+          {
+            "AndoApiKey": []
+          },
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Abort a file upload",
+        "tags": [
+          "Files"
+        ],
+        "x-ando-compatibility-mode": "standard_public",
+        "x-ando-migration-target": "standard_public",
+        "x-ando-rate-limit-policy": "declared",
+        "x-ando-route-id": "api.api_v1_files_by_fileid_abort.post",
+        "x-ando-required": true,
+        "x-ando-canonical-host": "api.ando.so",
+        "x-ando-documentation-owner": "api_platform",
+        "x-ando-principal-kind": "workspace_api_key",
+        "x-ando-public-api-route-class": "durable_ingress",
+        "x-ando-public-path": "/v1/files/:fileId/abort",
+        "x-ando-runtime-owner": "api_platform",
+        "x-ando-status-probe-owner": "none",
+        "x-ando-rollback-runtime": "express",
+        "x-ando-selected-runtime": "express",
+        "x-ando-target-runtime": "express"
       }
     },
     "/realtime/connections": {
@@ -6394,6 +7065,10 @@
     {
       "description": "Clipboard detail routes.",
       "name": "Clipboards"
+    },
+    {
+      "description": "File upload lifecycle routes for public API message attachments.",
+      "name": "Files"
     },
     {
       "description": "Workspace member detail routes. Existing v1 paths keep member compatibility spellings.",
