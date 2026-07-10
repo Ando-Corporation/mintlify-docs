@@ -145,7 +145,7 @@
             "pages": [
               "api-reference/endpoint-reference",
               {
-                "group": "Stable search",
+                "group": "Search",
                 "tag": "Stable",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
@@ -156,7 +156,7 @@
                 ]
               },
               {
-                "group": "Stable messaging",
+                "group": "Messaging",
                 "tag": "Stable",
                 "openapi": "api-reference/openapi.json",
                 "pages": [
@@ -178,14 +178,6 @@
                 "group": "Generated references",
                 "pages": [
                   "docs/ando-mcp-tools"
-                ]
-              },
-              {
-                "group": "Nearly stable",
-                "tag": "Candidate",
-                "openapi": "api-reference/openapi.json",
-                "pages": [
-                  "GET /search/tasks"
                 ]
               },
               {
@@ -296,6 +288,10 @@
     {
       "source": "/developers/which-integration-path-should-i-use",
       "destination": "/developers/overview"
+    },
+    {
+      "source": "/api-reference/tasks/search-tasks",
+      "destination": "/api-reference/endpoint-reference"
     },
     {
       "source": "/api-reference/webhooks",

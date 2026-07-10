@@ -391,8 +391,6 @@ const checkProduction = async () => {
     "New integrations should send `x-api-key`",
     "Use Ando API keys from a server-side environment",
     "Use the stable messaging endpoints",
-    expectedSearchTasksDescription,
-    "Stability: Candidate",
     ...publicApiIdentityTerms,
   ]);
   assertExcludes("/llms-full.txt", llmsFull.text, staleLlmsPhrases);
