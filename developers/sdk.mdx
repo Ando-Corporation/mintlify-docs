@@ -1,14 +1,17 @@
 ---
 title: "SDK guide"
-description: "Use @andocorp/sdk for typed webhook receiver helpers."
+description: "Use @andocorp/sdk for a typed Ando client: REST, realtime subscriptions, webhook management, and webhook receiver helpers."
 icon: "package"
 ---
 
-Use the TypeScript SDK when you want typed webhook event payloads and signature
-verification helpers. REST, realtime, and webhook endpoint management currently
-use the public API directly; start with the [API overview](/api-reference/overview)
-and generated [endpoint reference](/api-reference/endpoint-reference) for those
-routes.
+Use the TypeScript SDK when you want a typed client for the Ando public API.
+`@andocorp/sdk` ships `AndoClient` with typed REST methods (search, messaging,
+threads, members, calls, and tasks), realtime subscriptions
+(`client.realtime`), webhook endpoint and delivery management
+(`client.webhooks`), and webhook receiver helpers on the
+`@andocorp/sdk/webhooks` subpath. You can also call the HTTP API directly;
+start with the [API overview](/api-reference/overview) and generated
+[endpoint reference](/api-reference/endpoint-reference) for the raw routes.
 
 ## Install
 

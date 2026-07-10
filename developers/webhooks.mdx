@@ -20,4 +20,4 @@ Use generated references for exact webhook endpoint and delivery schemas:
 
 Webhook receivers must verify the raw request body with `Ando-Signature`,
 persist or enqueue the event quickly, return a 2xx response, and deduplicate
-business side effects by `Ando-Event-Id`.
+business side effects by the event `id` in the payload.

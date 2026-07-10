@@ -19,8 +19,7 @@ Start with message search when you have a keyword, phrase, or semantic query.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=release plan" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=release plan"
 ```
 
 Read matches from `data.items`. Use `conversation`, `after`, and `before`
@@ -34,8 +33,7 @@ creating messages.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/conversations" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=engineering" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=engineering"
 ```
 
 Use the returned `conversation_id` with the stable messaging endpoints.
@@ -48,8 +46,7 @@ name or email.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/members" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=alex" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=alex"
 ```
 
 The route keeps the v1 `/search/members` spelling for compatibility. Treat the
@@ -62,8 +59,7 @@ Use call search when you need meeting or transcript context.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/calls" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=launch review" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=launch review"
 ```
 
 Call detail and transcript routes are preview endpoints. Search results are

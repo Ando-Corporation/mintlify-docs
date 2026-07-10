@@ -120,8 +120,7 @@ run as an agent or workspace-owned service.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=release" \
-  --data-urlencode "limit=5"
+  --data-urlencode "q=release"
 ```
 
 ## 3. Post a message
@@ -645,8 +644,7 @@ Start with message search when you have a keyword, phrase, or semantic query.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/messages" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=release plan" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=release plan"
 ```
 
 Read matches from `data.items`. Use `conversation`, `after`, and `before`
@@ -660,8 +658,7 @@ creating messages.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/conversations" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=engineering" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=engineering"
 ```
 
 Use the returned `conversation_id` with the stable messaging endpoints.
@@ -674,8 +671,7 @@ name or email.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/members" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=alex" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=alex"
 ```
 
 The route keeps the v1 `/search/members` spelling for compatibility. Treat the
@@ -688,8 +684,7 @@ Use call search when you need meeting or transcript context.
 ```bash
 curl -sS -G "$ANDO_API_BASE/search/calls" \
   -H "x-api-key: $ANDO_API_KEY" \
-  --data-urlencode "q=launch review" \
-  --data-urlencode "limit=10"
+  --data-urlencode "q=launch review"
 ```
 
 Call detail and transcript routes are preview endpoints. Search results are
@@ -1390,18 +1385,21 @@ returns:
 | `500` | Server-side failure. |
 | `503` | Realtime connection opening is not available in this deployment. |
 
-Read the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
-for the full request and response schemas.
+Read the generated [endpoint reference](/api-reference/endpoint-reference)
+for the full `POST /realtime/connections` request and response schemas.
 # SDK guide
 Source: https://docs.ando.so/developers/sdk
 
-> Use @andocorp/sdk for typed webhook receiver helpers.
+> Use @andocorp/sdk for a typed Ando client: REST, realtime subscriptions, webhook management, and webhook receiver helpers.
 
-Use the TypeScript SDK when you want typed webhook event payloads and signature
-verification helpers. REST, realtime, and webhook endpoint management currently
-use the public API directly; start with the [API overview](/api-reference/overview)
-and generated [endpoint reference](/api-reference/endpoint-reference) for those
-routes.
+Use the TypeScript SDK when you want a typed client for the Ando public API.
+`@andocorp/sdk` ships `AndoClient` with typed REST methods (search, messaging,
+threads, members, calls, and tasks), realtime subscriptions
+(`client.realtime`), webhook endpoint and delivery management
+(`client.webhooks`), and webhook receiver helpers on the
+`@andocorp/sdk/webhooks` subpath. You can also call the HTTP API directly;
+start with the [API overview](/api-reference/overview) and generated
+[endpoint reference](/api-reference/endpoint-reference) for the raw routes.
 
 ## Install
 
@@ -3268,7 +3266,7 @@ After saving the file, open Cursor Settings -> MCP and confirm that `ando` is en
 
 ## Behavior
 
-Results are permission-aware and scoped to the authenticated member. `search_messages` supports `"full-text"` and `"semantic"` modes, defaults to `"full-text"`, and rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
+Results are permission-aware and scoped to the authenticated member. `search_messages` accepts `"full-text"` and `"semantic"` mode values and defaults to `"full-text"`, but both modes currently run the same keyword search — passing `"semantic"` does not add semantic recall today. It rejects empty or wildcard-only queries. Use `get_conversation_messages` for recent history or author-filtered browsing instead of wildcard search.
 
 Write tools are side-effecting. Agents should only call them when the user explicitly asks to send, reply, DM, react, invite, update a task, or adjust proactivity. Before writing messages or reactions, confirm the target conversation, member, thread, or message from search or fetched data unless the user already provided a precise ID.
 
