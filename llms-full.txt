@@ -1640,8 +1640,8 @@ Source: https://docs.ando.so/api-reference/endpoint-reference
 
 > Scan public API v1 endpoints by stability level before opening generated schemas.
 
-Use the endpoint groups below by stability level, not by internal implementation
-area. Stable endpoints are ready for production integrations. Preview and
+Check the stability tag on each endpoint group below before building against
+it. Stable endpoints are ready for production integrations. Preview and
 legacy compatibility endpoints need narrower rollout judgment.
 
 | Group | Stability | Use it for |
