@@ -249,7 +249,7 @@ integrations and covered by the public API v1 compatibility promise.
 | Level | Use it for | Routes |
 | --- | --- | --- |
 | Stable | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
-| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates` |
+| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates`, `/realtime/connections`, `/files`, `/files/{fileId}`, `/files/{fileId}/complete`, `/files/{fileId}/abort` |
 | Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no stable route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
 
 The endpoint reference includes the exact status for every operation.
@@ -1647,6 +1647,7 @@ legacy compatibility endpoints need narrower rollout judgment.
 | Search | Production discovery workflows for messages, conversations, workspace members, and calls. | Start here when an integration needs context ids before reading or writing. |
 | Messaging | Production message workflows. | List, create, fetch, and reply to conversation messages. |
 | Realtime | Preview realtime session setup. | Open a short-lived connection token from a trusted server before a realtime client connects. |
+| Files | Preview file upload workflows. | Create a file upload, complete or abort it, and fetch file metadata to attach with `file_ids` when creating messages. |
 | Preview | Exploratory integrations. | Build only when the risk of shape changes is acceptable. |
 | Legacy compatibility | Existing compatibility behavior. | Avoid for new integrations unless no stable route covers the use case. |
 
@@ -1949,6 +1950,130 @@ Responses:
 - 429: RateLimited
 - 500: InternalError
 - 503: Public realtime connection opening is not available in this deployment.
+
+## Files
+
+### POST /files
+
+Source: https://docs.ando.so/api-reference/files/create-a-file
+
+Stability: Preview
+
+Creates a file upload intent for a message attachment. The response returns temporary direct storage upload instructions; send the bytes to that URL, then complete the file before using its id in create-message file_ids. Replay the same request with the same Idempotency-Key and body to refresh an active upload URL.
+
+Canonical request: `POST https://api.ando.so/v1/files`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `Idempotency-Key` | header | Yes | Required idempotency key for safely retrying this write. |
+
+Request body:
+
+JSON body: `CreatePublicFileBody`.
+
+Responses:
+
+- 200: Existing file upload intent for a matching idempotency key.
+- 201: Created file upload intent.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /files/{fileId}
+
+Source: https://docs.ando.so/api-reference/files/get-a-file
+
+Stability: Preview
+
+Returns lifecycle metadata for a file created by this API key. This metadata-only route does not sign storage upload URLs; replay create-file with the same Idempotency-Key and body to refresh an active upload URL.
+
+Canonical request: `GET https://api.ando.so/v1/files/{fileId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `fileId` | path | Yes | File identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: File lifecycle state.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /files/{fileId}/complete
+
+Source: https://docs.ando.so/api-reference/files/complete-a-file-upload
+
+Stability: Preview
+
+Completes a direct storage upload after the client has sent the bytes to the upload URL. The route verifies storage metadata and returns a ready file when the upload is attachable.
+
+Canonical request: `POST https://api.ando.so/v1/files/{fileId}/complete`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `fileId` | path | Yes | File identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Completed file upload.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /files/{fileId}/abort
+
+Source: https://docs.ando.so/api-reference/files/abort-a-file-upload
+
+Stability: Preview
+
+Aborts an active direct storage upload and makes the file id unusable for message attachments.
+
+Canonical request: `POST https://api.ando.so/v1/files/{fileId}/abort`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `fileId` | path | Yes | File identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Aborted file upload.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
 
 ## Preview
 
