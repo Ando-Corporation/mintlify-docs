@@ -698,11 +698,47 @@
         "type": "object"
       },
       "RealtimeDelivery": {
-        "description": "Realtime delivery filter. The initial release supports mentions.",
+        "description": "Realtime delivery filter. Use \"messages\" for readable message.created delivery; use \"mentions\" for explicit mention-only delivery capped at 100 explicit targets per message.",
         "enum": [
+          "messages",
           "mentions"
         ],
         "type": "string"
+      },
+      "RealtimeEventDeliveryContext": {
+        "additionalProperties": false,
+        "description": "Subscriber-specific delivery metadata for this realtime event frame.",
+        "properties": {
+          "delivery": {
+            "$ref": "#/components/schemas/RealtimeDelivery"
+          },
+          "delivery_reason": {
+            "description": "Why this subscription received the event.",
+            "enum": [
+              "message",
+              "mention"
+            ],
+            "type": "string"
+          },
+          "mention_targets": {
+            "description": "Subscriber-owned mention targets matched by this delivery.",
+            "items": {
+              "$ref": "#/components/schemas/RealtimeEventMentionTarget"
+            },
+            "type": "array"
+          },
+          "was_mentioned": {
+            "description": "Whether this subscriber was explicitly mentioned by the delivered event.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "delivery",
+          "delivery_reason",
+          "mention_targets",
+          "was_mentioned"
+        ],
+        "type": "object"
       },
       "RealtimeDisconnectFrame": {
         "additionalProperties": false,
@@ -760,6 +796,9 @@
             "description": "Resume cursor associated with this delivery.",
             "type": "string"
           },
+          "delivery_context": {
+            "$ref": "#/components/schemas/RealtimeEventDeliveryContext"
+          },
           "envelope_id": {
             "description": "Unique websocket delivery attempt identifier.",
             "type": "string",
@@ -788,6 +827,29 @@
           "subscription_id",
           "cursor",
           "payload"
+        ],
+        "type": "object"
+      },
+      "RealtimeEventMentionTarget": {
+        "additionalProperties": false,
+        "description": "Mention target owned by the subscriber receiving this event.",
+        "properties": {
+          "id": {
+            "description": "Workspace membership target identifier.",
+            "type": "string",
+            "example": "01jzn7e61x3a7v9h2r7t2m3q4p"
+          },
+          "type": {
+            "description": "Mention target type.",
+            "enum": [
+              "workspace_membership"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
         ],
         "type": "object"
       },
@@ -903,6 +965,11 @@
           "object": {
             "additionalProperties": true,
             "description": "Event-specific public DTO.",
+            "type": "object"
+          },
+          "previous_attributes": {
+            "additionalProperties": true,
+            "description": "Present only for event types whose source contract declares previous attributes; rejected on event types that do not. No event type currently on the realtime allowlist declares previous attributes, so this field is never present today.",
             "type": "object"
           }
         },
@@ -2161,7 +2228,7 @@
             "nullable": true
           },
           "replied_to_message_id": {
-            "description": "Message identifier this message replies to.",
+            "description": "Immediate parent message identifier inside an existing thread. For the first reply to a root message, send thread_root_id only; if replied_to_message_id equals thread_root_id, the server normalizes it as the first reply.",
             "type": "string",
             "nullable": true
           },
@@ -4321,13 +4388,13 @@
           "content": {
             "application/json": {
               "examples": {
-                "memberMentions": {
-                  "summary": "Subscribe to messages that mention the authenticated principal.",
+                "messageCreatedEvents": {
+                  "summary": "Subscribe to message.created events readable by the authenticated principal.",
                   "value": {
                     "subscriptions": [
                       {
                         "target": "self",
-                        "delivery": "mentions",
+                        "delivery": "messages",
                         "events": [
                           "message.created"
                         ]
@@ -4366,7 +4433,7 @@
                             "type": "workspace_membership",
                             "id": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
                           },
-                          "delivery": "mentions",
+                          "delivery": "messages",
                           "events": [
                             "message.created"
                           ]
@@ -5950,8 +6017,7 @@
                             "content": "Validated the route migration.",
                             "image_urls": [],
                             "replies_count": 1,
-                            "created_at": "2026-05-14T08:00:00.000Z",
-                            "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
+                            "created_at": "2026-05-14T08:00:00.000Z"
                           }
                         ]
                       },
@@ -5965,8 +6031,7 @@
                           "content": "Validated the route migration.",
                           "image_urls": [],
                           "replies_count": 1,
-                          "created_at": "2026-05-14T08:00:00.000Z",
-                          "authorWorkspaceMembershipId": "mem_01jzn7e61x3a7v9h2r7t2m3q4p"
+                          "created_at": "2026-05-14T08:00:00.000Z"
                         }
                       ]
                     }
