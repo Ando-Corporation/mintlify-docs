@@ -40,6 +40,7 @@ Use generated references for exact parameters and response schemas:
 
 - [Endpoint reference](/api-reference/endpoint-reference)
 - [MCP tool reference](/docs/ando-mcp-tools)
+- [Webhook events](/api-reference/webhook-events)
 # Which key do I use?
 Source: https://docs.ando.so/developers/which-key-do-i-use
 
@@ -249,7 +250,7 @@ integrations and covered by the public API v1 compatibility promise.
 | Level | Use it for | Routes |
 | --- | --- | --- |
 | Stable | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
-| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates`, `/realtime/connections`, `/files`, `/files/{fileId}`, `/files/{fileId}/complete`, `/files/{fileId}/abort` |
+| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates`, `/realtime/connections`, `/files`, `/files/{fileId}`, `/files/{fileId}/complete`, `/files/{fileId}/abort`, `/webhook-endpoints`, `/webhook-endpoints/{endpointId}`, `/webhook-endpoints/{endpointId}/rotate-secret`, `/webhook-endpoints/{endpointId}/test`, `/webhook-deliveries`, `/webhook-deliveries/{deliveryId}/replay` |
 | Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no stable route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
 
 The endpoint reference includes the exact status for every operation.
@@ -840,8 +841,11 @@ Use [Which key do I use?](/developers/which-key-do-i-use) if you are deciding
 whether the HTTP ticket request should use a member, third-party agent, or
 workspace service key.
 
+Use the [Webhook guide](/api-reference/webhooks) instead when you need durable
+HTTP delivery, delivery logs, retries, and replay.
+
 One subscription per connection. `message.created` is the only realtime event
-today — use [webhooks](/developers/webhooks) for anything else.
+today — use [webhooks](/api-reference/webhooks) for anything else.
 
 | Field | Supported value |
 | --- | --- |
@@ -1386,6 +1390,166 @@ returns:
 
 Read the generated [Realtime endpoint reference](/api-reference/realtime/open-a-realtime-connection)
 for the full request and response schemas.
+# Webhook guide
+Source: https://docs.ando.so/api-reference/webhooks
+
+> Create a webhook endpoint, verify signed payloads, and inspect generated event docs.
+
+Outbound webhooks let an external system receive durable Ando product events by
+HTTP POST. Webhook delivery is at least once after the event row is created.
+Ordering is not guaranteed across events, endpoints, or retries.
+
+Use realtime for live WebSocket delivery to an online client. Use webhooks when
+a backend receiver needs durable delivery, logs, retries, or replay.
+
+Webhook signing secrets verify inbound events from Ando. They are not API keys.
+Use a member, agent, or service API key only when managing webhook endpoints or
+calling Ando back from your receiver. See [Which key do I use?](/developers/which-key-do-i-use)
+for the credential model.
+
+Use the generated references beside this guide:
+
+| Reference | Use it for |
+| --- | --- |
+| [Webhook events](/api-reference/webhook-events) | Event names, owners, payload contract types, API version, envelope fields, and related WebSocket event IDs. |
+| [Webhook endpoint routes](/api-reference/webhooks/create-a-webhook-endpoint) | Endpoint creation, updates, secret rotation, and test event routes. |
+| [Webhook delivery routes](/api-reference/webhooks/list-webhook-deliveries) | Delivery log listing and replay. |
+
+## Create an endpoint
+
+```bash
+export ANDO_API_BASE="https://api.ando.so/v1"
+export ANDO_API_KEY="ando_sk_..."
+```
+
+Subscribe only to the events your receiver handles:
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/webhook-endpoints" \
+  -H "x-api-key: $ANDO_API_KEY" \
+  -H "content-type: application/json" \
+  --data '{
+    "name": "Production ingestion",
+    "url": "https://example.com/ando/webhooks",
+    "enabled_events": [
+      "webhook.test",
+      "message.created",
+      "message.updated"
+    ]
+  }'
+```
+
+The create response returns `data.signing_secret` exactly once. Store it in a
+secret manager. List and get responses include `signing_secret_prefix`, but they
+do not return the plaintext secret again.
+
+## Verify signatures
+
+Ando signs every outbound webhook with the endpoint signing secret. Verification
+must use the exact raw request body bytes that Ando sent.
+
+Every delivery includes these webhook-specific headers:
+
+| Header | Description |
+| --- | --- |
+| `Ando-Signature` | Timestamped HMAC signatures formatted as `t=<unix seconds>,v1=<hex>`. Secret rotation can include more than one `v1` value. |
+| `Ando-Timestamp` | The Unix timestamp used in the signature payload. |
+| `Ando-Event-Id` | Stable event id. Use this for business-level dedupe. |
+| `Ando-Delivery-Id` | Delivery attempt group id. Replays create a new delivery id for the same event. |
+| `Ando-Event-Type` | Event type, such as `message.created` or `webhook.test`. |
+| `Ando-API-Version` | Webhook payload API version. |
+
+The signature payload is:
+
+```text
+<timestamp>.<raw request body>
+```
+
+Compute `HMAC_SHA256(endpoint_signing_secret, signature_payload)`, then compare
+the lowercase hex digest against any `v1` value in `Ando-Signature` using a
+constant-time comparison. Reject timestamps outside your tolerance window. The
+default Ando SDK tolerance is 300 seconds.
+
+## Node receiver
+
+Use `express.raw` for the webhook route. Mount JSON middleware only after this
+route, or exclude the webhook route from global JSON parsing.
+
+```ts
+import express from "express";
+import {
+  type AndoWebhookEvent,
+  verifyAndoWebhookSignature,
+} from "@andocorp/sdk/webhooks";
+
+const app = express();
+const andoWebhookSecret = process.env.ANDO_WEBHOOK_SECRET;
+
+app.post(
+  "/ando/webhooks",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    if (andoWebhookSecret == null || andoWebhookSecret.trim() === "") {
+      return res.sendStatus(500);
+    }
+
+    const payload = req.body.toString("utf8");
+    const result = await verifyAndoWebhookSignature({
+      payload,
+      signatureHeader: req.header("Ando-Signature"),
+      secret: andoWebhookSecret,
+    });
+
+    if (!result.ok) {
+      return res.sendStatus(400);
+    }
+
+    const event = JSON.parse(payload) as AndoWebhookEvent;
+    await enqueueWebhookEvent(event);
+    return res.sendStatus(200);
+  }
+);
+
+async function enqueueWebhookEvent(event: AndoWebhookEvent): Promise<void> {
+  console.log("received Ando webhook", event.type, event.id);
+}
+```
+
+## Receiver behavior
+
+Webhook receivers should:
+
+1. Verify the raw body with `Ando-Signature`.
+2. Persist or enqueue the event quickly.
+3. Return a 2xx response within 10 seconds.
+4. Process business logic asynchronously.
+5. Deduplicate by `Ando-Event-Id` for business side effects.
+
+Non-2xx responses, network errors, and timeouts are retried. Handlers must be
+idempotent because duplicate delivery is expected.
+
+## Test and replay
+
+Send `webhook.test` after creating the receiver:
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/webhook-endpoints/$WEBHOOK_ENDPOINT_ID/test" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+List recent deliveries:
+
+```bash
+curl -sS "$ANDO_API_BASE/webhook-deliveries?endpoint_id=$WEBHOOK_ENDPOINT_ID&limit=20" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
+
+Replay creates a new delivery id for the same event id:
+
+```bash
+curl -sS -X POST "$ANDO_API_BASE/webhook-deliveries/$WEBHOOK_DELIVERY_ID/replay" \
+  -H "x-api-key: $ANDO_API_KEY"
+```
 # SDK guide
 Source: https://docs.ando.so/developers/sdk
 
@@ -1648,6 +1812,8 @@ legacy compatibility endpoints need narrower rollout judgment.
 | Messaging | Production message workflows. | List, create, fetch, and reply to conversation messages. |
 | Realtime | Preview realtime session setup. | Open a short-lived connection token from a trusted server before a realtime client connects. |
 | Files | Preview file upload workflows. | Create a file upload, complete or abort it, and fetch file metadata to attach with `file_ids` when creating messages. |
+| Webhook endpoints | Preview webhook endpoint management. | Create, list, update, rotate, and test webhook destinations. |
+| Webhook deliveries | Preview webhook delivery operations. | Inspect recent deliveries and replay a delivery when it is safe to retry. |
 | Preview | Exploratory integrations. | Build only when the risk of shape changes is acceptable. |
 | Legacy compatibility | Existing compatibility behavior. | Avoid for new integrations unless no stable route covers the use case. |
 
@@ -1655,6 +1821,45 @@ The generated endpoint pages show request parameters, response schemas, and
 examples for each route. Start from [API overview](/api-reference/overview)
 when you need the resource model, auth header, response envelope, pagination,
 idempotency, and error model in one place.
+# Webhook Events
+Source: https://docs.ando.so/api-reference/webhook-events
+
+> Generated webhook event reference from the Ando monorepo product event registry.
+
+# Webhook Events
+
+Generated by `pnpm run webhooks:public-docs` from the product event registry.
+
+Source fingerprint: `6a37fdf526b253233737185d408e4cc413a7ce5857f00a3eed1d3d760ceaa82d`
+Webhook API version: `2026-05-27`
+
+## Envelope
+
+Webhook payloads use the `event` envelope object. The common
+fields are `id`, `object`, `type`, `api_version`, `created_at`, `workspace_id`, `data.object`, `data.previous_attributes`, `related.conversation_id`, `related.message_id`, `related.thread_root_message_id`, `related.call_id`.
+
+Present only for event types whose source contract declares previous attributes.
+
+## Events
+
+| Event | Owner | Payload contract | Auth anchor | PII | Related websocket events |
+| --- | --- | --- | --- | --- | --- |
+| `call.ended` | calls | typed `CallWebhookObject`; Metadata-only. | conversation | workspace_metadata | `call/ended` |
+| `call.started` | calls | typed `CallWebhookObject`; Metadata-only. | conversation | workspace_metadata | `call/started` |
+| `call.transcript.updated` | calls | typed `CallTranscriptUpdatedWebhookObject`; Metadata-only. | conversation | workspace_metadata | `call/transcript-updated` |
+| `call.updated` | calls | typed `CallWebhookObject`; Includes previous public attributes. | conversation | workspace_metadata | `call/updated` |
+| `conversation.archived` | conversations | typed `ConversationResult` | conversation | workspace_metadata | `conversation/archived` |
+| `conversation.membership.created` | conversations | typed `ConversationMembershipCreatedWebhookObject`; Includes public MemberResult. | conversation | workspace_metadata | `membership/new` |
+| `conversation.unarchived` | conversations | typed `ConversationResult` | conversation | workspace_metadata | `conversation/unarchived` |
+| `message.created` | messaging | typed `MessageResult` | conversation | message_content | `member/message-new` |
+| `message.updated` | messaging | typed `MessageResult`; Includes previous_attributes.content. | conversation | message_content | `member/message-update` |
+| `webhook.test` | platform | typed `WebhookTestEventObject` | none | none | _None_ |
+
+## AsyncAPI
+
+AsyncAPI generated: no
+
+Webhook payload contracts are currently source-backed TypeScript types, not emitted runtime JSON Schemas. Generated JSON/MDX remains the public docs artifact until schema emission exists.
 
 # Endpoint reference
 Source: https://docs.ando.so/api-reference/endpoint-reference
@@ -2067,6 +2272,253 @@ None.
 Responses:
 
 - 200: Aborted file upload.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Webhook endpoints
+
+### POST /webhook-endpoints
+
+Source: https://docs.ando.so/api-reference/webhooks/create-a-webhook-endpoint
+
+Stability: Preview
+
+Creates a workspace webhook endpoint and returns its signing secret exactly once.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-endpoints`
+
+Parameters:
+
+None.
+
+Request body:
+
+JSON body: `CreateWebhookEndpointBody`.
+
+Responses:
+
+- 201: Created webhook endpoint.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /webhook-endpoints
+
+Source: https://docs.ando.so/api-reference/webhooks/list-webhook-endpoints
+
+Stability: Preview
+
+Lists workspace webhook endpoint metadata.
+
+Canonical request: `GET https://api.ando.so/v1/webhook-endpoints`
+
+Parameters:
+
+None.
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Webhook endpoints.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### GET /webhook-endpoints/{endpointId}
+
+Source: https://docs.ando.so/api-reference/webhooks/get-a-webhook-endpoint
+
+Stability: Preview
+
+Returns webhook endpoint metadata and a recent delivery summary.
+
+Canonical request: `GET https://api.ando.so/v1/webhook-endpoints/{endpointId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Webhook endpoint details.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### PATCH /webhook-endpoints/{endpointId}
+
+Source: https://docs.ando.so/api-reference/webhooks/update-a-webhook-endpoint
+
+Stability: Preview
+
+Updates webhook endpoint metadata and delivery settings.
+
+Canonical request: `PATCH https://api.ando.so/v1/webhook-endpoints/{endpointId}`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+JSON body: `UpdateWebhookEndpointBody`.
+
+Responses:
+
+- 200: Updated webhook endpoint.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /webhook-endpoints/{endpointId}/rotate-secret
+
+Source: https://docs.ando.so/api-reference/webhooks/rotate-webhook-endpoint-secret
+
+Stability: Preview
+
+Rotates a webhook endpoint signing secret and returns the new secret exactly once.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-endpoints/{endpointId}/rotate-secret`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+JSON body: `RotateWebhookEndpointSecretBody`.
+
+Responses:
+
+- 200: Rotated webhook endpoint secret.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /webhook-endpoints/{endpointId}/test
+
+Source: https://docs.ando.so/api-reference/webhooks/send-a-webhook-test-event
+
+Stability: Preview
+
+Creates a webhook.test event and schedules delivery to one endpoint.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-endpoints/{endpointId}/test`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpointId` | path | Yes | Webhook endpoint identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 202: Scheduled webhook test event.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+
+## Webhook deliveries
+
+### GET /webhook-deliveries
+
+Source: https://docs.ando.so/api-reference/webhooks/list-webhook-deliveries
+
+Stability: Preview
+
+Lists webhook deliveries with optional endpoint, event, status, and creation-time filters.
+
+Canonical request: `GET https://api.ando.so/v1/webhook-deliveries`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `endpoint_id` | query | No | Filter by webhook endpoint identifier. |
+| `event_id` | query | No | Filter by webhook event identifier. |
+| `status` | query | No | Filter by delivery status. |
+| `created_after` | query | No | Return deliveries created after this timestamp. |
+| `created_before` | query | No | Return deliveries created before this timestamp. |
+| `limit` | query | No | Maximum number of deliveries to return. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 200: Webhook deliveries.
+- 400: BadRequest
+- 401: Unauthorized
+- 403: Forbidden
+- 404: NotFound
+- 409: Conflict
+- 429: RateLimited
+- 500: InternalError
+### POST /webhook-deliveries/{deliveryId}/replay
+
+Source: https://docs.ando.so/api-reference/webhooks/replay-a-webhook-delivery
+
+Stability: Preview
+
+Creates a fresh scheduled delivery for the same endpoint and event.
+
+Canonical request: `POST https://api.ando.so/v1/webhook-deliveries/{deliveryId}/replay`
+
+Parameters:
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `deliveryId` | path | Yes | Webhook delivery identifier. |
+
+Request body:
+
+None.
+
+Responses:
+
+- 202: Scheduled webhook delivery replay.
 - 400: BadRequest
 - 401: Unauthorized
 - 403: Forbidden

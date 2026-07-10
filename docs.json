@@ -129,7 +129,8 @@
               "api-reference/messaging-quickstart",
               "api-reference/search-quickstart",
               "api-reference/http-api",
-              "api-reference/realtime-quickstart"
+              "api-reference/realtime-quickstart",
+              "api-reference/webhooks"
             ]
           },
           {
@@ -186,9 +187,32 @@
                 ]
               },
               {
+                "group": "Webhook endpoints",
+                "tag": "Preview",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /webhook-endpoints",
+                  "GET /webhook-endpoints",
+                  "GET /webhook-endpoints/{endpointId}",
+                  "PATCH /webhook-endpoints/{endpointId}",
+                  "POST /webhook-endpoints/{endpointId}/rotate-secret",
+                  "POST /webhook-endpoints/{endpointId}/test"
+                ]
+              },
+              {
+                "group": "Webhook deliveries",
+                "tag": "Preview",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /webhook-deliveries",
+                  "POST /webhook-deliveries/{deliveryId}/replay"
+                ]
+              },
+              {
                 "group": "Generated references",
                 "pages": [
-                  "docs/ando-mcp-tools"
+                  "docs/ando-mcp-tools",
+                  "api-reference/webhook-events"
                 ]
               },
               {
@@ -303,14 +327,6 @@
     {
       "source": "/api-reference/tasks/search-tasks",
       "destination": "/api-reference/endpoint-reference"
-    },
-    {
-      "source": "/api-reference/webhooks",
-      "destination": "/developers/webhooks"
-    },
-    {
-      "source": "/api-reference/webhook-events",
-      "destination": "/developers/webhooks"
     },
     {
       "source": "/api-reference/openapi.json",
