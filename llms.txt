@@ -100,7 +100,7 @@
 
 ## Changelog
 
-- [Changelog](https://docs.ando.so/changelog.md): Weekly updates on what's new in Ando.
+- [Changelog](https://docs.ando.so/changelog.md): Product updates on what's new in Ando.
 - [Coming soon](https://docs.ando.so/coming-soon.md): Upcoming Ando product work.
 
 ## OpenAPI Specs
