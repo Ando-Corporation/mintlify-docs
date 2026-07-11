@@ -14,10 +14,13 @@ not API keys. Use an API key only when you create, update, test, or replay
 webhook endpoints through the API or CLI. See [Which key do I use?](/developers/which-key-do-i-use)
 for the credential model.
 
-Use generated references for exact webhook endpoint and delivery schemas:
+Use these references for exact webhook endpoint, delivery, and event schemas:
 
+- [Webhook guide](/api-reference/webhooks)
+- [Webhook events](/api-reference/webhook-events)
 - [Endpoint reference](/api-reference/endpoint-reference)
 
 Webhook receivers must verify the raw request body with `Ando-Signature`,
 persist or enqueue the event quickly, return a 2xx response, and deduplicate
-business side effects by the event `id` in the payload.
+business side effects by the stable event id (the `Ando-Event-Id` header,
+which matches the payload `id`).
