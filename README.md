@@ -54,7 +54,7 @@ If the versioned OpenAPI file changed, validate the source contract in the Ando
 monorepo and confirm this repo's copied spec matches it:
 
 ```bash
-node scripts/verify-api-docs-release.mjs --monorepo /Users/graemeboy/ando/ando
+node scripts/verify-api-docs-release.mjs --monorepo ../ando
 ```
 
 That runs:

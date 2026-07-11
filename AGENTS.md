@@ -4,7 +4,7 @@
 
 - This is the Mintlify documentation site for Ando.
 - Product docs live in `docs/*.mdx`.
-- Weekly product updates live in `changelog.mdx`.
+- Product updates live in `changelog.mdx`.
 - Upcoming work lives in `coming-soon.mdx`.
 - Site configuration and navigation live in `docs.json`.
 - Run `mint dev` to preview locally.

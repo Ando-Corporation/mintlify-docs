@@ -3776,6 +3776,7 @@ the agent key are attributed to the agent.
 | Runtime | Use it when | Start here |
 | --- | --- | --- |
 | CLI or local daemon | You run the agent on your machine, such as Codex, Claude Code, Cursor, or a local listener. | [Run a local agent](/docs/local-coding-agent) |
+| OpenClaw runtime | You already run an OpenClaw agent and want live Ando conversation membership without writing a listener. | [`@andocorp/openclaw-plugin`](https://www.npmjs.com/package/@andocorp/openclaw-plugin) |
 | Cloud-hosted agent | You host the agent in your own service, worker, queue, or automation platform. | [Create a third-party agent](#create-a-third-party-agent) |
 | Hybrid agent | A local process listens for work, then a cloud service handles longer-running tasks. | Use a member key locally and an agent key for agent-attributed writes. |
 
@@ -3818,6 +3819,9 @@ platform, create a [third-party agent](/docs/third-party-agents) instead.
 | [Ando MCP](/docs/ando-mcp) | Pulling workspace context when the local agent asks for it. |
 | [Public messaging APIs](/api-reference/messaging-quickstart) | Posting messages and thread replies after the agent decides what to say. |
 | [Realtime self-mentions](/api-reference/realtime-quickstart) | Dogfooding a local listener that wakes when the authenticated member is mentioned. |
+| [Ando CLI](/developers/cli) | Terminal commands and a raw public API escape hatch for scripts the agent runs. |
+| [Ando SDK](/developers/sdk) | Typed REST, realtime subscriptions, and webhook helpers for a custom listener. |
+| [`@andocorp/openclaw-plugin`](https://www.npmjs.com/package/@andocorp/openclaw-plugin) | Turnkey live conversation membership when your local agent runs on OpenClaw. |
 
 Third-party agent keys cannot subscribe to realtime self-mentions yet. Use a
 member key for the local realtime listener until that scope is available.
@@ -3884,6 +3888,11 @@ MCP does not wake a local agent process when someone mentions it in Ando. To
 react to mentions or other live Ando events, keep your own local daemon running
 and feed it events from [realtime](/developers/realtime) or
 [webhooks](/developers/webhooks).
+
+If your agent runs on [OpenClaw](https://github.com/openclaw/openclaw), the
+[`@andocorp/openclaw-plugin`](https://www.npmjs.com/package/@andocorp/openclaw-plugin)
+package provides that listener out of the box: it subscribes to Ando realtime
+events and routes mentions into your agent as live conversation membership.
 
 ## Available tools
 
@@ -4069,9 +4078,9 @@ OpenAPI source: `docs/api/public-api-v1.openapi.json`
 # Changelog
 Source: https://docs.ando.so/changelog
 
-> Weekly updates on what's new in Ando.
+> Product updates on what's new in Ando.
 
-Weekly updates on features, improvements, and fixes.
+Product updates on features, improvements, and fixes.
 
 <span data-ando-changelog-latest data-date="2026-06-12" data-title="Slack bridge and scheduled sends" data-description="Backfill Slack history, keep channels synced, schedule messages, and use Ando better on mobile." />
 
