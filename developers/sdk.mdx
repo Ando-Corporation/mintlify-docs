@@ -5,9 +5,8 @@ icon: "package"
 ---
 
 Use the TypeScript SDK when you want a typed client for the Ando public API.
-`@andocorp/sdk` ships `AndoClient` with typed REST methods (search, messaging,
-threads, members, calls, and tasks), realtime subscriptions
-(`client.realtime`), webhook endpoint and delivery management
+`@andocorp/sdk` ships `AndoClient` with typed REST methods, realtime
+subscriptions (`client.realtime`), webhook endpoint and delivery management
 (`client.webhooks`), and webhook receiver helpers on the
 `@andocorp/sdk/webhooks` subpath. You can also call the HTTP API directly;
 start with the [API overview](/api-reference/overview) and generated
@@ -16,8 +15,109 @@ start with the [API overview](/api-reference/overview) and generated
 ## Install
 
 ```bash
-pnpm add @andocorp/sdk
+npm install @andocorp/sdk
 ```
+
+The package requires Node 20 or later and has no peer dependencies. Realtime
+support in Node uses the `ws` package, which is installed automatically.
+
+## Create a client
+
+```ts
+import { AndoClient } from "@andocorp/sdk";
+
+const client = new AndoClient({
+  auth: { apiKey: process.env.ANDO_API_KEY ?? "" },
+});
+```
+
+The client authenticates every request with `Authorization: Bearer <apiKey>`.
+The SDK does not read environment variables itself — pass the key explicitly.
+
+| Option | Default | Use it for |
+| --- | --- | --- |
+| `auth.apiKey` | required | Member, agent, or service API key. |
+| `baseUrl` | `https://api.ando.so` | Alternate API host. Public API helpers target the `/v1` routes under this host. |
+| `realtimeHost` | `realtime.ando.so` | Alternate realtime host. |
+| `requestTimeoutMs` | none | Per-request timeout. Unset means no timeout. |
+| `fetch` | global `fetch` | Custom fetch implementation. |
+| `diagnostics` | none | Sink that receives HTTP and realtime diagnostic events. |
+
+## REST methods
+
+The typed methods map to the generated public API v1 operations in the
+[endpoint reference](/api-reference/endpoint-reference):
+
+```ts
+await client.searchMessages({ q: "incident", mode: "semantic" });
+await client.listConversationMessages({ conversationId: "conv_123", limit: 20 });
+await client.createConversationMessage({
+  conversationId: "conv_123",
+  markdownContent: "hello",
+});
+```
+
+| Area | Methods |
+| --- | --- |
+| Search | `searchMessages`, `searchConversations`, `searchMembers`, `searchCalls`, `searchTasks`, `searchClipboard` |
+| Messaging | `listConversationMessages`, `createConversationMessage`, `getConversationMessageResult`, `listThreadReplies` |
+| Members, calls, tasks | `getMember`, `getCall`, `getCallTranscript`, `getTask`, `recordTaskUpdate` |
+| Clipboard (legacy) | `getClipboard` |
+| Realtime bootstrap | `openRealtimeConnection` (use `client.realtime` instead for a managed subscription) |
+
+Method inputs are camelCase; the SDK sends the snake_case wire fields for you.
+Write methods (`createConversationMessage`, `recordTaskUpdate`) send an
+`Idempotency-Key` header automatically when you do not supply one, which makes
+them safe to retry. Every method accepts a trailing `AbortSignal`.
+
+## Realtime subscriptions
+
+`client.realtime` opens `POST /v1/realtime/connections`, connects to the
+returned WebSocket URL with the `ando.realtime.v1` protocol, and manages acks,
+resume cursors, and reconnects for you:
+
+```ts
+const subscription = await client.realtime.subscribeMember({
+  onMessage(event) {
+    console.log(event.message.id, event.message.content, event.wasMentioned);
+  },
+});
+
+await subscription.done(); // resolves when the subscription ends
+// or: await subscription.close();
+```
+
+- `delivery` is `"messages"` (default) or `"mentions"`. `message.created` is
+  the only realtime event today.
+- Delivery is at least once. If your handler throws, the SDK reconnects and
+  requests redelivery of the failed message up to three times before sending
+  an exhausted error ack. Make handlers idempotent.
+- Recoverable disconnects reconnect automatically; `401`/`403` responses stop
+  the subscription.
+
+Read the [Realtime quickstart](/api-reference/realtime-quickstart) for the
+wire protocol details.
+
+## Manage webhook endpoints
+
+`client.webhooks` covers the webhook endpoint and delivery routes:
+
+```ts
+const endpoint = await client.webhooks.createEndpoint({
+  name: "Production receiver",
+  url: "https://example.com/ando/webhooks",
+  enabledEvents: ["webhook.test", "message.created"],
+});
+
+console.log(endpoint.data.signing_secret); // Store this one-time secret.
+
+await client.webhooks.sendTestEvent(endpoint.data.id);
+await client.webhooks.listDeliveries({ endpointId: endpoint.data.id, limit: 20 });
+```
+
+Also available: `listEndpoints`, `getEndpoint`, `updateEndpoint`,
+`rotateEndpointSecret`, and `replayDelivery`. The signing secret is returned
+exactly once from `createEndpoint` and `rotateEndpointSecret`.
 
 ## Webhook receivers
 
@@ -65,5 +165,15 @@ switch (event.type) {
 }
 ```
 
-Read [Webhook guide](/developers/webhooks) for receiver behavior and signature
-verification requirements.
+Read the [Webhook guide](/api-reference/webhooks) for delivery headers,
+receiver behavior, and signature verification requirements.
+
+## Errors and retries
+
+Failed requests throw `AndoApiError` with `status`, `method`, `path`, `body`,
+`bodyText`, and — when the response includes them — `code` and `requestId`.
+
+The client retries transient failures (`429`, `5xx`, and network errors) up to
+two times with short fixed delays. Only safe requests retry: `GET`/`HEAD`
+always, other methods only when the request carries an `Idempotency-Key`
+header.

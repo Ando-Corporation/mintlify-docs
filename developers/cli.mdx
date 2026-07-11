@@ -1,11 +1,12 @@
 ---
 title: "CLI guide"
-description: "Use @andocorp/cli for terminal auth, public API calls, and webhook workflows."
+description: "Use @andocorp/cli for terminal auth, public API calls, realtime watching, and webhook workflows."
 icon: "terminal"
 ---
 
 Use the Ando CLI when you want agent-friendly terminal commands, a raw public
-API escape hatch, or webhook endpoint and delivery management from scripts.
+API escape hatch, a realtime message watcher, or webhook endpoint and delivery
+management from scripts.
 
 ## Install
 
@@ -19,24 +20,69 @@ Or run without installing:
 npx @andocorp/cli
 ```
 
+The CLI requires Node 20 or later.
+
 ## Authenticate
 
-Log in once:
+Log in once. The default flow opens your browser, shows a verification code,
+and stores the resulting API key in your system keyring:
 
 ```bash
 ando login
 ```
 
-For headless scripts and CI, inject an API key from your secret store through
-the environment:
+On a machine without a browser, use the two-step headless flow — the first
+command prints a URL and verification code to approve from any device, the
+second completes the login:
+
+```bash
+ando login --no-browser
+ando login poll
+```
+
+For scripts and CI, skip login entirely and inject an API key from your secret
+store through the environment:
 
 ```bash
 export ANDO_API_KEY="$ANDO_API_KEY_FROM_SECRET_STORE"
 ando api searchMessages q==incident mode==semantic
 ```
 
-Avoid passing long-lived API keys as command-line arguments in shared shells,
-CI jobs, or process-managed environments.
+You can also pass `--api-key <key>` to any command (or `ando login --api-key`
+to store one), but avoid putting long-lived keys in command-line arguments in
+shared shells, CI jobs, or process-managed environments — prefer the
+environment variable.
+
+Related commands:
+
+```bash
+ando whoami   # member and workspace for the active key
+ando doctor   # local auth diagnostics: config path, credential source, API probe
+ando logout   # revoke browser-created credentials remotely, then clear local state
+```
+
+### Where credentials live
+
+Browser and `--api-key` logins store the key in the system keyring under the
+`ando-cli` service. Set `ANDO_KEYRING=0` to use a file store instead
+(`auth.json`, mode `0600`). Non-secret settings live in `config.json`. The
+config directory is `~/.config/ando` by default, or `$XDG_CONFIG_HOME/ando`,
+`%APPDATA%\ando` on Windows, and `$ANDO_HOME` when set.
+
+### Environment variables
+
+| Variable | Use it for |
+| --- | --- |
+| `ANDO_API_KEY` | API key for any command, without stored credentials. |
+| `ANDO_BASE_URL` | Alternate API host (default `https://api.ando.so`). |
+| `ANDO_API_HOST` | Alternate public API base (default `https://api.ando.so/v1`). |
+| `ANDO_REALTIME_HOST` | Alternate realtime host. |
+| `ANDO_KEYRING` | Set `0` to store credentials in `auth.json` instead of the keyring. |
+| `ANDO_HOME` | Alternate config directory. |
+| `ANDO_DEBUG` | Set `1` for HTTP and realtime traces on stderr. |
+
+Precedence for keys and hosts: flag, then environment variable, then saved
+config, then the built-in default.
 
 ## Raw public API
 
@@ -54,6 +100,41 @@ ando api /v1/search/messages --spec
 headers, `field=value` JSON string body fields, `field:=json` typed JSON body
 fields, and `--data <json|->` for complete request bodies.
 
+## Agent-first context commands
+
+Browse and search commands for common agent workflows:
+
+```bash
+ando messages --channel engineering --limit 10
+ando search "incident"
+ando get message <message-id>
+ando thread <thread-root-message-id>
+```
+
+- `ando messages` targets exactly one of `--channel <query>`, `--dm <query>`,
+  or `--conversation <id>`, with `--limit <n>` and `--before <cursor>` for
+  paging.
+- `ando search <query>` searches messages by default. Use
+  `--type messages|members|conversations|clipboard|calls` to switch. Message
+  search also accepts `--author`, `--conversation`, `--thread`, `--after`,
+  `--before`, and `--mode full-text|semantic`.
+- `ando get <entity> <id>` fetches `message`, `member`, `clipboard`, `call`,
+  or `transcript`. `ando get transcript <call-id>` accepts `--limit` and
+  `--cursor`.
+- `ando thread <id>` lists thread replies, with `--limit` and `--after`.
+
+## Watch messages in realtime
+
+```bash
+ando watch messages
+ando watch messages --delivery mentions
+ando watch messages --limit 5 --timeout 60000 --json
+```
+
+`--delivery` is `messages` (default) or `mentions`. Interactively, stop with
+Ctrl-C. In non-interactive shells (scripts, CI), pass `--limit <n>` or
+`--timeout <ms>` so the command can exit on its own.
+
 ## Webhooks
 
 Webhook endpoint and delivery commands cover the SDK webhook management surface:
@@ -64,23 +145,22 @@ ando webhooks endpoints create \
   --url https://example.com/ando/webhooks \
   --events webhook.test,message.created \
   --name "Development receiver"
+ando webhooks endpoints get <endpoint-id>
+ando webhooks endpoints update <endpoint-id> --events webhook.test,message.created,message.updated
+ando webhooks endpoints rotate-secret <endpoint-id> --previous-secret-ttl 3600
+ando webhooks endpoints disable <endpoint-id>
 ando webhooks endpoints test <endpoint-id> --watch-delivery
 ando webhooks deliveries list --endpoint <endpoint-id> --status failed
 ando webhooks deliveries replay <delivery-id>
 ```
 
 Endpoint creation and secret rotation print one-time signing secrets in plain
-output. Store the secret before clearing the terminal.
+output. Store the secret before clearing the terminal. `test --watch-delivery`
+polls until the delivery reaches a terminal status; it cannot be combined with
+`--json`.
 
-## Agent-first context commands
-
-The CLI also includes browse and search commands for common agent workflows:
-
-```bash
-ando messages --channel engineering --limit 10
-ando search "incident"
-ando get message <message-id>
-ando thread <thread-root-message-id>
-```
+## Output and exit codes
 
 Every agent-first command supports `--json` for machine-readable output.
+Without `--json`, commands print tab-separated rows to stdout. The CLI exits
+`0` on success and `1` on any error, with the error message on stderr.
