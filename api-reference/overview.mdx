@@ -98,7 +98,7 @@ integrations and covered by the public API v1 compatibility promise.
 | Level | Use it for | Routes |
 | --- | --- | --- |
 | Stable | Production integrations. These routes are monitored and supported as public API v1. | `/search/messages`, `/search/conversations`, `/search/members`, `/search/calls`, `/conversations/{conversationId}/messages`, `/conversation-messages/{messageId}`, `/conversation-messages/{messageId}/replies` |
-| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates`, `/realtime/connections`, `/files`, `/files/{fileId}`, `/files/{fileId}/complete`, `/files/{fileId}/abort`, `/webhook-endpoints`, `/webhook-endpoints/{endpointId}`, `/webhook-endpoints/{endpointId}/rotate-secret`, `/webhook-endpoints/{endpointId}/test`, `/webhook-deliveries`, `/webhook-deliveries/{deliveryId}/replay` |
+| Preview | Exploratory integrations. Expect tighter compatibility review before building durable workflows. | `/members/{memberId}`, `/calls/{callId}`, `/calls/{callId}/transcript`, `/tasks/{taskId}`, `/tasks/{taskId}/updates`, `/realtime/connections`, `/webhook-endpoints`, `/webhook-endpoints/{endpointId}`, `/webhook-endpoints/{endpointId}/rotate-secret`, `/webhook-endpoints/{endpointId}/test`, `/webhook-deliveries`, `/webhook-deliveries/{deliveryId}/replay` |
 | Legacy compatibility | Existing behavior kept documented while the public API converges. Avoid for new integrations unless no stable route exists. | `/search/clipboard`, `/clipboards/{clipboardId}` |
 
 The endpoint reference includes the exact status for every operation.
@@ -168,7 +168,6 @@ curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
     "markdown_content": "Hello from the public API.",
     "explicit_context_message_ids": [],
     "image_urls": [],
-    "file_ids": [],
     "suppressed_link_preview_urls": []
   }'
 ```

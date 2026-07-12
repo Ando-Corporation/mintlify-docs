@@ -40,13 +40,6 @@
 
 - [Open a realtime connection](https://docs.ando.so/api-reference/realtime/open-a-realtime-connection.md): Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.
 
-### Files
-
-- [Create a file](https://docs.ando.so/api-reference/files/create-a-file.md): Creates a file upload intent for a message attachment. The response returns temporary direct storage upload instructions; send the bytes to that URL, then complete the file before using its id in create-message file_ids. Replay the same request with the same Idempotency-Key and body to refresh an active upload URL.
-- [Get a file](https://docs.ando.so/api-reference/files/get-a-file.md): Returns lifecycle metadata for a file created by this API key. This metadata-only route does not sign storage upload URLs; replay create-file with the same Idempotency-Key and body to refresh an active upload URL.
-- [Complete a file upload](https://docs.ando.so/api-reference/files/complete-a-file-upload.md): Completes a direct storage upload after the client has sent the bytes to the upload URL. The route verifies storage metadata and returns a ready file when the upload is attachable.
-- [Abort a file upload](https://docs.ando.so/api-reference/files/abort-a-file-upload.md): Aborts an active direct storage upload and makes the file id unusable for message attachments.
-
 ### Webhook endpoints
 
 - [Create a webhook endpoint](https://docs.ando.so/api-reference/webhooks/create-a-webhook-endpoint.md): Creates a workspace webhook endpoint and returns its signing secret exactly once.
@@ -106,4 +99,4 @@
 ## OpenAPI Specs
 
 - [openapi-public-api-v1-latest](https://docs.ando.so/openapi-public-api-v1-latest.json)
-- [openapi-public-api-v1-2026-07-09](https://docs.ando.so/openapi-public-api-v1-2026-07-09.json)
+- [openapi-public-api-v1-2026-07-12](https://docs.ando.so/openapi-public-api-v1-2026-07-12.json)

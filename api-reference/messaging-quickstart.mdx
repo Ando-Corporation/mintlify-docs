@@ -91,7 +91,6 @@ jq -n \
     markdown_content: $markdown_content,
     explicit_context_message_ids: $explicit_context_message_ids,
     image_urls: [],
-    file_ids: [],
     suppressed_link_preview_urls: []
   }' > "$ANDO_QUICKSTART_DIR/create-message.json"
 
@@ -139,7 +138,6 @@ jq -n \
     replied_to_message_id: $replied_to_message_id,
     explicit_context_message_ids: [],
     image_urls: [],
-    file_ids: [],
     suppressed_link_preview_urls: []
   }' > "$ANDO_QUICKSTART_DIR/create-reply.json"
 

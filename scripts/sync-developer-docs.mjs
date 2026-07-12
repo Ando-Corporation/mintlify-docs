@@ -382,6 +382,8 @@ const mcpToolInputSummaries = {
   get_call: "`call_id`.",
   get_call_transcript: "`call_id`. Optional: `limit`, `cursor`.",
   get_conversation_messages: "`conversation_id`. Optional: `author`, `limit`, `before`.",
+  get_conversation_threads:
+    "`conversation_id`. Optional: `limit`, `before`, `after`, `replies_per_thread`.",
   get_member: "Deprecated; use `get_workspace_member`. Required: `member_id`.",
   get_message: "`message_id`.",
   get_task: "`task_id`.",
@@ -393,6 +395,7 @@ const mcpToolInputSummaries = {
   list_conversation_members: "`conversation_id`.",
   list_conversations: "Optional: `q`, `limit`.",
   list_members: "Deprecated; use `list_workspace_members`. Optional: `names`.",
+  list_public_channels: "Optional: `q`, `limit`.",
   list_workspace_members: "Optional: `names`, `displayNames`.",
   react_to_message: "`message_id`, `emoji`.",
   record_task_update: "`task_id`, `entry`. Optional: `expected_state_version`, `task_patch`, `resource_ops`.",

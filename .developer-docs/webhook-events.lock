@@ -6,7 +6,7 @@
     "files": [
       {
         "path": "packages/shared/src/product-events/event-registry.ts",
-        "sha256": "d97634d27b70f6f3c4bddc1d0faa56032330bc7b8778234a4a388023eb6b4a13"
+        "sha256": "f0e730916ed10722fd76f6e2b4a4793fafeb4c4ac544a42677f94771f6b2bd37"
       },
       {
         "path": "packages/shared/src/product-events/event-envelope.ts",
@@ -14,10 +14,10 @@
       },
       {
         "path": "packages/shared/src/product-events/webhook-events.ts",
-        "sha256": "654617fda262b1c52d180c858f29276083fe3b105022f5e3b733afe06f434dbb"
+        "sha256": "f77a38d45faafdaa3988ac90762cc21a18489d32e65d56a7de5976666654c2aa"
       }
     ],
-    "fingerprintSha256": "6a37fdf526b253233737185d408e4cc413a7ce5857f00a3eed1d3d760ceaa82d"
+    "fingerprintSha256": "a65a6b91ba19890a089c76d4edf138ebf0f99d6658f0a0ad72081ed74879211b"
   },
   "envelope": {
     "object": "event",
@@ -76,9 +76,7 @@
         "typeName": "CallWebhookObject",
         "notes": "Metadata-only."
       },
-      "relatedWebSocketEventIds": [
-        "call/ended"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "call.started",
@@ -91,9 +89,7 @@
         "typeName": "CallWebhookObject",
         "notes": "Metadata-only."
       },
-      "relatedWebSocketEventIds": [
-        "call/started"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "call.transcript.updated",
@@ -106,9 +102,7 @@
         "typeName": "CallTranscriptUpdatedWebhookObject",
         "notes": "Metadata-only."
       },
-      "relatedWebSocketEventIds": [
-        "call/transcript-updated"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "call.updated",
@@ -121,9 +115,7 @@
         "typeName": "CallWebhookObject",
         "notes": "Includes previous public attributes."
       },
-      "relatedWebSocketEventIds": [
-        "call/updated"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "conversation.archived",
@@ -135,9 +127,7 @@
         "status": "typed",
         "typeName": "ConversationResult"
       },
-      "relatedWebSocketEventIds": [
-        "conversation/archived"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "conversation.membership.created",
@@ -164,9 +154,7 @@
         "status": "typed",
         "typeName": "ConversationResult"
       },
-      "relatedWebSocketEventIds": [
-        "conversation/unarchived"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "message.created",
@@ -179,7 +167,8 @@
         "typeName": "MessageResult"
       },
       "relatedWebSocketEventIds": [
-        "member/message-new"
+        "member/message-new",
+        "member/message-update"
       ]
     },
     {
@@ -193,9 +182,7 @@
         "typeName": "MessageResult",
         "notes": "Includes previous_attributes.content."
       },
-      "relatedWebSocketEventIds": [
-        "member/message-update"
-      ]
+      "relatedWebSocketEventIds": []
     },
     {
       "type": "webhook.test",
