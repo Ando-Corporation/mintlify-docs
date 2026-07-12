@@ -155,9 +155,10 @@ on search routes when you need a time-bounded search.
 
 ## Writes and idempotency
 
-Every write request requires an `Idempotency-Key` header. Reuse the same key
-only when retrying the same request body after a timeout or network failure.
-Use a new key for a distinct message or task update.
+Message creation (`POST /conversations/{conversationId}/messages`) requires an
+`Idempotency-Key` header and replays idempotently. Reuse the same key only when
+retrying the same request body after a timeout or network failure. Use a new
+key for a distinct message.
 
 ```bash
 curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
@@ -174,6 +175,11 @@ curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
 
 Public API clients do not choose the author. Ando derives authorship from the
 API key or connected-agent identity.
+
+Task updates (`POST /tasks/{taskId}/updates`) accept an `Idempotency-Key`
+header but do not replay idempotently today. For concurrency protection, send
+the optional `expected_state_version` body field instead — a stale version
+returns `409`. Other write routes do not use idempotency keys.
 
 ## Errors
 
