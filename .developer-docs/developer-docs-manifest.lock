@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
   "artifact": "ando.developer_docs",
-  "generatedAt": "2026-06-03T23:24:55.356Z",
+  "generatedAt": "2026-07-12T19:29:36.114Z",
   "source": {
-    "commit": "4e5af1b3ebf74bf3f432dc6331d25dbd86253810",
+    "commit": "6eb23c8a43dd6a714d776d4c624586f33fa7666e",
     "repository": "Ando-Corporation/ando"
   },
   "inputs": {
     "openApi": {
       "path": "docs/api/public-api-v1.openapi.json",
-      "sha256": "d515a088784dcacf1baee07969dd01192ab5f519d7d69fe010e8248d7b89fafb"
+      "sha256": "27a426402e20064fa1317a91555438aeaac2cbf545ce05634098191f45eabe3a"
     },
     "publicMcp": {
       "path": "docs/architecture/generated/mcp-public-tools.json",
-      "sourceManifestHash": "ae2b3f2471078216",
-      "publicToolCount": 30,
+      "sourceManifestHash": "398a5ba9b12d51da",
+      "publicToolCount": 32,
       "publicApiOverlapToolCount": 17
     },
     "webhookEvents": {
       "path": "docs/api/generated/webhook-events.json",
-      "sourceFingerprintSha256": "6a37fdf526b253233737185d408e4cc413a7ce5857f00a3eed1d3d760ceaa82d",
+      "sourceFingerprintSha256": "a65a6b91ba19890a089c76d4edf138ebf0f99d6658f0a0ad72081ed74879211b",
       "eventCount": 10,
       "asyncApiGenerated": false
     }
@@ -27,9 +27,13 @@
   "openapi": {
     "title": "Ando Public API",
     "version": "v1",
-    "operationCount": 25,
+    "operationCount": 29,
     "requiredOperations": [
+      "abortFileUpload",
+      "completeFileUpload",
+      "createFile",
       "createWebhookEndpoint",
+      "getFile",
       "getWebhookEndpoint",
       "listWebhookDeliveries",
       "listWebhookEndpoints",
@@ -53,44 +57,44 @@
   },
   "artifacts": [
     {
-      "byteSize": 210644,
+      "byteSize": 236955,
       "path": "openapi.json",
-      "sha256": "e4773c6707a09479e888f4d384830972eff6a0d51939b021db1ce6467d387127"
+      "sha256": "3db65c0f4c08d5a9cd3bc325d0540b87e3049d2e59cbf7b9544818f7703d7f87"
     },
     {
-      "byteSize": 210644,
+      "byteSize": 236955,
       "path": "openapi-public-api-v1-latest.json",
-      "sha256": "e4773c6707a09479e888f4d384830972eff6a0d51939b021db1ce6467d387127"
+      "sha256": "3db65c0f4c08d5a9cd3bc325d0540b87e3049d2e59cbf7b9544818f7703d7f87"
     },
     {
-      "byteSize": 210644,
-      "path": "openapi-public-api-v1-2026-06-03.json",
-      "sha256": "e4773c6707a09479e888f4d384830972eff6a0d51939b021db1ce6467d387127"
+      "byteSize": 236955,
+      "path": "openapi-public-api-v1-2026-07-12.json",
+      "sha256": "3db65c0f4c08d5a9cd3bc325d0540b87e3049d2e59cbf7b9544818f7703d7f87"
     },
     {
-      "byteSize": 210644,
+      "byteSize": 236955,
       "path": "api-reference/openapi.json",
-      "sha256": "e4773c6707a09479e888f4d384830972eff6a0d51939b021db1ce6467d387127"
+      "sha256": "3db65c0f4c08d5a9cd3bc325d0540b87e3049d2e59cbf7b9544818f7703d7f87"
     },
     {
-      "byteSize": 31843,
+      "byteSize": 33652,
       "path": "mcp-public-tools.json",
-      "sha256": "3965396439046a82fdf2363f8245e0dd171013e83657bcaf8234b317491c8c50"
+      "sha256": "c7c86512a4e16d3f661a77fba172a827e4efe68d6dcd8fa78079a48aa11770f7"
     },
     {
-      "byteSize": 4087,
+      "byteSize": 4318,
       "path": "mcp-public-tools.mdx",
-      "sha256": "c25aa11173a29e1da9f5dd24953b3dc990f61599f8734f202420eeea03ffe50e"
+      "sha256": "c416cfee5bc88e582e24bfc0c3f819fe98ab309111f08f0d1d155392890e1535"
     },
     {
-      "byteSize": 6018,
+      "byteSize": 5803,
       "path": "webhook-events.json",
-      "sha256": "e12139c627d1db55fa0fb2f4797f4e69eb0f982d724f1ec22c8d4352f9f1ecd5"
+      "sha256": "ae77acba016d5c36cfd8fe3d5ce8c2e1d1f66c07d1a269ab0111f0b30ef2a2d9"
     },
     {
-      "byteSize": 2461,
+      "byteSize": 2392,
       "path": "webhook-events.mdx",
-      "sha256": "d7b5fdfda07a6069dfdb9b99045af731f09cb725cf6f996e54e6d56e31e458e1"
+      "sha256": "88a80f9a5382809b6ca3ab6d9ca226241d2a620f00dee9ab1c3add27306f1c2c"
     }
   ],
   "downstreamTransforms": [

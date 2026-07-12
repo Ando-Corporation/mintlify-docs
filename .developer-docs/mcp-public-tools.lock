@@ -5,12 +5,12 @@
   "source": {
     "manifestPath": "packages/shared/src/mcp/tool-manifest.ts",
     "manifestSchemaVersion": 1,
-    "manifestHash": "ae2b3f2471078216",
+    "manifestHash": "398a5ba9b12d51da",
     "openApiPath": "docs/api/public-api-v1.openapi.json"
   },
   "summary": {
-    "manifestToolCount": 47,
-    "publicToolCount": 30,
+    "manifestToolCount": 50,
+    "publicToolCount": 32,
     "publicApiOverlapToolCount": 17,
     "publicApiOverlapOperationIds": [
       "createConversationMessage",
@@ -34,18 +34,18 @@
     "byKind": {
       "create": 8,
       "delete": 2,
-      "list": 7,
+      "list": 9,
       "lookup": 6,
       "search": 6,
       "update": 1
     },
     "byAvailability": {
-      "always": 30
+      "always": 32
     },
     "excludedByReason": {
       "dormant": 2,
       "legacy_frozen": 2,
-      "managed_agent_only_auth": 5,
+      "managed_agent_only_auth": 6,
       "non_ando_surface": 8
     }
   },
@@ -260,6 +260,36 @@
         "operationId": "listConversationMessages",
         "operationSummary": "List conversation messages"
       },
+      "deprecation": null
+    },
+    {
+      "name": "get_conversation_threads",
+      "title": "Get Conversation Threads",
+      "summary": "MCP list tool for message.list_conversation_threads.",
+      "capabilityId": "message.list_conversation_threads",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.public_api",
+      "sharedWith": [],
+      "input": {
+        "name": "GetConversationThreadsInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "GetConversationThreadsResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
       "deprecation": null
     },
     {
@@ -653,6 +683,39 @@
         "replacementToolName": "list_workspace_members",
         "notes": "Legacy MCP name preserved while callers migrate to workspace-member vocabulary."
       }
+    },
+    {
+      "name": "list_public_channels",
+      "title": "List Public Channels",
+      "summary": "MCP list tool for conversation.channel_public.list.",
+      "capabilityId": "conversation.channel_public.list",
+      "surface": "ando",
+      "surfaces": [
+        "ando"
+      ],
+      "availability": "always",
+      "kind": "list",
+      "owner": "backend.mcp",
+      "sharedWith": [
+        "managed_agent_runtime",
+        "web"
+      ],
+      "input": {
+        "name": "ListPublicChannelsInput",
+        "shape": "mcp_specific"
+      },
+      "output": {
+        "name": "ListPublicChannelsResponse",
+        "shape": "mcp_specific"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "publicApi": null,
+      "deprecation": null
     },
     {
       "name": "list_workspace_members",
@@ -1154,6 +1217,10 @@
     },
     {
       "name": "list_agent_subscriptions",
+      "reason": "managed_agent_only_auth"
+    },
+    {
+      "name": "update_conversation_proactivity",
       "reason": "managed_agent_only_auth"
     },
     {
