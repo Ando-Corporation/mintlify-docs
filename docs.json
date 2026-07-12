@@ -176,17 +176,6 @@
                 ]
               },
               {
-                "group": "Files",
-                "tag": "Preview",
-                "openapi": "api-reference/openapi.json",
-                "pages": [
-                  "POST /files",
-                  "GET /files/{fileId}",
-                  "POST /files/{fileId}/complete",
-                  "POST /files/{fileId}/abort"
-                ]
-              },
-              {
                 "group": "Webhook endpoints",
                 "tag": "Preview",
                 "openapi": "api-reference/openapi.json",

@@ -382,6 +382,8 @@ const mcpToolInputSummaries = {
   get_call: "`call_id`.",
   get_call_transcript: "`call_id`. Optional: `limit`, `cursor`.",
   get_conversation_messages: "`conversation_id`. Optional: `author`, `limit`, `before`.",
+  get_conversation_threads:
+    "`conversation_id`. Optional: `limit`, `before`, `after`, `replies_per_thread`.",
   get_member: "Deprecated; use `get_workspace_member`. Required: `member_id`.",
   get_message: "`message_id`.",
   get_task: "`task_id`.",
@@ -393,6 +395,7 @@ const mcpToolInputSummaries = {
   list_conversation_members: "`conversation_id`.",
   list_conversations: "Optional: `q`, `limit`.",
   list_members: "Deprecated; use `list_workspace_members`. Optional: `names`.",
+  list_public_channels: "Optional: `q`, `limit`.",
   list_workspace_members: "Optional: `names`, `displayNames`.",
   react_to_message: "`message_id`, `emoji`.",
   record_task_update: "`task_id`, `entry`. Optional: `expected_state_version`, `task_patch`, `resource_ops`.",
@@ -406,6 +409,21 @@ const mcpToolInputSummaries = {
   search_workspace_members: "`q`. Optional: `query`, `limit`.",
   send_direct_message: "`member_ids`, `markdown_content`.",
   send_message: "`conversation_id`, `markdown_content`.",
+};
+
+// The monorepo artifact has no sidebar icon; the docs page carries one so it
+// matches its sibling docs/*.mdx pages. Re-inject it on every sync.
+const withMcpToolsSidebarIcon = (mcpPublicToolsMdxText) => {
+  if (
+    mcpPublicToolsMdxText == null ||
+    mcpPublicToolsMdxText.includes("\nicon:")
+  ) {
+    return mcpPublicToolsMdxText;
+  }
+  return mcpPublicToolsMdxText.replace(
+    /^(---\n[\s\S]*?)(\n---\n)/u,
+    "$1\nicon: cable$2"
+  );
 };
 
 const withMcpToolInputsColumn = ({ mcpPublicToolsMdxText, mcpPublicToolsText }) => {
@@ -731,12 +749,14 @@ const syncDeveloperDocs = ({
     artifactBundle,
     "mcp-public-tools.json"
   );
-  const mcpPublicToolsMdxText = withMcpToolInputsColumn({
-    mcpPublicToolsMdxText: withoutDuplicateFrontmatterTitleHeading(
-      findOptionalArtifactText(artifactBundle, "mcp-public-tools.mdx")
-    ),
-    mcpPublicToolsText,
-  });
+  const mcpPublicToolsMdxText = withMcpToolsSidebarIcon(
+    withMcpToolInputsColumn({
+      mcpPublicToolsMdxText: withoutDuplicateFrontmatterTitleHeading(
+        findOptionalArtifactText(artifactBundle, "mcp-public-tools.mdx")
+      ),
+      mcpPublicToolsText,
+    })
+  );
   const webhookEventsText = findOptionalArtifactText(
     artifactBundle,
     "webhook-events.json"
