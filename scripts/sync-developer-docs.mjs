@@ -411,6 +411,21 @@ const mcpToolInputSummaries = {
   send_message: "`conversation_id`, `markdown_content`.",
 };
 
+// The monorepo artifact has no sidebar icon; the docs page carries one so it
+// matches its sibling docs/*.mdx pages. Re-inject it on every sync.
+const withMcpToolsSidebarIcon = (mcpPublicToolsMdxText) => {
+  if (
+    mcpPublicToolsMdxText == null ||
+    mcpPublicToolsMdxText.includes("\nicon:")
+  ) {
+    return mcpPublicToolsMdxText;
+  }
+  return mcpPublicToolsMdxText.replace(
+    /^(---\n[\s\S]*?)(\n---\n)/u,
+    "$1\nicon: cable$2"
+  );
+};
+
 const withMcpToolInputsColumn = ({ mcpPublicToolsMdxText, mcpPublicToolsText }) => {
   if (mcpPublicToolsMdxText == null || mcpPublicToolsText == null) {
     return mcpPublicToolsMdxText;
@@ -734,12 +749,14 @@ const syncDeveloperDocs = ({
     artifactBundle,
     "mcp-public-tools.json"
   );
-  const mcpPublicToolsMdxText = withMcpToolInputsColumn({
-    mcpPublicToolsMdxText: withoutDuplicateFrontmatterTitleHeading(
-      findOptionalArtifactText(artifactBundle, "mcp-public-tools.mdx")
-    ),
-    mcpPublicToolsText,
-  });
+  const mcpPublicToolsMdxText = withMcpToolsSidebarIcon(
+    withMcpToolInputsColumn({
+      mcpPublicToolsMdxText: withoutDuplicateFrontmatterTitleHeading(
+        findOptionalArtifactText(artifactBundle, "mcp-public-tools.mdx")
+      ),
+      mcpPublicToolsText,
+    })
+  );
   const webhookEventsText = findOptionalArtifactText(
     artifactBundle,
     "webhook-events.json"

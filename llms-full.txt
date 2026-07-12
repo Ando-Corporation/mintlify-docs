@@ -139,7 +139,6 @@ curl -sS -X POST "$ANDO_API_BASE/conversations/$CONVERSATION_ID/messages" \
     "markdown_content": "Hello from the Ando API.",
     "explicit_context_message_ids": [],
     "image_urls": [],
-    "file_ids": [],
     "suppressed_link_preview_urls": []
   }'
 ```
