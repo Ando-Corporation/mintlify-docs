@@ -3024,18 +3024,6 @@ Use this guide to bring Slack work into Ando. Slack import brings historical mes
 
 ## Slack import {#slack-import}
 
-<iframe
-  src="https://www.loom.com/embed/e59bfcd90bdc4310a3a0dd39bb9ab46b"
-  title="Slack import tutorial video"
-  style={{
-    width: "100%",
-    aspectRatio: "16 / 9",
-    border: 0,
-    borderRadius: "8px",
-  }}
-  allowFullScreen
-/>
-
 ### Before you start
 
 Ando imports Slack history from the official Slack export `.zip` file. Export the data from Slack, download the ZIP when Slack emails you, then upload that original ZIP to Ando. Do not unzip, rename, or edit the export before uploading it.
@@ -3299,13 +3287,6 @@ Because `send_message` posts into Ando, treat the bridge as a write automation.
 Source: https://docs.ando.so/docs/managed-agents
 
 > Add an AI teammate that uses your team's tools and context to move work forward.
-
-<iframe
-  src="https://www.loom.com/embed/831bec2644b9449eb684fac29f475dfb"
-  title="Managed agents tutorial video"
-  style={{ width: "100%", aspectRatio: "100 / 62.7177700348432", border: 0, borderRadius: "8px" }}
-  allowFullScreen
-/>
 
 Managed agents are AI agents that belong to your workspace. They can join conversations, respond when mentioned, use the tools you give them, and work with the same context your team shares in Ando.
 
@@ -3720,13 +3701,6 @@ message-posting call.
 Source: https://docs.ando.so/docs/ando-mcp
 
 > Connect to Ando's hosted MCP server to search and fetch context from your workspace in MCP-capable clients and agents.
-
-<iframe
-  src="https://www.loom.com/embed/735cf66b9da0404ca5aa57176e6ba4de"
-  title="Ando MCP tutorial video"
-  style={{ width: "100%", aspectRatio: "100 / 62.82722513089005", border: 0, borderRadius: "8px" }}
-  allowFullScreen
-/>
 
 To have your MCP client or agent install Ando MCP for you, paste this into it:
 
